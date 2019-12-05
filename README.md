@@ -6,9 +6,11 @@
 
 
 <div align="center">
+
 [![Java&trade;](https://de.wikipedia.org/w/index.php?title=Datei:Java-Logo.svg)](https://www.java.com/de/)
-	[Jakarta&trade; EE](https://jakarta.ee/)
-	[XML/XSD/XSLT](https://www.w3.org/XML/)
+[Jakarta&trade; EE](https://jakarta.ee/)
+[XML/XSD/XSLT](https://www.w3.org/XML/)
+
 </div>
 
 ***
