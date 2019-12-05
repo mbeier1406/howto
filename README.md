@@ -17,7 +17,7 @@
 
 # HOWTOs
 
-##Java&trade; Tutorials
+## Java&trade; Tutorials
 
 * [Easy Random](https://github.com/j-easy/easy-random): Mit `EasyRandom` eigene Objekte mit Testdaten befüllen.
 
