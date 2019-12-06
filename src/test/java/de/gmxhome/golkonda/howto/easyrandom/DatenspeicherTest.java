@@ -12,7 +12,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jeasy.random.EasyRandom;
 import org.jeasy.random.EasyRandomParameters;
-import org.jeasy.random.EasyRandomParameters.Range;
 import org.jeasy.random.FieldPredicates;
 import org.jeasy.random.TypePredicates;
 import org.jeasy.random.api.Randomizer;
