@@ -23,7 +23,7 @@ public class DatumsSpeicher {
 
 	@Override
 	public String toString() {
-		return "WeitereDaten [datum=" + datum + "]";
+		return "DatumsSpeicher [datum=" + datum + "]";
 	}
 
 }

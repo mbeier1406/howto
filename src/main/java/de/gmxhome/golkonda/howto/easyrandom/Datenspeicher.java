@@ -1,5 +1,7 @@
 package de.gmxhome.golkonda.howto.easyrandom;
 
+import java.util.List;
+
 /**
  * Dieses Objekt soll mittels <a href="https://github.com/j-easy/easy-random">Easy Random</a> mit verschiedenen
  * Daten gefüllt werden. Dabei kommen sowohl einfache Datentypen als auch komplexe Objekte zum Einsatz.
@@ -23,6 +25,9 @@ public class Datenspeicher {
 	/** Das Datum soll so generiert werden, dass es in der Zukunft liegt */
 	private DatumsSpeicher datumsSpeicher;
 
+	/** Die Liste soll mit einer minimal und maximal vorgegebenen Länge erzeugt werden */
+	private List<DatumsSpeicher> listOfDatumsSpeicher;
+
 	public Integer getGanzeZahl() {
 		return ganzeZahl;
 	}
@@ -39,11 +44,15 @@ public class Datenspeicher {
 		return datumsSpeicher;
 	}
 
+	public List<DatumsSpeicher> getListOfDatumsSpeicher() {
+		return listOfDatumsSpeicher;
+	}
+
 	@Override
 	public String toString() {
 		return "Datenspeicher [ganzeZahl=" + ganzeZahl + ", zeichenKette=" + zeichenKette
 				+ ", nichtBenutzteZeichenKette=" + nichtBenutzteZeichenKette + ", datumsSpeicher=" + datumsSpeicher
-				+ "]";
+				+ ", listOfDatumsSpeicher=" + listOfDatumsSpeicher + "]";
 	}
 
 }

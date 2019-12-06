@@ -12,6 +12,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jeasy.random.EasyRandom;
 import org.jeasy.random.EasyRandomParameters;
+import org.jeasy.random.EasyRandomParameters.Range;
 import org.jeasy.random.FieldPredicates;
 import org.jeasy.random.TypePredicates;
 import org.jeasy.random.api.Randomizer;
@@ -38,6 +39,13 @@ public class DatenspeicherTest {
 	/** Die maximale Länge eines Teststrings soll {@value} Zeichen sein */
 	public static final int MAX_STR_LEN = 10;
 
+	/** Die minimale Länge einer Liste in {@linkplain Datenspeicher#getListOfDatumsSpeicher()} ist {@value} */
+	public static final int MIN_LIST_LEN = 2;
+
+	/** Die maximale Länge einer Liste in {@linkplain Datenspeicher#getListOfDatumsSpeicher()} ist {@value} */
+	public static final int MAX_LIST_LEN = 4;
+
+
 	/**
 	 * Erzeugt ein {@linkplain DatumsSpeicher}-Objekt mit einem zufälligen Datum, dass
 	 * bis zu zehn Monate in der Zukunft liegt.
@@ -58,6 +66,7 @@ public class DatenspeicherTest {
 		parameters = new EasyRandomParameters()
 				.stringLengthRange(MIN_STR_LEN, MAX_STR_LEN)
 				.excludeField(FieldPredicates.named("nichtBenutzteZeichenKette").and(FieldPredicates.inClass(Datenspeicher.class)))
+				.collectionSizeRange(MIN_LIST_LEN, MAX_LIST_LEN)
 				.excludeType(TypePredicates.inPackage("x.y.z")) // nicht existierendes Package ausschließen
 				.randomize(DatumsSpeicher.class, new DatumsSpeicherRandomizer()); // generiertes Datum soll in der Zukunft liegen 
 		generator = new EasyRandom(parameters);
@@ -74,6 +83,7 @@ public class DatenspeicherTest {
 	    assertTrue("Feld 'zeichenKette' hat nicht die korrekte Länge!",
 	    		datenspeicher.getZeichenKette().length() >= MIN_STR_LEN && datenspeicher.getZeichenKette().length() <= MAX_STR_LEN );
 	    assertTrue("Feld 'datumsSpeicher' liegt nicht in der Zukunft!", LocalDate.now().compareTo(datenspeicher.getDatumsSpeicher().getDatum()) < 0);
+	    assertTrue("Liste 'listOfDatumsSpeicher' hat nicht die korrekte Länge!", datenspeicher.getListOfDatumsSpeicher().size() >= MIN_LIST_LEN && datenspeicher.getListOfDatumsSpeicher().size() <= MAX_LIST_LEN);
 	}
 
 	/** Prüfen, ob eine Liste mit vorgegebener Länge korrekt erzeugt wird */
