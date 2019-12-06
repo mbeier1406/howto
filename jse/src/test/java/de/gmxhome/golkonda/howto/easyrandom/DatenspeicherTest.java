@@ -81,7 +81,7 @@ public class DatenspeicherTest {
 	    assertTrue("Feld 'nichtBenutzteZeichenKette' ist nicht null!", datenspeicher.getNichtBenutzteZeichenKette() == null);
 	    assertTrue("Feld 'zeichenKette' hat nicht die korrekte Länge!",
 	    		datenspeicher.getZeichenKette().length() >= MIN_STR_LEN && datenspeicher.getZeichenKette().length() <= MAX_STR_LEN );
-	    assertTrue("Feld 'datumsSpeicher' liegt nicht in der Zukunft!", LocalDate.now().compareTo(datenspeicher.getDatumsSpeicher().getDatum()) < 0);
+	    assertTrue("Feld 'datumsSpeicher' liegt nicht in der Zukunft!", LocalDate.now().compareTo(datenspeicher.getDatumsSpeicher().getDatum()) <= 0);
 	    assertTrue("Liste 'listOfDatumsSpeicher' hat nicht die korrekte Länge!", datenspeicher.getListOfDatumsSpeicher().size() >= MIN_LIST_LEN && datenspeicher.getListOfDatumsSpeicher().size() <= MAX_LIST_LEN);
 	}
 
