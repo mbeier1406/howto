@@ -5,14 +5,14 @@
 	<parent>
 		<groupId>de.gmxhome.golkonda</groupId>
 		<artifactId>howto</artifactId>
-	<version>0.0.0-SNAPSHOT</version>
+	<version>0.0.1-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>howto-jse</artifactId>
 	<packaging>war</packaging>
-	<name>howto-jse</name>
+	<name>${project.groupId}:${project.artifactId}</name>
 	<description>Kleine Java-Tutorials Java Standard-Edition</description>
 
 	<build>

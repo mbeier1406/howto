@@ -5,10 +5,11 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>de.gmxhome.golkonda</groupId>
 	<artifactId>howto</artifactId>
-	<version>0.0.0-SNAPSHOT</version>
+	<version>0.0.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
-	<name>howto</name>
+	<name>${project.groupId}:${project.artifactId}</name>
 	<description>Kleine Java-Tutorials</description>
+	<url>https://github.com/mbeier1406/howto</url>
 
 	<developers>
 		<developer>
@@ -16,12 +17,27 @@
 			<name>Martin Beier</name>
 			<email>Martin.Beier@gmx.de</email>
 			<url>http://www.golkonda.gmxhome.de/</url>
+			<organization>None</organization>
+			<organizationUrl>https://github.com/mbeier1406/</organizationUrl>
 			<roles>
 				<role>Developer</role>
 			</roles>
 		</developer>
 	</developers>
- 
+
+	<scm>
+	  <connection>scm:git:git://github.com/mbeier1406/howto.git</connection>
+	  <developerConnection>scm:git:ssh://github.com/mbeier1406/howto.git</developerConnection>
+	  <url>http://github.com/simpligility/ossrh-demo/tree/master</url>
+	</scm>
+
+	<licenses>
+		<license>
+			<name>The Apache License, Version 2.0</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+		</license>
+	</licenses>
+
 	<properties>
 		<org.apache.logging.log4j.version>2.3</org.apache.logging.log4j.version>
 		<org.hamcrest.version>1.3</org.hamcrest.version>
