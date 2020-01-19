@@ -53,7 +53,8 @@ Das Beispiel in `de.gmxhome.golkonda.howto.easyrandom.DatenspeicherTest` demonst
 
 Das Verfahren zum Hochladen von Artefakten zum zentralen Repository ist im
 [Apache Maven Guide](https://maven.apache.org/repository/guide-central-repository-upload.html) erläutert.
-Neben festgelegten Einträgen in dern POM werden auch PGP-Signaturen für die hochzuladenden Artefakte benötigt.
+Für dieses Projekt gibt es den entsprechenden [Jira Issue](https://issues.sonatype.org/browse/OSSRH-54607)
+Neben festgelegten Einträgen in der POM werden auch PGP-Signaturen für die hochzuladenden Artefakte benötigt.
 Das Einbinden in Kurzform:
 
 Benötigt wird GPG. Zunächst muss das Schlüsselpaar erzeugt werden, dann müssen die Einträge im Keyring angezeigt 
