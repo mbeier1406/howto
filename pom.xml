@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>de.gmxhome.golkonda</groupId>
 	<artifactId>howto</artifactId>
-	<version>0.0.4</version>
+	<version>0.0.5-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>${project.groupId}:${project.artifactId}</name>
 	<description>Kleine Java-Tutorials</description>
@@ -27,7 +27,7 @@
 	  <connection>scm:git:git://github.com/mbeier1406/howto.git</connection>
 	  <developerConnection>scm:git:ssh://github.com/mbeier1406/howto.git</developerConnection>
 	  <url>http://github.com/mbeier1406/howto</url>
-	  <tag>howto-0.0.4</tag>
+	  <tag>HEAD</tag>
   </scm>
 
 	<licenses>
