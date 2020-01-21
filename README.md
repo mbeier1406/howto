@@ -52,10 +52,45 @@ Das Beispiel in `de.gmxhome.golkonda.howto.easyrandom.DatenspeicherTest` demonst
 ### Artefakte auf Maven Central bereitstellen
 
 Das Verfahren zum Hochladen von Artefakten zum zentralen Repository ist im
-[Apache Maven Guide](https://maven.apache.org/repository/guide-central-repository-upload.html) erläutert.
+[Apache Maven Guide](https://maven.apache.org/repository/guide-central-repository-upload.html) erläutert
+(siehe den [OSSRH Guide](https://central.sonatype.org/pages/ossrh-guide.html) bzw.
+[Mohammad Nadeem's Guide](https://dzone.com/articles/publish-your-artifacts-to-maven-central) für Details).
 Für dieses Projekt gibt es den entsprechenden [Jira Issue](https://issues.sonatype.org/browse/OSSRH-54607)
 Neben festgelegten Einträgen in der POM werden auch PGP-Signaturen für die hochzuladenden Artefakte benötigt.
 Das Einbinden in Kurzform:
+
+Notwendige Einträge in der `settings.xml`:
+
+```xml
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd">
+	<pluginGroups>
+	</pluginGroups>
+	<proxies>
+	</proxies>
+	<servers>
+		<server>
+			<!-- entsprechend distributionManagement und nexus-staging-maven-plugin in der POM -->
+			<id>ossrh</id>
+			<username>mbeier1406</username>
+			<password>...</password>
+		</server>
+	</servers>
+    	<mirrors>
+    	</mirrors>
+	<profiles>
+		<profile>
+			<id>ossrh</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<properties>
+				<gpg.passphrase>...</gpg.passphrase>
+			</properties>
+		</profile>
+	</profiles>
+</settings>
+-->
+```
 
 Benötigt wird GPG. Zunächst muss das Schlüsselpaar erzeugt werden, dann müssen die Einträge im Keyring angezeigt 
 und der öffentliche Schlüssel (hier: `7BC5361C`) auf einen <em>public keyserver</em> hochgeladen werden.
@@ -152,5 +187,15 @@ sub  2048R/332CDA19  created: 2019-12-06  expires: 2021-12-05  usage: E
 gpg> quit
 ```
 
-Kein solcher Schlüssel vorhanden, ansonsten `key <0..n>; delkey` zum Löschen verwednen.  
+Kein solcher Schlüssel vorhanden, ansonsten `key <0..n>; delkey` zum Löschen verwenden.  
 
+Durchführen des Release mit:
+
+```shell
+$ mvn clean release:prepare release:perform
+$ git push–tags
+$ git push origin master
+```
+
+Das Artefakt ist unter dieser URL zu finden:
+[https://oss.sonatype.org/#nexus-search;quick~mbeier1406](https://oss.sonatype.org/#nexus-search;quick~mbeier1406)
