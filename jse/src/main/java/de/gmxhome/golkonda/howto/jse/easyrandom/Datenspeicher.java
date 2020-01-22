@@ -1,4 +1,4 @@
-package de.gmxhome.golkonda.howto.easyrandom;
+package de.gmxhome.golkonda.howto.jse.easyrandom;
 
 import java.util.List;
 

@@ -194,7 +194,7 @@ Durchführen des Release mit:
 
 ```shell
 $ mvn clean release:prepare release:perform
-$ git push–tags
+$ git push --tags
 $ git push origin master
 ```
 

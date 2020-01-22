@@ -1,4 +1,4 @@
-package de.gmxhome.golkonda.howto.easyrandom;
+package de.gmxhome.golkonda.howto.jse.easyrandom;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -17,6 +17,9 @@ import org.jeasy.random.TypePredicates;
 import org.jeasy.random.api.Randomizer;
 import org.junit.Before;
 import org.junit.Test;
+
+import de.gmxhome.golkonda.howto.jse.easyrandom.Datenspeicher;
+import de.gmxhome.golkonda.howto.jse.easyrandom.DatumsSpeicher;
 
 /**
  * Tests für die Klasse {@linkplain Datenspeicher}.
