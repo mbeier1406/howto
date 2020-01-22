@@ -41,7 +41,7 @@ Um ein Objekt `Objekt.class` mit zufälligen Daten zu befüllen, reicht folgende
 EasyRandom easyRandom = new EasyRandom();
 Person person = easyRandom.nextObject(<Objekt.class>);
 ```
-Das Beispiel in [de.gmxhome.golkonda.howto.easyrandom.DatenspeicherTest](https://github.com/mbeier1406/howto/blob/master/jse/src/test/java/de/gmxhome/golkonda/howto/easyrandom/DatenspeicherTest.java)
+Das Beispiel in [de.gmxhome.golkonda.howto.easyrandom.DatenspeicherTest](https://github.com/mbeier1406/howto/blob/master/jse/src/test/java/de/gmxhome/golkonda/howto/jse/easyrandom/DatenspeicherTest.java)
 demonstriert die Anwendung für Standardfälle.
 
 ## Jakarta&trade; EE
