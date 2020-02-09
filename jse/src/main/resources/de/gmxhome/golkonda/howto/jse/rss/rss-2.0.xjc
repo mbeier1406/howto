@@ -1,0 +1,12 @@
+<bindings xmlns="http://java.sun.com/xml/ns/jaxb"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc"
+	xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
+	xmlns:annox="http://annox.dev.java.net"
+	jaxb:version="2.0" >
+	<jaxb:bindings schemaLocation="./rss-2.0.xsd">
+		<jaxb:schemaBindings>
+			<jaxb:package name="de.gmxhome.golkonda.howto.jse.rss"/>
+		</jaxb:schemaBindings>
+	</jaxb:bindings>
+</bindings>

@@ -13,6 +13,81 @@
 	<name>${project.groupId}:${project.artifactId}</name>
 	<description>Kleine Java-Tutorials Java Standard-Edition</description>
 
+	<properties>
+		<rss.xsd.src.dir>src/main/resources/de/gmxhome/golkonda/howto/jse/rss</rss.xsd.src.dir>
+		<rss.xsd.gen.dir>${project.build.directory}/generated-sources/xsd</rss.xsd.gen.dir>
+	</properties>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.cxf</groupId>
+				<artifactId>cxf-xjc-plugin</artifactId>
+				<version>3.3.1</version>
+				<configuration>
+					<sourceRoot>${rss.xsd.gen.dir}</sourceRoot>
+					<xsdOptions>
+						<xsdOption>
+							<extension>true</extension>
+							<extensionArgs>
+								<extensionArg>-Xjavadoc</extensionArg>
+								<extensionArg>-XtoString</extensionArg>
+								<extensionArg>-Xequals</extensionArg>
+								<extensionArg>-XhashCode</extensionArg>
+								<extensionArg>-Xinheritance</extensionArg>
+								<extensionArg>-Xcopyable</extensionArg>
+								<extensionArg>-npa</extensionArg>
+								<extensionArg>-encoding</extensionArg>
+								<extensionArg>${project.build.sourceEncoding}</extensionArg>
+							</extensionArgs>
+						</xsdOption>
+					</xsdOptions>
+					<extensions>
+						<extension>org.apache.cxf.xjcplugins:cxf-xjc-dv:3.3.0</extension>
+						<extension>org.apache.cxf.xjcplugins:cxf-xjc-ts:3.3.0</extension>
+						<extension>org.apache.cxf.xjcplugins:cxf-xjc-javadoc:3.3.0</extension>
+						<extension>org.jvnet.jaxb2_commons:jaxb2-basics:1.11.1</extension>
+					</extensions>
+				</configuration>
+				<executions>
+					<execution>
+						<id>rss-gen-code</id>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>xsdtojava</goal>
+						</goals>
+						<configuration>
+							<xsdOptions>
+								<xsdOption>
+									<xsd>${rss.xsd.src.dir}/rss-2.0.xsd</xsd>
+									<bindingFile>${rss.xsd.src.dir}/rss-2.0.xjc</bindingFile>
+								</xsdOption>
+							</xsdOptions>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>build-helper-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>rss-add-sources</id>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>add-source</goal>
+						</goals>
+						<configuration>
+							<sources>
+								<source>${rss.xsd.gen.dir}</source>
+							</sources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+
 	<dependencies>
 		<dependency>
 			<groupId>org.jeasy</groupId>
@@ -20,10 +95,32 @@
 			<version>4.1.0</version>
 		</dependency>
 		<dependency>
-		    <groupId>io.github.glytching</groupId>
-		    <artifactId>junit-extensions</artifactId>
-		    <version>2.3.0</version>
-		    <scope>test</scope>
+			<groupId>javax.xml.bind</groupId>
+			<artifactId>jaxb-api</artifactId>
+			<version>2.3.1</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.glassfish.jaxb</groupId>
+			<artifactId>jaxb-runtime</artifactId>
+			<version>2.3.1</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.jvnet.jaxb2_commons</groupId>
+			<artifactId>jaxb2-basics-runtime</artifactId>
+			<version>1.11.1</version>
+		</dependency>
+		<dependency>
+			<groupId>io.github.glytching</groupId>
+			<artifactId>junit-extensions</artifactId>
+			<version>2.3.0</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.cxf</groupId>
+			<artifactId>cxf-xjc-plugin</artifactId>
+			<version>3.3.0</version>
 		</dependency>
 	</dependencies>
 
