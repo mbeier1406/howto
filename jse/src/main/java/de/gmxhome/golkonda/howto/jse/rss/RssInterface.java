@@ -26,4 +26,10 @@ public interface RssInterface {
 	 */
 	public String getTitle();
 
+	/**
+	 * <p>Liefert den Link zur Webseite der RSS-Nachricht, wie sie im XML-Tag {@code /rss/channel/link} angegeben ist.</p>
+	 * @return Den Link zur Webseite der RSS-Nachricht
+	 */
+	public String getLink();
+
 }

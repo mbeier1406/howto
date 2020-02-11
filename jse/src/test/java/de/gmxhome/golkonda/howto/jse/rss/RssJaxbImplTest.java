@@ -46,4 +46,12 @@ public class RssJaxbImplTest {
 		assertEquals("Erwartet: Titel "+titelErwartet, titelErwartet, rss.getTitle());
 	}
 
+	/** Prüft, ob der Link zur Webseite korrekt ermittelt wird ({@linkplain RssInterface#getLink())}) */
+	@Test
+	public void testeLink() {
+		String linkErwartet = "https://www.spiegel.de/";
+		LOGGER.info("Link={} (erwartet={})", rss.getLink(), linkErwartet);
+		assertEquals("Erwartet: Link "+linkErwartet, linkErwartet, rss.getLink());
+	}
+
 }

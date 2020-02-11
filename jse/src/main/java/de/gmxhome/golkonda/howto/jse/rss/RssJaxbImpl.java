@@ -70,4 +70,10 @@ public class RssJaxbImpl implements RssInterface {
 		return tRssInfo.get(new QName("title"));
 	}
 
+	/** {@inheritDoc} */
+	@Override
+	public String getLink() {
+		return tRssInfo.get(new QName("link"));
+	}
+
 }
