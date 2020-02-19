@@ -3,11 +3,14 @@ package de.gmxhome.golkonda.howto.jse.rss;
 import static org.junit.Assert.assertEquals;
 
 import java.math.BigDecimal;
+import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 /**
  * Tests für die Implementierung {@linkplain RssJaxbImpl}.
@@ -24,34 +27,38 @@ public class RssJaxbImplTest {
 	/** Das zu testende Objekt */
 	public static RssInterface rss;
 
-	/** Erzeugt {@linkplain #rss} aus der Datei in {@value #RSS_FEED} */
-	@BeforeClass
-	public static void init() throws Exception {
+	/**
+	 * Prüft ein bestimmtes Property aus {@linkplain #rss}.
+	 * @param text Hinweis, welches Attribut überprüft wird
+	 * @param expected der erwartete Wert
+	 * @param s der Getter aus {@linkplain #rss}, der den zu überprüfenden Wert liefert
+	 */
+	@ParameterizedTest
+	@MethodSource("rssArgs")
+	public void testeRss(String text, Object expected, Supplier<?> s) {
+		LOGGER.trace("text={}, expected={}, get={}", text, expected, s.get());
+		assertEquals("Erwartet "+text+":"+expected, expected, s.get());
+	}
+
+	/**
+	 * Liefert die Testwerte für {@linkplain #testeRss(String, Object, Supplier)} und
+	 * erzeugt {@linkplain #rss} aus der Datei in {@value #RSS_FEED}. Folgende Testfälle
+	 * werden überprüft:
+	 * <ol>
+	 * <li><u>Version</u>: Prüft, ob die Version korrekt ermittelt wird ({@linkplain RssInterface#getVersion()})</li>
+	 * <li><u>Titel</u>: Prüft, ob der Titel korrekt ermittelt wird ({@linkplain RssInterface#getTitle())})</li>
+	 * <li><u>Link</u>: Prüft, ob der Link zur Webseite korrekt ermittelt wird ({@linkplain RssInterface#getLink())})</li>
+	 * </ol>
+	 * @return den jeweiligen Testfall
+	 * @throws Exception falls der Feed {@value #RSS_FEED} nicht eingelesen werden kann
+	 */
+	private static Stream<Arguments> rssArgs() throws Exception {
 		rss = new RssJaxbImpl(RSS_FEED);
-	}
-
-	/** Prüft, ob die Version korrekt ermittelt wird ({@linkplain RssInterface#getVersion()}) */
-	@Test
-	public void testeVersion() {
-		String versionErwartet = "2.0";
-		LOGGER.info("Version={} (erwartet={})", rss.getVersion(), versionErwartet);
-		assertEquals("Erwartet: Version "+versionErwartet, new BigDecimal(versionErwartet), rss.getVersion());
-	}
-
-	/** Prüft, ob der Titel korrekt ermittelt wird ({@linkplain RssInterface#getTitle())}) */
-	@Test
-	public void testeTitel() {
-		String titelErwartet = "DER SPIEGEL - Schlagzeilen - Tops";
-		LOGGER.info("Titel={} (erwartet={})", rss.getVersion(), titelErwartet);
-		assertEquals("Erwartet: Titel "+titelErwartet, titelErwartet, rss.getTitle());
-	}
-
-	/** Prüft, ob der Link zur Webseite korrekt ermittelt wird ({@linkplain RssInterface#getLink())}) */
-	@Test
-	public void testeLink() {
-		String linkErwartet = "https://www.spiegel.de/";
-		LOGGER.info("Link={} (erwartet={})", rss.getLink(), linkErwartet);
-		assertEquals("Erwartet: Link "+linkErwartet, linkErwartet, rss.getLink());
+	    return Stream.of(
+	    	Arguments.of("Version", new BigDecimal("2.0"), (Supplier<?>) rss::getVersion),
+	    	Arguments.of("Titel", "DER SPIEGEL - Schlagzeilen - Tops", (Supplier<?>) rss::getTitle),
+	    	Arguments.of("Link", "https://www.spiegel.de/", (Supplier<?>) rss::getLink)
+	    );
 	}
 
 }
