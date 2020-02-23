@@ -32,4 +32,8 @@ public interface RssInterface {
 	 */
 	public String getLink();
 
+	/*
+	 * TODO: die weiteren Getter für die enthaltenen Daten
+	 */
+
 }
