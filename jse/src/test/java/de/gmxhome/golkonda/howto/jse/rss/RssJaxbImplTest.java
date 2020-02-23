@@ -57,7 +57,8 @@ public class RssJaxbImplTest {
 	    return Stream.of(
 	    	Arguments.of("Version", new BigDecimal("2.0"), (Supplier<?>) rss::getVersion),
 	    	Arguments.of("Titel", "DER SPIEGEL - Schlagzeilen - Tops", (Supplier<?>) rss::getTitle),
-	    	Arguments.of("Link", "https://www.spiegel.de/", (Supplier<?>) rss::getLink)
+	    	Arguments.of("Link", "https://www.spiegel.de/", (Supplier<?>) rss::getLink),
+	    	Arguments.of("description", "Deutschlands führende Nachrichtenseite.", (Supplier<?>) rss::getDescription)
 	    );
 	}
 

@@ -1,11 +1,12 @@
 package de.gmxhome.golkonda.howto.jse.rss;
 
-import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 
+import java.math.BigDecimal;
 import java.util.stream.IntStream;
 
 import org.apache.logging.log4j.LogManager;
@@ -25,6 +26,9 @@ public class RssStaxFeedMessageTest {
 	/** Es werden {@value} Feeds eingestellt */
 	public static final int ANZAHL_FEEDS = 3;
 
+	/** RSS-Version ist {@value} */
+	public static final BigDecimal VERSION = new BigDecimal("2.0");
+
 	/** Das zu testende Objekt */
 	public static RssStaxFeedMessage rssStaxFeedMessage;
 
@@ -35,7 +39,7 @@ public class RssStaxFeedMessageTest {
 	@BeforeClass
 	public static void init() {
 		generator = new EasyRandom();
-		rssStaxFeedMessage = new RssStaxFeedMessage(RssStaxFeedTest.TITLE, RssStaxFeedTest.DESCRIPTION);
+		rssStaxFeedMessage = new RssStaxFeedMessage(RssStaxFeedTest.TITLE, VERSION, RssStaxFeedTest.LINK, RssStaxFeedTest.DESCRIPTION);
 		IntStream.range(0, ANZAHL_FEEDS).forEach(i -> rssStaxFeedMessage.addRssStaxFeed(generator.nextObject(RssStaxFeed.class)));
 	}
 
@@ -45,6 +49,8 @@ public class RssStaxFeedMessageTest {
 		LOGGER.info("rssStaxFeedMessage={}", rssStaxFeedMessage);
 		assertThat(rssStaxFeedMessage, allOf(
 				hasProperty("title", is(RssStaxFeedTest.TITLE)),
+				hasProperty("version", is(VERSION)),
+				hasProperty("link", is(RssStaxFeedTest.LINK)),
 				hasProperty("description", is(RssStaxFeedTest.DESCRIPTION)),
 				hasProperty("feedList", hasSize(ANZAHL_FEEDS))));
 	}

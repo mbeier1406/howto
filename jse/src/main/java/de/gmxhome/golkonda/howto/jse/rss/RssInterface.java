@@ -32,6 +32,12 @@ public interface RssInterface {
 	 */
 	public String getLink();
 
+	/**
+	 * <p>Liefert eine Beschreibung zur Webseite der RSS-Nachricht, wie sie im XML-Tag {@code /rss/channel/description} angegeben ist.</p>
+	 * @return Eine Beschreibung zur Webseite der RSS-Nachricht
+	 */
+	public String getDescription();
+
 	/*
 	 * TODO: die weiteren Getter für die enthaltenen Daten
 	 */

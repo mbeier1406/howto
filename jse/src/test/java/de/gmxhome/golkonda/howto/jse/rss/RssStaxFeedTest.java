@@ -1,8 +1,8 @@
 package de.gmxhome.golkonda.howto.jse.rss;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.Matchers.is;
 
 import org.apache.logging.log4j.LogManager;

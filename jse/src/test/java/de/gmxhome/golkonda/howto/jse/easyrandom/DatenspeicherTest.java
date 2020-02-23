@@ -18,9 +18,6 @@ import org.jeasy.random.api.Randomizer;
 import org.junit.Before;
 import org.junit.Test;
 
-import de.gmxhome.golkonda.howto.jse.easyrandom.Datenspeicher;
-import de.gmxhome.golkonda.howto.jse.easyrandom.DatumsSpeicher;
-
 /**
  * Tests für die Klasse {@linkplain Datenspeicher}.
  * @author mbeier
