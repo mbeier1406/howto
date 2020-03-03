@@ -21,7 +21,7 @@
 
 * JEE
 * JSE
-    * [Easy Random](https://github.com/j-easy/easy-random): Mit `EasyRandom` eigene Objekte mit Testdaten befüllen.
+    * [Easy Random](./howto-jse/doc/easyrandom.md): Mit `EasyRandom` eigene Objekte mit Testdaten befüllen.
     * [RSS](https://www.rss-readers.org/einfuehrung-in-rss/): RSS-Feeds einlesen.
 
 ### JEE
@@ -29,6 +29,7 @@
 ### JSE
 
 ####Easy Random
+
 Um für Unit-Tests etc. zufällige Testdaten generieren zu können, kann das [Easy Random](https://github.com/j-easy/easy-random)
 Projekt verwendet werden. Eine einfache Maven-Abhängigkeit reicht:
 
