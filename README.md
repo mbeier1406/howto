@@ -21,7 +21,7 @@
 
 * JEE
 * JSE
-    * [Easy Random](howto-jse/doc/easyrandom.md): Mit `EasyRandom` eigene Objekte mit Testdaten befüllen.
+    * [Easy Random](https://github.com/mbeier1406/howto/blob/master/jse/doc/easyrandom.md): Mit `EasyRandom` eigene Objekte mit Testdaten befüllen.
     * [RSS](https://www.rss-readers.org/einfuehrung-in-rss/): RSS-Feeds einlesen.
 
 ### JEE
