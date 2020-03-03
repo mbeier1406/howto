@@ -24,10 +24,6 @@
     * [Easy Random](https://github.com/mbeier1406/howto/blob/master/jse/doc/easyrandom.md): Mit `EasyRandom` eigene Objekte mit Testdaten befüllen.
     * [RSS](https://www.rss-readers.org/einfuehrung-in-rss/): RSS-Feeds einlesen.
 
-### JEE
-
-### JSE
-
 ####Easy Random
 
 Um für Unit-Tests etc. zufällige Testdaten generieren zu können, kann das [Easy Random](https://github.com/j-easy/easy-random)

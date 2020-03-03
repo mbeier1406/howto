@@ -1,4 +1,13 @@
-#Easy Random
+***
+
+<div align="center">
+    <b><em>howto-jse</em></b><br>
+    Kleine Beispiele und Tools zur Demonstration nützlicher Java Standard-Edition-Technologien
+</div>
+
+***
+
+# Easy Random
 
 Um für Unit-Tests etc. zufällige Testdaten generieren zu können, kann das [Easy Random](https://github.com/j-easy/easy-random)
 Projekt verwendet werden. Eine einfache Maven-Abhängigkeit reicht:
