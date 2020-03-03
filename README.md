@@ -22,36 +22,7 @@
 * JEE
 * JSE
     * [Easy Random](https://github.com/mbeier1406/howto/blob/master/jse/doc/easyrandom.md): Mit `EasyRandom` eigene Objekte mit Testdaten befüllen.
-    * [RSS](https://www.rss-readers.org/einfuehrung-in-rss/): RSS-Feeds einlesen.
-
-####Easy Random
-
-Um für Unit-Tests etc. zufällige Testdaten generieren zu können, kann das [Easy Random](https://github.com/j-easy/easy-random)
-Projekt verwendet werden. Eine einfache Maven-Abhängigkeit reicht:
-
-```xml
-<dependency>
-    <groupId>org.jeasy</groupId>
-    <artifactId>easy-random-core</artifactId>
-    <version>Version</version>
-</dependency>
-```
-
-Um ein Objekt `Objekt.class` mit zufälligen Daten zu befüllen, reicht folgender Aufruf: 
-
-```java
-EasyRandom easyRandom = new EasyRandom();
-Person person = easyRandom.nextObject(<Objekt.class>);
-```
-Das Beispiel in [de.gmxhome.golkonda.howto.easyrandom.DatenspeicherTest](https://github.com/mbeier1406/howto/blob/master/jse/src/test/java/de/gmxhome/golkonda/howto/jse/easyrandom/DatenspeicherTest.java)
-demonstriert die Anwendung für Standardfälle.
-
-#### RSS
-
-In diesem Beispiel wird ein [RSS-Feed](https://www.rss-readers.org/einfuehrung-in-rss/) eingelesen
-und in eine Java Objekt umgewandelt. Es wird eine Implementierung mit Verwendung von JAXB2
-([de.gmxhome.golkonda.howto.jse.rss.RssJaxbImpl](https://github.com/mbeier1406/howto/blob/master/jse/src/main/java/de/gmxhome/golkonda/howto/jse/rss/RssJaxbImpl.java)) und eine mit Stax
-([de.gmxhome.golkonda.howto.jse.rss.RSSFeedStaxParser](https://github.com/mbeier1406/howto/blob/master/jse/src/main/java/de/gmxhome/golkonda/howto/jse/rss/RSSFeedStaxParser.java)) bereitgestellt.
+    * [RSS](https://github.com/mbeier1406/howto/blob/master/jse/doc/rss.md): RSS-Feeds einlesen.
 
 ## Jakarta&trade; EE
 
