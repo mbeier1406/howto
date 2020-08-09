@@ -1,4 +1,7 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project
+	xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
 	<parent>
 		<groupId>com.github.mbeier1406</groupId>
@@ -12,6 +15,7 @@
 	<packaging>war</packaging>
 	<name>${project.groupId}:${project.artifactId}</name>
 	<description>Kleine Java-Tutorials Java Enterprise-Edition</description>
+	<url>http://golkonda.gmxhome.de/</url>
 
 	<build>
 		<plugins>
@@ -68,8 +72,26 @@
 		</pluginManagement>
 	</build>
 
+	<dependencyManagement>
+	    <dependencies>
+	        <dependency>
+	            <groupId>org.jboss.arquillian</groupId>
+	            <artifactId>arquillian-bom</artifactId>
+	            <version>1.6.0.Final</version>
+	            <scope>import</scope>
+	            <type>pom</type>
+	        </dependency>
+	    </dependencies>
+	</dependencyManagement>
 
 	<dependencies>
+	    <dependency>
+	        <groupId>org.jboss.spec</groupId>
+	        <artifactId>jboss-javaee-7.0</artifactId>
+	        <version>1.0.3.Final</version>
+	        <type>pom</type>
+	        <scope>provided</scope>
+	    </dependency>
 	</dependencies>
 
 	<profiles>
@@ -85,8 +107,36 @@
 					<scope>test</scope>
 				</dependency>
 				<dependency>
+					<groupId>junit</groupId>
+					<artifactId>junit</artifactId>
+					<version>4.13</version>
+					<scope>test</scope>
+				</dependency>
+				<dependency>
 				    <groupId>org.hamcrest</groupId>
 				    <artifactId>hamcrest-all</artifactId>
+				    <scope>test</scope>
+				</dependency>
+				<dependency>
+				    <groupId>org.jboss.arquillian.junit</groupId>
+				    <artifactId>arquillian-junit-container</artifactId>
+				    <scope>test</scope>
+				</dependency>
+				<dependency>
+				    <groupId>org.jboss.arquillian.container</groupId>
+				    <artifactId>arquillian-weld-ee-embedded-1.1</artifactId>
+				    <version>1.0.0.Final</version>
+				    <scope>test</scope>
+				</dependency>
+				<dependency>
+				    <groupId>org.jboss.weld</groupId>
+				    <artifactId>weld-core</artifactId>
+				    <version>2.4.8.Final</version>
+				    <scope>test</scope>
+				</dependency>
+				<dependency>
+				    <groupId>org.slf4j</groupId>
+				    <artifactId>slf4j-simple</artifactId>
 				    <scope>test</scope>
 				</dependency>
 			</dependencies>
