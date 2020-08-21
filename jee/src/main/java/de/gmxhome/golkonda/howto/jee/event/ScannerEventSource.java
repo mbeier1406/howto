@@ -1,5 +1,7 @@
 package de.gmxhome.golkonda.howto.jee.event;
 
+import static org.apache.logging.log4j.CloseableThreadContext.put;
+
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
 
@@ -41,7 +43,7 @@ public class ScannerEventSource {
 	 * @see #sendEventStop(int, String)
 	 */
 	public void sendEvent(Event<ScannerEvent> event, ScannerEvent scannerEvent) {
-		try ( final CloseableThreadContext.Instance ctc = CloseableThreadContext.put("scannerEvent", scannerEvent.toString()).put("event", event.toString()) ) {
+		try ( final CloseableThreadContext.Instance ctc = put("scannerEvent", scannerEvent.toString()).put("event", event.toString()) ) {
 			event.fire(scannerEvent);
 		}
 		catch ( Exception e ) {

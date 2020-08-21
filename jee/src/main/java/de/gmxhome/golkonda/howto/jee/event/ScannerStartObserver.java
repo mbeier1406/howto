@@ -9,10 +9,12 @@ import de.gmxhome.golkonda.howto.jee.event.annotation.ScannerStart;
 
 /**
  * Empfänger für einen Scanner-Start-Event. Beispiel-Sender in{@linkplain ScannerEventSource}.
+ * Die eingehenden Events werden in der {@linkplain ScannerRegistry} registriert.
  * @author mbeier
  * @see ScannerEvent
  */
-public class ScannerStartObserver {
+//@ApplicationScoped
+public class ScannerStartObserver extends ScannerObserver {
 
 	public static final Logger LOGGER = LogManager.getLogger(ScannerStartObserver.class);
 
@@ -20,8 +22,11 @@ public class ScannerStartObserver {
 	 * Verarbeitet einen Event, der den Start eines Scanners anzeigt.
 	 * @param scannerEvent der Event mit den Details des betroffenen Scanners
 	 */
-	public void observerEvent(@Observes @ScannerStart ScannerEvent scannerEvent) {
+	public void observerEvent(@Observes/*(notifyObserver = IF_EXISTS)*/ @ScannerStart ScannerEvent scannerEvent) {
 		LOGGER.trace("scannerEvent={}", scannerEvent);
+		this.scannerEvent = scannerEvent;
+		scannerRegistry.registerScannerStart();
 	}
+
 }
 

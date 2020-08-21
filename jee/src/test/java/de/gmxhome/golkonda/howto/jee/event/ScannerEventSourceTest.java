@@ -2,6 +2,7 @@ package de.gmxhome.golkonda.howto.jee.event;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.is;
 
 import javax.inject.Inject;
 
@@ -29,6 +30,10 @@ public class ScannerEventSourceTest {
 	@Inject
 	public ScannerEventSource scannerEventSource;
 
+	/** Registratur für Start-Events zur Funktionsprüfung */
+	@Inject
+	private ScannerRegistry scannerRegistry;
+
 	/** Das zu testende Archiv mit dem Objekt {@linkplain ScannerEventSource} */
 	@Deployment
 	public static JavaArchive createDeployment() {
@@ -48,12 +53,14 @@ public class ScannerEventSourceTest {
 	@Test
 	public void testeScannerStart() {
 		scannerEventSource.sendEventStart(1, "daten");
+		assertThat(scannerRegistry.getRegisterScannerStart(), is(1));
 	}
 
 	/** Einen "Scanner stoppt"-Event senden */
 	@Test
 	public void testeScannerStop() {
 		scannerEventSource.sendEventStop(1, "daten");
+		assertThat(scannerRegistry.getRegisterScannerStop(), is(1));
 	}
 
 }

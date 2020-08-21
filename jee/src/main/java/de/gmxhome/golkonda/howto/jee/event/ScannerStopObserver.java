@@ -1,5 +1,7 @@
 package de.gmxhome.golkonda.howto.jee.event;
 
+import static javax.enterprise.event.Reception.ALWAYS;
+
 import javax.enterprise.event.Observes;
 
 import org.apache.logging.log4j.LogManager;
@@ -9,10 +11,11 @@ import de.gmxhome.golkonda.howto.jee.event.annotation.ScannerStop;
 
 /**
  * Empfänger für einen Scanner-Stop-Event. Beispiel-Sender in{@linkplain ScannerEventSource}.
+ * Die eingehenden Events werden in der {@linkplain ScannerRegistry} registriert.
  * @author mbeier
  * @see ScannerEvent
  */
-public class ScannerStopObserver {
+public class ScannerStopObserver extends ScannerObserver {
 
 	public static final Logger LOGGER = LogManager.getLogger(ScannerStopObserver.class);
 
@@ -20,8 +23,11 @@ public class ScannerStopObserver {
 	 * Verarbeitet einen Event, der den Stopp eines Scanners anzeigt.
 	 * @param scannerEvent der Event mit den Details des betroffenen Scanners
 	 */
-	public void observerEvent(@Observes @ScannerStop ScannerEvent scannerEvent) {
+	public void observerEvent(@Observes(notifyObserver = ALWAYS) @ScannerStop ScannerEvent scannerEvent) {
 		LOGGER.trace("scannerEvent={}", scannerEvent);
+		this.scannerEvent = scannerEvent;
+		scannerRegistry.registerScannerStop();
 	}
+
 }
 
