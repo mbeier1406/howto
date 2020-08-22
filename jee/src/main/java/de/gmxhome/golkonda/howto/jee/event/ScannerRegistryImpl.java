@@ -14,7 +14,7 @@ public class ScannerRegistryImpl implements ScannerRegistry {
 
 	public static final Logger LOGGER = LogManager.getLogger(ScannerRegistryImpl.class);
 
-	private int numScannerStart = 0, numScannerStop = 0;
+	private int numScannerStart = 0, numScannerStop = 0, numScannerEvent = 0;
 
 	/** {@inheritDoc} */
 	@Override
@@ -30,6 +30,12 @@ public class ScannerRegistryImpl implements ScannerRegistry {
 
 	/** {@inheritDoc} */
 	@Override
+	public synchronized void registerScannerEvent() {
+		numScannerEvent++;
+	}
+
+	/** {@inheritDoc} */
+	@Override
 	public int getRegisterScannerStart() {
 		return numScannerStart;
 	}
@@ -40,9 +46,16 @@ public class ScannerRegistryImpl implements ScannerRegistry {
 		return numScannerStop;
 	}
 
+	/** {@inheritDoc} */
+	@Override
+	public int getRegisterScannerEvent() {
+		return numScannerEvent;
+	}
+
 	@Override
 	public String toString() {
-		return "ScannerRegistryImpl [numScannerStart=" + numScannerStart + ", numScannerStop=" + numScannerStop + "]";
+		return "ScannerRegistryImpl [numScannerStart=" + numScannerStart + ", numScannerStop=" + numScannerStop
+				+ ", numScannerEvent=" + numScannerEvent + "]";
 	}
 
 }

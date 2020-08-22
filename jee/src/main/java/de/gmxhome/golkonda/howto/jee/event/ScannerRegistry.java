@@ -14,6 +14,9 @@ public interface ScannerRegistry {
 	/** Registriert das Anhalten einen Scanners */
 	public void registerScannerStop();
 
+	/** Registriert ein beliebiges Ereignis einen Scanners */
+	public void registerScannerEvent();
+
 	/**
 	 * Liefert die Anzahl der registrierten Starts eines Scanners.
 	 * @return die Anzahl der Starts
@@ -25,5 +28,11 @@ public interface ScannerRegistry {
 	 * @return die Anzahl der Stopps
 	 */
 	public int getRegisterScannerStop();
+
+	/**
+	 * Liefert die Anzahl der registrierten Ereignisse eines Scanners.
+	 * @return die Anzahl der Events
+	 */
+	public int getRegisterScannerEvent();
 
 }

@@ -10,8 +10,10 @@ import org.apache.logging.log4j.Logger;
 import de.gmxhome.golkonda.howto.jee.event.annotation.ScannerStop;
 
 /**
- * Empfänger für einen Scanner-Stop-Event. Beispiel-Sender in{@linkplain ScannerEventSource}.
+ * Empfänger für einen Scanner-Stop-Event ({@linkplain ScannerEvent} mit {@linkplain ScannerStop}).
+ * Beispiel-Sender in {@linkplain ScannerEventSource}.
  * Die eingehenden Events werden in der {@linkplain ScannerRegistry} registriert.
+ * Wird immer empfangen, da die Instanz des Objektes ggf. automatisch erzeugt wird ({@code notifyObserver = ALWAYS}).
  * @author mbeier
  * @see ScannerEvent
  */

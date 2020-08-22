@@ -3,6 +3,8 @@ package de.gmxhome.golkonda.howto.jee.event;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.anyOf;
+import static org.hamcrest.Matchers.equalTo;
 
 import javax.inject.Inject;
 
@@ -32,7 +34,11 @@ public class ScannerEventSourceTest {
 
 	/** Registratur für Start-Events zur Funktionsprüfung */
 	@Inject
-	private ScannerRegistry scannerRegistry;
+	public ScannerRegistry scannerRegistry;
+
+	/** Status-Observer muss explizit erzeugt werden, da er {@code Reception.IF_EXISTS} verwendet! */
+	@Inject
+	public ScannerStatusObserver scannerStatusObserver;
 
 	/** Das zu testende Archiv mit dem Objekt {@linkplain ScannerEventSource} */
 	@Deployment
@@ -47,20 +53,23 @@ public class ScannerEventSourceTest {
 	@Before
 	public void init() {
 		assertThat(scannerEventSource, notNullValue());
+		scannerStatusObserver.toString(); // CDI lazy initialization
 	}
 
-	/** Einen "Scanner startet"-Event senden */
+	/** Einen "Scanner startet"-Event senden, StatusEvent muss ebenfalls gesetzt sein */
 	@Test
 	public void testeScannerStart() {
-		scannerEventSource.sendEventStart(1, "daten");
+		scannerEventSource.sendEventStart(0, "daten");
 		assertThat(scannerRegistry.getRegisterScannerStart(), is(1));
+		assertThat(scannerRegistry.getRegisterScannerEvent(), anyOf(equalTo(1), equalTo(2)));
 	}
 
-	/** Einen "Scanner stoppt"-Event senden */
+	/** Einen "Scanner stoppt"-Event senden, StatusEvent muss ebenfalls gesetzt sein */
 	@Test
 	public void testeScannerStop() {
-		scannerEventSource.sendEventStop(1, "daten");
+		scannerEventSource.sendEventStop(0, "daten");
 		assertThat(scannerRegistry.getRegisterScannerStop(), is(1));
+		assertThat(scannerRegistry.getRegisterScannerEvent(), anyOf(equalTo(1), equalTo(2)));
 	}
 
 }
