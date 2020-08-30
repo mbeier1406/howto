@@ -144,6 +144,7 @@
 	<modules>
 		<module>jse</module>
 		<module>jee</module>
+		<module>jpa</module>
 	</modules>
 
 	<dependencyManagement>
@@ -171,8 +172,16 @@
 				<artifactId>log4j-core</artifactId>
 				<version>${org.apache.logging.log4j.version}</version>
 			</dependency>
+	        <dependency>
+	            <groupId>org.jboss.arquillian</groupId>
+	            <artifactId>arquillian-bom</artifactId>
+	            <version>1.6.0.Final</version>
+	            <scope>import</scope>
+	            <type>pom</type>
+	        </dependency>
 		</dependencies>
 	</dependencyManagement>
+
 
 	<dependencies>
 		<dependency>

@@ -72,18 +72,6 @@
 		</pluginManagement>
 	</build>
 
-	<dependencyManagement>
-	    <dependencies>
-	        <dependency>
-	            <groupId>org.jboss.arquillian</groupId>
-	            <artifactId>arquillian-bom</artifactId>
-	            <version>1.6.0.Final</version>
-	            <scope>import</scope>
-	            <type>pom</type>
-	        </dependency>
-	    </dependencies>
-	</dependencyManagement>
-
 	<dependencies>
 	    <dependency>
 	        <groupId>org.jboss.spec</groupId>
