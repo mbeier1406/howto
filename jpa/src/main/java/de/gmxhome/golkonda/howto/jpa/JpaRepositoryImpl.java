@@ -92,7 +92,7 @@ public class JpaRepositoryImpl<T, ID> implements JpaRepository<T, ID> {
 
 	/** {@inheritDoc} */
 	@Override
-	public Optional<List<T>> getResultList(CriteriaQuery<T> q) {
+	public <S extends T> Optional<List<S>> getResultList(CriteriaQuery<S> q) {
 		try {
 			return Optional.ofNullable(em.createQuery(q).getResultList());
 		} catch (RuntimeException e) {

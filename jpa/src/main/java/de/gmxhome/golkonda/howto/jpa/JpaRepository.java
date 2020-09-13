@@ -37,6 +37,12 @@ public interface JpaRepository<T, ID> extends AutoCloseable {
 	 */
 	public <S extends T> S merge(S entity);
 
-	public Optional<List<T>> getResultList(CriteriaQuery<T> q);
+	/**
+	 * Lädt einen oder mehrere Datensätze aus der Datenbank.
+	 * @param <S> Typ des zu ladenden Objekts, zum Beispiel {@linkplain Scanner}
+	 * @param q die Datenbankabfrage
+	 * @return ein Optional mit der Trefferliste
+	 */
+	public <S extends T> Optional<List<S>> getResultList(CriteriaQuery<S> q);
 
 }
