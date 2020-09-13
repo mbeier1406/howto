@@ -38,11 +38,16 @@ public class Scanner {
 	}
 
 	/** Fachliche ID des Scanners */
-	@Column(name="scanner_id", unique=true)
+	@Column(name="scanner_id", unique=true, nullable = false)
 	private Integer scannerId;
 
 	/** Fachliche Bezeichnung des Scanners */
 	private String bezeichnung;
+
+	public Scanner setId(long id) {
+		this.id = id;
+		return this;
+	}
 
 	public Long getId() {
 		return id;
