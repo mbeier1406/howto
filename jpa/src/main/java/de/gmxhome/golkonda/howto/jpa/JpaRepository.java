@@ -25,6 +25,7 @@ public interface JpaRepository<T, ID> extends AutoCloseable {
 
 	/**
 	 * Speichert einen Datensatz in der DB.
+	 * @param <S> Typ des Objektes, zum Beispiel {@linkplain Scanner}
 	 * @param entity das zu speichernde Objekt
 	 * @return das gespeicherte Objekt
 	 */
@@ -32,10 +33,26 @@ public interface JpaRepository<T, ID> extends AutoCloseable {
 
 	/**
 	 * Aktualisiert oder peichert einen Datensatz in der DB.
+	 * @param <S> Typ des Objektes, zum Beispiel {@linkplain Scanner}
 	 * @param entity das zu speichernde Objekt
 	 * @return das gespeicherte Objekt
 	 */
 	public <S extends T> S merge(S entity);
+
+	/**
+	 * Löscht ein objekt aus der Datenbank.
+	 * @param <S> Typ des Objektes, zum Beispiel {@linkplain Scanner}
+	 * @param s das zu löschende Objekt
+	 */
+	public <S extends T> void delete(S s);
+
+	/**
+	 * Einen Eintrag über seinen primary key (interne ID) aus der Datenbank laden.
+	 * @param <S> Typ des Objektes, zum Beispiel {@linkplain Scanner}
+	 * @param id der primary key des zu ladenden Objektes
+	 * @return das
+	 */
+	public <S extends T> Optional<S> findById(ID id);
 
 	/**
 	 * Lädt einen oder mehrere Datensätze aus der Datenbank.

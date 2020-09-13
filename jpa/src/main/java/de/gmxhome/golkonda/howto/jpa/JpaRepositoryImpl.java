@@ -18,6 +18,7 @@ import de.gmxhome.golkonda.howto.jpa.model.Scanner;
 
 /**
  * Standard JPA-Implementierung für das Scanner {@linkplain JpaRepository}.
+ * Definition <i>transaction-type</i> der Persistence Unit muss {@code RESOURCE_LOCAL} sein.
  * @author mbeier
  * @param <T> Der Typ der zu speichernde Objekte
  * @param <ID> Der Typ der Primary Keys der zu speichernde Objekte
@@ -29,13 +30,13 @@ public class JpaRepositoryImpl<T, ID> implements JpaRepository<T, ID> {
 
     private static final String PERSISTENCE_UNIT_NAME = "scannerdb";
     private static EntityManagerFactory factory;
-	private final Class<T> typeParameterClass;
+	private final Class<T> idTypeClass;
 	protected EntityManager em;
 
-	public JpaRepositoryImpl(Class<T> typeParameterClass) {
+	public JpaRepositoryImpl(Class<T> idTypeClass) {
 		factory = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME);
         em = factory.createEntityManager();
-		this.typeParameterClass = typeParameterClass;
+		this.idTypeClass = idTypeClass;
 	}
 
 	/**
@@ -87,6 +88,25 @@ public class JpaRepositoryImpl<T, ID> implements JpaRepository<T, ID> {
 		catch ( Throwable t ) {
 			LOGGER.error("entity={}", entity, t);
 			throw t;
+		}
+	}
+
+	/** {@inheritDoc} */
+	@Override
+	public <S extends T> void delete(S s) {
+		try ( final CloseableThreadContext.Instance ctc = put("s", s.toString()) ) {
+			em.getTransaction().begin();
+			em.remove(s);
+			em.getTransaction().commit();
+		}
+	}
+
+	/** {@inheritDoc} */
+	@SuppressWarnings("unchecked")
+	@Override
+	public <S extends T> Optional<S> findById(ID id) {
+		try ( final CloseableThreadContext.Instance ctc = put("id", id.toString()) ) {
+			return Optional.ofNullable((S) em.find(idTypeClass, id));
 		}
 	}
 

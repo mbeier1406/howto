@@ -54,43 +54,38 @@ public class JpaRepositoryImplTest {
 	}
 
 	/**
-	 * Einen {@linkplain Scanner}-Datensatz in der Datenbank speichern und danach aktualisieren. Falls er schon vorhanden ist,
-	 * Fehler ignorieren.
+	 * Einen {@linkplain Scanner}-Datensatz in der Datenbank speichern, danach aktualisieren und löschen.
+	 * Falls er schon vorhanden ist, Fehler ignorieren.
 	 * @throws Exception bei technischen Fehlern
 	 */
 	@Test
-	public void testeSaveAndMerge() throws Exception {
+	public void testeWorkflow() throws Exception {
 		try ( JpaRepository<Scanner, Long> jpaRepository = new JpaRepositoryImpl<>(Scanner.class); ) {
 			int scannerId = SCANNER1_ID;
 			String scannerBezeichnung1 = "Scanner 1", scannerBezeichnung2 = SCANNER_1X;
 			Scanner scanner = new Scanner(scannerId, scannerBezeichnung1);
-			pruefeErgebnisDBOperation(jpaRepository.save(scanner), scannerId, scannerBezeichnung1);
+			try {
+				pruefeErgebnisDBOperation(jpaRepository.save(scanner), scannerId, scannerBezeichnung1);
+			}
+			catch ( Exception e ) {
+				// Nur Fehler für doppelte Einträge sind in Ordnung
+				assertThat(e.getCause().getCause(), instanceOf(SQLIntegrityConstraintViolationException.class));
+				assertThat(e.getCause().getLocalizedMessage(), containsString("Duplicate entry"));
+				CriteriaBuilder cb = jpaRepository.getEntityManager().getCriteriaBuilder();
+				CriteriaQuery<Scanner> cq = (CriteriaQuery<Scanner>) cb.createQuery(Scanner.class);
+				Root<Scanner> root = (Root<Scanner>) cq.from(Scanner.class);
+				cq.select(root).where(cb.equal(root.get("bezeichnung"), SCANNER_1X));
+				Optional<List<Scanner>> scannerList = jpaRepository.getResultList(cq);
+				LOGGER.info("scanner={}", scanner);
+				assertThat("Kein Scanner gefunden!", scannerList.isPresent(), is(true));
+				assertThat("Nicht genau ein Scanner gefunden; Treffer: "+scannerList.get().size(), scannerList.get(), hasSize(1));
+				pruefeErgebnisDBOperation(scannerList.get().get(0), SCANNER1_ID, SCANNER_1X);
+				scanner = scannerList.get().get(0);
+			}
 			scanner.setBezeichnung(scannerBezeichnung2);
 			pruefeErgebnisDBOperation(jpaRepository.merge(scanner), scannerId, scannerBezeichnung2);
-		}
-		catch ( Exception e ) {
-			// Nur Fehler für doppelte Einträge sind in Ordnung
-			assertThat(e.getCause().getCause(), instanceOf(SQLIntegrityConstraintViolationException.class));
-			assertThat(e.getCause().getLocalizedMessage(), containsString("Duplicate entry"));
-		}
-	}
-
-	/**
-	 * Einen {@linkplain Scanner}-Datensatz aus der Datenbank laden.
-	 * @throws Exception bei technischen Fehlern
-	 */
-	@Test
-	public void ladeScanner() throws Exception {
-		try ( JpaRepository<Scanner, Long> jpaRepository = new JpaRepositoryImpl<>(Scanner.class); ) {
-			CriteriaBuilder cb = jpaRepository.getEntityManager().getCriteriaBuilder();
-			CriteriaQuery<Scanner> cq = (CriteriaQuery<Scanner>) cb.createQuery(Scanner.class);
-			Root<Scanner> root = (Root<Scanner>) cq.from(Scanner.class);
-			cq.select(root).where(cb.equal(root.get("bezeichnung"), SCANNER_1X));
-			Optional<List<Scanner>> scanner = jpaRepository.getResultList(cq);
-			LOGGER.info("scanner={}", scanner);
-			assertThat("Kein Scanner gefunden!", scanner.isPresent(), is(true));
-			assertThat("Nicht genau ein Scanner gefunden; Treffer: "+scanner.get().size(), scanner.get(), hasSize(1));
-			pruefeErgebnisDBOperation(scanner.get().get(0), SCANNER1_ID, SCANNER_1X);
+			pruefeErgebnisDBOperation(jpaRepository.findById(scanner.getId()).get(), scannerId, scannerBezeichnung2);
+			jpaRepository.delete(scanner);
 		}
 	}
 
