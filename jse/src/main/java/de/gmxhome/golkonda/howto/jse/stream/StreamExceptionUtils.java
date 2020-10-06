@@ -31,7 +31,7 @@ public class StreamExceptionUtils {
 	 * @param <R> der Typ des Rückgabewertes der Methode
 	 */
 	@FunctionalInterface
-	public interface Function1 <P, R> {
+	public interface CheckedFunction <P, R> {
 		public R apply(P p) throws Exception;
 	}
 
@@ -45,7 +45,7 @@ public class StreamExceptionUtils {
 	 * @return das Ergebnis des Aufrufs vom typ <b>&lt;R></b>
 	 * @see Function1
 	 */
-	public static <P, R> Function<P, R> wrapEx1(Function1<P, R> x) {
+	public static <P, R> Function<P, R> wrapException(CheckedFunction<P, R> x) {
 		return p -> {
 			try {
 				return x.apply(p);

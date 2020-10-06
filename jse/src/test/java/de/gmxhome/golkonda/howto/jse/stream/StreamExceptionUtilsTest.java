@@ -1,6 +1,6 @@
 package de.gmxhome.golkonda.howto.jse.stream;
 
-import static de.gmxhome.golkonda.howto.jse.stream.StreamExceptionUtils.wrapEx1;
+import static de.gmxhome.golkonda.howto.jse.stream.StreamExceptionUtils.wrapException;
 
 import java.util.stream.Stream;
 
@@ -9,7 +9,8 @@ import org.apache.logging.log4j.Logger;
 import org.apache.tools.ant.util.StreamUtils;
 import org.junit.Test;
 
-import de.gmxhome.golkonda.howto.jse.stream.StreamExceptionUtils.Function1;
+import de.gmxhome.golkonda.howto.jse.stream.StreamExceptionUtils.CheckedFunction;
+
 
 /**
  * Tests für die Klasse {@linkplain StreamUtils}.
@@ -22,7 +23,7 @@ public class StreamExceptionUtilsTest {
 	/** Testdaten für Streams */
 	public static final Stream<Integer> INT_STREAM = Stream.of(1, 2, 3, null, 5, 6);
 
-	/**	Testmethode für {@linkplain Function1} */
+	/**	Testmethode für {@linkplain CheckedFunction} */
 	public int f(Integer x) throws Exception {
 		LOGGER.info("x={}", x);
 		if ( null == x ) throw new Exception();
@@ -34,7 +35,7 @@ public class StreamExceptionUtilsTest {
 	public void testeExceptionWrapperMitEinemParameter() {
 		int sum = INT_STREAM
 				.peek(LOGGER::info)
-				.map(wrapEx1(this::f))
+				.map(wrapException(this::f))
 				.reduce(0, (a, b) -> a+b);
 		LOGGER.info("sum={}", sum);
 	}
