@@ -64,8 +64,8 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.8.0</version>
 				<configuration>
-					<source>14</source>
-					<target>14</target>
+					<source>16</source>
+					<target>16</target>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -136,6 +136,25 @@
 						<goals>
 							<goal>deploy</goal>
 						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<version>3.0.0</version>
+				<executions>
+					<execution>
+						<id>maven-antrun-plugin</id>
+						<phase>package</phase>
+						<goals><goal>run</goal></goals>
+						<configuration>
+							<target>
+								<echo message="### Log: ${project.build.directory}/log.txt" level="info"/>
+								<echo file="${project.build.directory}/log.txt" append="false"
+									  message="org.apache.logging.log4j.version=${org.apache.logging.log4j.version}${line.separator}"/>
+							</target>
+						</configuration>
 					</execution>
 				</executions>
 			</plugin>
