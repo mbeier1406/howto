@@ -1,16 +1,15 @@
 package de.gmxhome.golkonda.howto.jee.event;
 
-import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.Mockito.when;
 
 import java.lang.reflect.Field;
 
-import javax.management.RuntimeErrorException;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -22,6 +21,7 @@ import org.mockito.junit.MockitoRule;
  * <p>Objekte mit injizierten Objekten ohne Container/CDI testen.</p>
  * @author mbeier
  */
+@Ignore
 public class ScannerServiceTest {
 
 	public static final Logger LOGGER = LogManager.getLogger(ScannerServiceTest.class);

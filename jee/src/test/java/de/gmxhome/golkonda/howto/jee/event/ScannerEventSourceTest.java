@@ -1,10 +1,10 @@
 package de.gmxhome.golkonda.howto.jee.event;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.anyOf;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 
 import javax.inject.Inject;
 
@@ -16,6 +16,7 @@ import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -23,6 +24,7 @@ import org.junit.runner.RunWith;
  * Test für die Klasse {@linkplain ScannerEventSource}
  * @author mbeier
  */
+@Ignore
 @RunWith(Arquillian.class)
 public class ScannerEventSourceTest {
 

@@ -20,6 +20,7 @@ import javax.persistence.criteria.Root;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import de.gmxhome.golkonda.howto.jpa.model.Scanner;
@@ -29,6 +30,7 @@ import de.gmxhome.golkonda.howto.jpa.model.Scanner;
  * @author mbeier
  * @see JpaRepository
  */
+@Ignore
 public class JpaRepositoryImplTest {
 
 	public static final Logger LOGGER = LogManager.getLogger(JpaRepositoryImplTest.class);
