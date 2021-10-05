@@ -15,9 +15,28 @@ public class DatatypesTest {
 
 	public static final Logger LOGGER = LogManager.getLogger(DatatypesTest.class);
 
+	/** Prüft den maximalen Wert für Short */
 	@Test
 	public void testeGetMaxShort() {
 		assertThat(Datatypes.getMaxShort(), equalTo((short) 32767));
+	}
+
+	/** Prüft den minimalen Wert für Short */
+	@Test
+	public void testeGetMinShort() {
+		assertThat(Datatypes.getMinShort(), equalTo((short) -32768));
+	}
+
+	/** Prüft ob der maximale Wer Short plus eins den minimalen Wert für Short ergibt */
+	@Test
+	public void testeIntToShortMitIGroesserMaxShort() {
+		assertThat(Datatypes.intToShort(Datatypes.getMaxShort()+(short) 1), equalTo(Datatypes.getMinShort()));
+	}
+
+	/** Prüft ob der minimale Wert für Short minus eins den maximalen Wert für Short ergibt */
+	@Test
+	public void testeIntToShortMitIKleinerMinShort() {
+		assertThat(Datatypes.intToShort(Datatypes.getMinShort()-(short) 1), equalTo(Datatypes.getMaxShort()));
 	}
 
 }
