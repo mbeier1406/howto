@@ -175,8 +175,8 @@
 		<module>jse</module>
 		<module>jee</module>
 		<module>jpa</module>
-		<module>mvn</module>
 		<module>rest-server</module>
+		<module>ausbildung</module>
 	</modules>
 
 	<dependencyManagement>

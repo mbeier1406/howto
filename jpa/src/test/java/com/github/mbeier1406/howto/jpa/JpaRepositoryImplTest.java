@@ -25,8 +25,7 @@ import org.junit.Test;
 
 import com.github.mbeier1406.howto.jpa.JpaRepository;
 import com.github.mbeier1406.howto.jpa.JpaRepositoryImpl;
-
-import de.gmxhome.golkonda.howto.jpa.model.Scanner;
+import com.github.mbeier1406.howto.jpa.model.Scanner;
 
 /**
  * Tests für die Klasse {@linkplain JpaRepositoryImpl}.

@@ -14,7 +14,7 @@ import org.apache.logging.log4j.CloseableThreadContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import de.gmxhome.golkonda.howto.jpa.model.Scanner;
+import com.github.mbeier1406.howto.jpa.model.Scanner;
 
 /**
  * Standard JPA-Implementierung für das Scanner {@linkplain JpaRepository}.

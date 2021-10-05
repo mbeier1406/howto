@@ -6,7 +6,7 @@ import java.util.Optional;
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaQuery;
 
-import de.gmxhome.golkonda.howto.jpa.model.Scanner;
+import com.github.mbeier1406.howto.jpa.model.Scanner;
 
 /**
  * Definiert die Schnittstelle zum Repository der Datenbank für die Scanner-Objekte.

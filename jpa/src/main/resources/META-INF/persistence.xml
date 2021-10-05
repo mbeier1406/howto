@@ -6,7 +6,7 @@
 
 	<!-- Definiert die Scanner-DB in mysql -->
 	<persistence-unit name="scannerdb" transaction-type="RESOURCE_LOCAL">
-		<class>de.gmxhome.golkonda.howto.jpa.model.Scanner</class>
+		<class>com.github.mbeier1406.howto.jpa.model.Scanner</class>
 		<properties>
 			<property name="javax.persistence.jdbc.driver" value="com.mysql.jdbc.Driver" />
 			<property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/mysql" />
