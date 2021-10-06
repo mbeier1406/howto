@@ -5,31 +5,33 @@ package com.github.mbeier1406.howto.ausbildung.basic;
  * Grundlegendes zu Standard-Java-Datentypen. Für die weiteren Typen {@linkplain Byte} etc. zu ergänzen.
  * @author mbeier
  */
-public class Datatypes {
+public interface Datatypes {
 
 	/**
 	 * Liefert den maximalen Wert für den Datentyp {@linkplain Short}.
 	 * @return {@value Short#MAX_VALUE}
 	 */
-	public static short getMaxShort() {
-		return Short.MAX_VALUE;
-	}
+	public short getMaxShort();
 
 	/**
 	 * Liefert den minimalen Wert für den Datentyp {@linkplain Short}.
 	 * @return {@value Short#MIN_VALUE}
 	 */
-	public static short getMinShort() {
-		return Short.MIN_VALUE;
-	}
+	public short getMinShort();
 
 	/**
 	 * Zur Demonstration von Problemen beim Cast; z. B. bei Zahlen größer als {@linkplain #getMaxShort()}
 	 * @param i die Zahl als {@linkplain Integer}
 	 * @return die Zahl als {@linkplain Short} konvertiert
 	 */
-	public static short intToShort(int i) {
-		return (short) i;
-	}
+	public short intToShort(int i);
+
+	/**
+	 * Liefert den UTF-16-Character zum Unicode Codepoint. Beispiel:
+	 * <a href="http://www.isthisthingon.org/unicode/index.php?page=1F&subpage=4&glyph=10e1">Codepoint 4321</a>
+	 * @param ch den Unicode codepoint
+	 * @return den UTF-16 Character
+	 */
+	public char intToChar(int ch);
 
 }

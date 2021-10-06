@@ -5,40 +5,65 @@ import static org.hamcrest.Matchers.equalTo;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import com.github.mbeier1406.howto.ausbildung.basic.Datatypes;
+import com.github.mbeier1406.howto.ausbildung.basic.impl.DatatypesImpl;
 
 /**
- * Tests für {@linkplain Datatypes}
+ * Tests für die {@linkplain Datatypes} Implementierung {@linkplain DatatypesImpl}.
  * @author mbeier
  */
 public class DatatypesTest {
 
 	public static final Logger LOGGER = LogManager.getLogger(DatatypesTest.class);
 
+	/** Das zu testende Objekt */
+	public Datatypes datatypes;
+
+	@BeforeEach
+	public void init() {
+		datatypes = new DatatypesImpl();
+	}
+
 	/** Prüft den maximalen Wert für Short */
 	@Test
 	public void testeGetMaxShort() {
-		assertThat(Datatypes.getMaxShort(), equalTo((short) 32767));
+		assertThat(datatypes.getMaxShort(), equalTo((short) 32767));
 	}
 
 	/** Prüft den minimalen Wert für Short */
 	@Test
 	public void testeGetMinShort() {
-		assertThat(Datatypes.getMinShort(), equalTo((short) -32768));
+		assertThat(datatypes.getMinShort(), equalTo((short) -32768));
 	}
 
 	/** Prüft ob der maximale Wer Short plus eins den minimalen Wert für Short ergibt */
 	@Test
 	public void testeIntToShortMitIGroesserMaxShort() {
-		assertThat(Datatypes.intToShort(Datatypes.getMaxShort()+(short) 1), equalTo(Datatypes.getMinShort()));
+		assertThat(datatypes.intToShort(datatypes.getMaxShort()+(short) 1), equalTo(datatypes.getMinShort()));
 	}
 
 	/** Prüft ob der minimale Wert für Short minus eins den maximalen Wert für Short ergibt */
 	@Test
 	public void testeIntToShortMitIKleinerMinShort() {
-		assertThat(Datatypes.intToShort(Datatypes.getMinShort()-(short) 1), equalTo(Datatypes.getMaxShort()));
+		assertThat(datatypes.intToShort(datatypes.getMinShort()-(short) 1), equalTo(datatypes.getMaxShort()));
+	}
+
+	/** Prüft, ob ein vorgegebener Codepoint/Unicode Character korrekt als UTF-16-Char konvertiert wird */
+	@Test
+	public void intToCharTest() {
+		int codePoint = 4321;			// decimal codepoint unicode
+		char unicodeChar = '\u10e1';	// hex unicode zum codepoint
+		assertThat(String.valueOf(unicodeChar).codePointAt(0), equalTo(codePoint)); // Testdaten prüfen
+
+		LOGGER.info("Prüfungen zu Codepoint {} (dec {}, char '{}')", "\\u"+Integer.toHexString(codePoint), codePoint, unicodeChar);
+		char ch = datatypes.intToChar(codePoint);	// Funktion testen
+		LOGGER.info("ch='{}'", ch);
+
+		assertThat(ch, equalTo(unicodeChar)); // ermittelten Charcter prüfen
+		assertThat(ch, equalTo(Character.toChars(codePoint)[0])); // ermittelten Charcter prüfen
+		assertThat(codePoint, equalTo(Character.toString(codePoint).codePointAt(0))); // Codepoint aus ermittelten Character prüfen
 	}
 
 }
