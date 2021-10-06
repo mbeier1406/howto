@@ -21,6 +21,7 @@ public class DatatypesTest {
 	/** Das zu testende Objekt */
 	public Datatypes datatypes;
 
+	/** Initialisierung {@linkplain #datatypes} */
 	@BeforeEach
 	public void init() {
 		datatypes = new DatatypesImpl();
@@ -59,7 +60,7 @@ public class DatatypesTest {
 
 		LOGGER.info("Prüfungen zu Codepoint {} (dec {}, char '{}')", "\\u"+Integer.toHexString(codePoint), codePoint, unicodeChar);
 		char ch = datatypes.intToChar(codePoint);	// Funktion testen
-		LOGGER.info("ch='{}'", ch);
+		LOGGER.info("ch='{}' ({} -> {})", ch, Character.MIN_CODE_POINT, Character.MAX_CODE_POINT);
 
 		assertThat(ch, equalTo(unicodeChar)); // ermittelten Charcter prüfen
 		assertThat(ch, equalTo(Character.toChars(codePoint)[0])); // ermittelten Charcter prüfen
