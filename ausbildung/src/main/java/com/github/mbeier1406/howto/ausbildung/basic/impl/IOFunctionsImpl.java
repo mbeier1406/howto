@@ -14,14 +14,15 @@ public class IOFunctionsImpl implements IOFunctions {
 	/** {@inheritDoc} */
 	@Override
 	public ExampleData readExampleData(InputStream in, String charsetName) {
-		Scanner scanner = new Scanner(in, charsetName);
-		System.out.print("str=");
-		String str = scanner.nextLine();
-		System.out.print("i=");
-		int i = scanner.nextInt();
-		System.out.print("f=");
-		float f = scanner.nextFloat();
-		return new ExampleData(str, i, f);
+		try ( Scanner scanner = new Scanner(in, charsetName); ) {
+			System.out.print("str=");
+			String str = scanner.nextLine();
+			System.out.print("i=");
+			int i = scanner.nextInt();
+			System.out.print("f=");
+			float f = scanner.nextFloat();
+			return new ExampleData(str, i, f);
+		}
 	}
 
 }
