@@ -13,10 +13,9 @@ import org.junit.jupiter.api.Test;
 
 import com.github.mbeier1406.howto.ausbildung.basic.IOFunctions.ExampleData;
 import com.github.mbeier1406.howto.ausbildung.basic.impl.IOFunctionsImpl;
-import com.github.mbeier1406.howto.ausbildung.basic.impl.IOFunctionsSwingImpl;
 
 /**
- * Tests für die {@linkplain IOFunctions}-Implementierung in {@linkplain IOFunctionsSwingImpl}.
+ * Tests für die {@linkplain IOFunctions}-Implementierung in {@linkplain IOFunctionsImpl}.
  * @author mbeier
  */
 public class IOFunctionsTest {

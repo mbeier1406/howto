@@ -67,4 +67,26 @@ public class DatatypesTest {
 		assertThat(codePoint, equalTo(Character.toString(codePoint).codePointAt(0))); // Codepoint aus ermittelten Character prüfen
 	}
 
+	/**
+	 * Demonstration Bitbelegung mit Vorzeichen bei Datentyp {@linkplain Byte} (auf <i>127</i> folgt <i>-128</i>)
+	 * mit hexadezimaler Codierung der Konstanten.
+	 * @see #testeIntToShortMitIGroesserMaxShort()
+	  */
+	@Test
+	public void demonstrationByteUeberlaufHex() {
+		LOGGER.info("(byte) 0x79='{}'", (byte) 0x79);
+		LOGGER.info("(byte) 0x80='{}'", (byte) 0x80);
+	}
+
+	/**
+	 * Demonstration Bitbelegung mit Vorzeichen bei Datentyp {@linkplain Byte} (auf <i>127</i> folgt <i>-128</i>)
+	 * mit hexadezimaler Codierung der Konstanten.
+	 * @see #testeIntToShortMitIGroesserMaxShort()
+	  */
+	@Test
+	public void demonstrationShortUeberlaufBinaer() {
+		LOGGER.info("(short) 0b01111111_11111111='{}'", (short) 0b01111111_11111111);
+		LOGGER.info("(short) 0b10000000_00000000='{}'", (short) 0b10000000_00000000);
+	}
+
 }
