@@ -9,7 +9,6 @@ import org.apache.logging.log4j.Logger;
 import org.apache.tools.ant.util.StreamUtils;
 import org.junit.Test;
 
-import com.github.mbeier1406.howto.jse.stream.StreamExceptionUtils;
 import com.github.mbeier1406.howto.jse.stream.StreamExceptionUtils.CheckedFunction;
 
 
