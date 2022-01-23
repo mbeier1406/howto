@@ -1,10 +1,11 @@
 package com.github.mbeier1406.howto.ausbildung.aufgaben;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.arrayContainingInAnyOrder;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 
@@ -26,10 +27,9 @@ public class TuermeVonHanoiTest {
 	}
 
 	@Test
-	public void testePrint() {
-		tuermeVonHanoi.print();
+	public void testePrint() throws UnguetigeSpalteException, UnguetigeReiheException {
+		new TuermeVonHanoi(4, 5).print();
 	}
-
 	@Test
 	public void erwarteExceptionBeiUngueltigerInitialisierung() {
 		assertThrows(TuermeVonHanoi.UnguetigeSpalteException.class, () -> {	new TuermeVonHanoi(0, 1); });  // Anzahl Türme Null
@@ -103,6 +103,12 @@ public class TuermeVonHanoiTest {
 		assertThat(tuermeVonHanoi.steinAnPosition(1, 2).getWert(), equalTo(3));
 		assertThat(tuermeVonHanoi.steinAnPosition(2, 1).getWert(), equalTo(1));
 		assertThat(tuermeVonHanoi.steinAnPosition(2, 2).getWert(), equalTo(2));
+	}
+
+	@Test
+	public void testeSpiel() throws UnguetigeSpalteException, UnguetigerZugException, UnguetigeReiheException {
+		// assertTrue(tuermeVonHanoi.zuegeAusprobierenBisfertig(new ArrayList<>()));
+		assertTrue(new TuermeVonHanoi(3, 7).zuegeAusprobierenBisfertig(new ArrayList<>()));
 	}
 
 }
