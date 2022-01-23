@@ -42,7 +42,7 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<org.apache.logging.log4j.version>2.13.3</org.apache.logging.log4j.version>
+		<org.apache.logging.log4j.version>2.17.1</org.apache.logging.log4j.version>
 		<org.hamcrest.version>1.3</org.hamcrest.version>
 		<org.junit.version>5.5.2</org.junit.version>
 	    <jacoco.version>0.8.6</jacoco.version>
