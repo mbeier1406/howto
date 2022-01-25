@@ -6,6 +6,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import java.util.ArrayList;
 
@@ -17,19 +18,28 @@ import com.github.mbeier1406.howto.ausbildung.aufgaben.TuermeVonHanoi.UnguetigeR
 import com.github.mbeier1406.howto.ausbildung.aufgaben.TuermeVonHanoi.UnguetigeSpalteException;
 import com.github.mbeier1406.howto.ausbildung.aufgaben.TuermeVonHanoi.UnguetigerZugException;
 
+/**
+ * Tests für die Klasse {@linkplain TuermeVonHanoi}.
+ * @author mbeier
+ */
 public class TuermeVonHanoiTest {
 
+	/** Das zu testende Objekt */
 	public TuermeVonHanoi tuermeVonHanoi;
 
+	/** Spielfeld für einen Test initialisieren */
 	@BeforeEach
 	public void init() throws UnguetigeSpalteException, UnguetigeReiheException {
 		tuermeVonHanoi = new TuermeVonHanoi();
 	}
 
+	/** Manuelle Prüfung der Ausgabefunktion */
 	@Test
 	public void testePrint() throws UnguetigeSpalteException, UnguetigeReiheException {
 		new TuermeVonHanoi(4, 5).print();
 	}
+
+	/** Stellt sicher, dass ungültige Felddimensionen die erwarteten Exceptions liefern */
 	@Test
 	public void erwarteExceptionBeiUngueltigerInitialisierung() {
 		assertThrows(TuermeVonHanoi.UnguetigeSpalteException.class, () -> {	new TuermeVonHanoi(0, 1); });  // Anzahl Türme Null
@@ -38,6 +48,7 @@ public class TuermeVonHanoiTest {
 		assertThrows(TuermeVonHanoi.UnguetigeReiheException.class, () -> {	new TuermeVonHanoi(1, -1); }); // Höhe Türme kleiner Null
 	}
 
+	/** Stellt sicher, dass beim Holen des obersten Steins einer Spalte die richtige Exception erzeugt wird */
 	@Test
 	public void erwarteExceptionBeimErmittelnSteinInUngueltigerSpalte() {
 		assertThrows(TuermeVonHanoi.UnguetigeSpalteException.class, () -> {	new TuermeVonHanoi().obersterSteinEinerSpalte(-1); }); // Index Spalte kleiner Null
@@ -47,6 +58,7 @@ public class TuermeVonHanoiTest {
 		assertThrows(TuermeVonHanoi.UnguetigeSpalteException.class, () -> {	new TuermeVonHanoi(2, 2).obersterSteinEinerSpalte(1); }); // Index eins enthält keinen Stein
 	}
 
+	/** Stellt sicher, dass der oberste Stein in der linkesten Spalte des initialiiserten Standardfelds den Wert 1 und die richtige Position 0/0 hat */
 	@Test
 	public void testeObersterSteinEinerSpalte() throws UnguetigeSpalteException {
 		Stein obersterSteinEinerSpalte = tuermeVonHanoi.obersterSteinEinerSpalte(0);
@@ -55,6 +67,7 @@ public class TuermeVonHanoiTest {
 		assertThat(obersterSteinEinerSpalte.getWert(), equalTo(1));
 	}
 
+	/** Prüft, ob das Wegnehmens eines Steins aus einer Spalte nacheinander die richtigen Steine liefert */
 	@Test
 	public void testeObersterSteinEinerSpalteWegnehmen() throws UnguetigeSpalteException {
 		assertThat(tuermeVonHanoi.steinAnPosition(0, 0).getWert(), equalTo(1));
@@ -68,6 +81,7 @@ public class TuermeVonHanoiTest {
 		assertThat(tuermeVonHanoi.steinAnPosition(0, 2).getWert(), equalTo(0));
 	}
 
+	/** Stellt sicher, dass das Vergleichen zweier {@linkplain Stein}e funktioniert */
 	@Test
 	public void testeEqualsFuerKlasseZug() {
 		TuermeVonHanoi.Zug zug1 = new TuermeVonHanoi.Zug(0, 1);
@@ -77,6 +91,7 @@ public class TuermeVonHanoiTest {
 		assertThat(zug1, not(equalTo(zug2)));
 	}
 
+	/** Prüft, ob das ermittel möglicher Züge in einem kleinen Spielfluß funktioniert */
 	@SuppressWarnings("serial")
 	@Test
 	public void testeAblauf() throws UnguetigeSpalteException, UnguetigeReiheException, UnguetigerZugException {
@@ -105,10 +120,17 @@ public class TuermeVonHanoiTest {
 		assertThat(tuermeVonHanoi.steinAnPosition(2, 2).getWert(), equalTo(2));
 	}
 
+	/** Für das Standardspielfeld gibt es eine Lösung */
+	@SuppressWarnings("serial")
 	@Test
-	public void testeSpiel() throws UnguetigeSpalteException, UnguetigerZugException, UnguetigeReiheException {
-		// assertTrue(tuermeVonHanoi.zuegeAusprobierenBisfertig(new ArrayList<>()));
-		assertTrue(new TuermeVonHanoi(3, 7).zuegeAusprobierenBisfertig(new ArrayList<>()));
+	public void testeSpielMitLoesung() throws UnguetigeSpalteException, UnguetigerZugException, UnguetigeReiheException {
+		assertTrue(tuermeVonHanoi.zuegeAusprobierenBisfertig(new ArrayList<>() {{ tuermeVonHanoi.getSpielfeldKopie(); }}));
+	}
+
+	/** Für ein Spielfeld mit zwei Türmen und drei Steinen gibt es keine Lösung */
+	@Test
+	public void testeSpielOhneLoesung() throws UnguetigeSpalteException, UnguetigerZugException, UnguetigeReiheException {
+		assertFalse(new TuermeVonHanoi(2, 3).zuegeAusprobierenBisfertig(new ArrayList<>()));
 	}
 
 }
