@@ -35,10 +35,10 @@ public class ScannerTest {
 			new Camera(3, 2000, "Camera 3"),
 	};
 
-	/** {@linkplain #scanner} initialisieren */
+	/** {@linkplain #scanner} initialisieren, {@linkplain #listOfCameras} für Tests unverändert */
 	@BeforeEach
 	public void init() {
-		scanner.setCameras(listOfCameras);
+		scanner.setCameras(scanner.cloneCameraList(listOfCameras)); // Kopie verwenden
 	}
 
 	/** Prüfen, ob das Clonen eines Arrays funktioniert: unterschiedliche Instanzen mit gleichem Inhalt prüfen */
@@ -50,6 +50,36 @@ public class ScannerTest {
 			assertThat(listOfCameras[i], allOf(
 					not(sameInstance(listOfClonedCameras[i])),
 					equalTo(listOfClonedCameras[i])));
+	}
+
+	/** Prüfen, ob Kameras als Zeichenkette korrekt ausgegeben werden */
+	@Test
+	public void testeKamerasAlszeichenkette() {
+		assertThat(scanner.camerasAsString(), equalTo("[" +
+				"Camera [nummer=1, resolution=1000, name=Camera 1], " +
+				"Camera [nummer=2, resolution=1500, name=Camera 2], " +
+				"Camera [nummer=3, resolution=2000, name=Camera 3]]"));
+	}
+
+	/** Prüfen, ob beim links-verschieben die Kameras korrekt angeordnet sind */
+	@Test
+	public void testeLeftShift() {
+		Camera[] listOfCamerasShifted = scanner.leftShiftCamera();
+		assertThat(listOfCamerasShifted.length, equalTo(listOfCameras.length));
+		for ( int i=0; i < listOfCamerasShifted.length; i++ )
+			assertThat(listOfCamerasShifted[i], equalTo(listOfCameras[(i+1)%listOfCamerasShifted.length]));
+	}
+
+	/** kein Test: Demonstiert die erweiterte Schleife mit ":" und das Setzen mit Aufzählung ","-separiert statt Array */
+	@Test
+	public void demoErweiterteSchleife() {
+		scanner.setCameras(
+				new Camera(1, 1000, "Camera 1"),
+				new Camera(2, 1500, "Camera 2"),
+				new Camera(3, 2000, "Camera 3"),
+				new Camera(4, 2500, "Camera 4"));
+		for ( Camera c : scanner.getCameras() )
+			LOGGER.info(c);
 	}
 
 }

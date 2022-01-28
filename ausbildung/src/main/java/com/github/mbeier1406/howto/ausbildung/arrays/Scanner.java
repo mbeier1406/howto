@@ -1,5 +1,7 @@
 package com.github.mbeier1406.howto.ausbildung.arrays;
 
+import java.util.Arrays;
+
 import com.github.mbeier1406.howto.ausbildung.arrays.impl.StdScannerImpl;
 
 /**
@@ -60,18 +62,33 @@ public interface Scanner {
 
 
 	/**
-	 * Setzt eine Liste von Kameras in einem Scanner, die evtl. berits enthaltene
+	 * Setzt eine Liste von Kameras in einem Scanner, die evtl. bereits enthaltene
 	 * Liste wird ersetzt. Alternativ wäre diese Signatur:
 	 * {@code public void setCamears(Camera[] cameras);}.
+	 * Demonstriert <i>vararg</i> Parameter.
 	 * @param cameras Auflistung der Kameras des Scanners
 	 */
 	public void setCameras(Camera... cameras);
 
 	/**
-	 * Liefet eine <u>Kopie</u> der im Scanner gesetzten Kameras.
+	 * Liefet eine <u>Kopie</u> der im Scanner gesetzten Kameras (demonstriert das Kopieren/Clonen von Arrays).
 	 * @return Kopie der Liste der Kameras
+	 * @see #cloneCameraList(Camera[])
 	 */
 	public Camera[] getCameras();
+
+	/**
+	 * Liste der Kameras als String, demonstriert {@linkplain Arrays#toString()}.
+	 * @return die Kameras als Zeichenkette
+	 */
+	public String camerasAsString();
+
+	/**
+	 * Ändert die Kamera-Reihenfole im Scanner nach links, die im ersten Index <i>0</i> wird auf den letzten
+	 * Platz (Index <i>Length-1</i>) verschoben (demonstriert {@linkplain System#arraycopy(Object, int, Object, int, int)}).
+	 * @return eine Kopie der neuen Kameraliste im Scanner
+	 */
+	public Camera[] leftShiftCamera();
 
 	/**
 	 * Klont ein Array von {@linkplain Camera}s.
