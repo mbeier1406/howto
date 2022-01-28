@@ -21,12 +21,15 @@ public interface Scanner {
 	 * in {@linkplain Scanner#getCameras()}), damit die interne Liste "von außen"
 	 * nicht geändert werden kann. Die Klasse implementiert das {@linkplain Comparable}-Interface,
 	 * damit das Sortieren der Kameras funktioniert ({@linkplain Scanner#sortCameras()} über
-	 * die {@linkplain #nummer} aufsteigend).
+	 * die {@linkplain #nummer} aufsteigend). Die Methode {@linkplain #calcSumResolution(Camera, Camera)}
+	 * soll die Verwendung von {@linkplain Arrays#parallelPrefix(Object[], java.util.function.BinaryOperator))}
+	 * demonstrieren.
 	 */
 	public class Camera implements Comparable<Camera> {
-		int nummer;
-		int resolution;
-		String name;
+		private final int nummer;
+		private final int resolution;
+		private final String name;
+		private int sumResolution = 0; // ab der zweiten Kamera != 0 in 
 		public Camera(int nummer, int resolution, String name) {
 			super();
 			this.nummer = nummer;
@@ -41,6 +44,13 @@ public interface Scanner {
 		}
 		public String getName() {
 			return name;
+		}
+		public int getSumResolution() {
+			return sumResolution;
+		}
+		public static Camera calcSumResolution(Camera c1, Camera c2) {
+			c2.sumResolution = ((c1.sumResolution==0?c1.resolution:c1.sumResolution) + c2.resolution);
+			return c2;
 		}
 		@Override
 		public boolean equals(Object o) {
@@ -58,7 +68,8 @@ public interface Scanner {
 		}
 		@Override
 		public String toString() {
-			return "Camera [nummer=" + nummer + ", resolution=" + resolution + ", name=" + name + "]";
+			return "Camera [nummer=" + nummer + ", resolution=" + resolution + ", name=" + name + ", sumResolution="
+					+ sumResolution + "]";
 		}
 		@Override
 		public int compareTo(Camera o) {
@@ -102,6 +113,16 @@ public interface Scanner {
 	 * @return eine Kopie der neuen Kameraliste im Scanner
 	 */
 	public Camera[] sortCameras();
+
+	/**
+	 * Liefert die durchschnittliche Auflösung über alle Kameras.
+	 * <b>Achtung</b>: die Methode Ändert das (interne) Feld {@linkplain Camera#sumResolution} in
+	 * allen Kameras Index > 0 in {@link Scanner#getCameras()} auf die jeweiligeSumme bis Index. Es wird der Wert der letzen
+	 * Kamera in der Liste geteilt durch die Anzahl zurückgegeben. Die Methode soll die Verwendung von
+	 * {@linkplain Arrays#parallelPrefix(Object[], java.util.function.BinaryOperator))} zeigen.
+	 * @return Durchschnittliche Auflösung über alle Kameras in der Liste 
+	 */
+	public int getAvgResolution();
 
 	/**
 	 * Klont ein Array von {@linkplain Camera}s.

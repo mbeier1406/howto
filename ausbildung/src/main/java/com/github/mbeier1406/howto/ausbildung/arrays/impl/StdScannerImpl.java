@@ -54,6 +54,20 @@ public class StdScannerImpl implements Scanner {
 		return getCameras();
 	}
 
+	/** {@inheritDoc} */
+	@Override
+	public int getAvgResolution() {
+		/* Alternativ Setter in Camera erzeugen und diesen Code verwenden
+		Arrays.parallelPrefix(this.listOfCameras, (c1, c2) -> {
+				Camera c = new Camera(c2.getNummer(), c2.getResolution(), c2.getName());
+				c.setSumResolution(((c1.getSumResolution()==0?c1.getResolution():c1.getSumResolution())+c2.getResolution()));
+				return c;
+			});
+		*/
+		Arrays.parallelPrefix(this.listOfCameras, Camera::calcSumResolution);
+		return this.listOfCameras[this.listOfCameras.length-1].getSumResolution() / this.listOfCameras.length; // letzte Kamera enthält das Ergebnis
+	}
+
 	@Override
 	public String toString() {
 		return "StdScannerImpl [scannerId=" + scannerId + ", scannerName=" + scannerName + ", listOfCameras="

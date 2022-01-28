@@ -56,9 +56,9 @@ public class ScannerTest {
 	@Test
 	public void testeKamerasAlszeichenkette() {
 		assertThat(scanner.camerasAsString(), equalTo("[" +
-				"Camera [nummer=1, resolution=1000, name=Camera 1], " +
-				"Camera [nummer=2, resolution=1500, name=Camera 2], " +
-				"Camera [nummer=3, resolution=2000, name=Camera 3]]"));
+				"Camera [nummer=1, resolution=1000, name=Camera 1, sumResolution=0], " +
+				"Camera [nummer=2, resolution=1500, name=Camera 2, sumResolution=0], " +
+				"Camera [nummer=3, resolution=2000, name=Camera 3, sumResolution=0]]"));
 	}
 
 	/** Prüfen, ob beim links-verschieben die Kameras korrekt angeordnet sind */
@@ -80,6 +80,12 @@ public class ScannerTest {
 		assertThat(sortedCameras.length, equalTo(listOfCameras.length));
 		for ( int i=0; i < sortedCameras.length; i++ )
 			assertThat(sortedCameras[i], equalTo(listOfCameras[i]));
+	}
+
+	/** Summe über Scannerauflösung in {@linkplain #listOfCameras} geteilt durch drei (Scanner) */
+	@Test
+	public void testeAvgResolution() {
+		assertThat(scanner.getAvgResolution(), equalTo(1500));
 	}
 
 	/** kein Test: Demonstiert die erweiterte Schleife mit ":" und das Setzen mit Aufzählung ","-separiert statt Array */
