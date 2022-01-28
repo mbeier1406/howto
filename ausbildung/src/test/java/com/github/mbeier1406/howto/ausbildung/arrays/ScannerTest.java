@@ -28,7 +28,7 @@ public class ScannerTest {
 	/** Das zu testende Objekt */
 	public Scanner scanner = new StdScannerImpl(1, "Scanner 1");
 
-	/** Ein paar Kameras zum testen */
+	/** Ein paar Kameras zum testen aufsteigend nach Nummer sortiert */
 	public Camera[] listOfCameras = {
 			new Camera(1, 1000, "Camera 1"),
 			new Camera(2, 1500, "Camera 2"),
@@ -64,10 +64,22 @@ public class ScannerTest {
 	/** Prüfen, ob beim links-verschieben die Kameras korrekt angeordnet sind */
 	@Test
 	public void testeLeftShift() {
-		Camera[] listOfCamerasShifted = scanner.leftShiftCamera();
+		Camera[] listOfCamerasShifted = scanner.leftShiftCameras();
 		assertThat(listOfCamerasShifted.length, equalTo(listOfCameras.length));
 		for ( int i=0; i < listOfCamerasShifted.length; i++ )
 			assertThat(listOfCamerasShifted[i], equalTo(listOfCameras[(i+1)%listOfCamerasShifted.length]));
+	}
+
+	/** Kamerareihenfolge verschieben, sortieren und gegen den Originalbestand prüfen */
+	@Test
+	public void testeKamerasSortieren() {
+		scanner.leftShiftCameras(); // Originalliste weicht von Scannerreihenfolge ab
+		LOGGER.info("unsortiert: {}", scanner.camerasAsString());
+		Camera[] sortedCameras = scanner.sortCameras();
+		LOGGER.info("sortiert: {}", scanner.camerasAsString());
+		assertThat(sortedCameras.length, equalTo(listOfCameras.length));
+		for ( int i=0; i < sortedCameras.length; i++ )
+			assertThat(sortedCameras[i], equalTo(listOfCameras[i]));
 	}
 
 	/** kein Test: Demonstiert die erweiterte Schleife mit ":" und das Setzen mit Aufzählung ","-separiert statt Array */

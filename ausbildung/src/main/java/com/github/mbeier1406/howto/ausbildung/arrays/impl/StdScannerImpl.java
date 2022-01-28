@@ -40,11 +40,18 @@ public class StdScannerImpl implements Scanner {
 
 	/** {@inheritDoc} */
 	@Override
-	public Camera[] leftShiftCamera() {
+	public Camera[] leftShiftCameras() {
 		Camera c = this.listOfCameras[0];
 		System.arraycopy(this.listOfCameras, 1, this.listOfCameras, 0, this.listOfCameras.length-1);
 		this.listOfCameras[this.listOfCameras.length-1] = c;
 		return this.cloneCameraList(this.listOfCameras);
+	}
+
+	/** {@inheritDoc} */
+	@Override
+	public Camera[] sortCameras() {
+		Arrays.sort(this.listOfCameras);
+		return getCameras();
 	}
 
 	@Override

@@ -19,9 +19,11 @@ public interface Scanner {
 	 * Die Methode {@linkplain Camera#clone()} wird zum Klonen verwendet, damit
 	 * der Scanner eine Kopie der Liste der Cameras zurückgeben kann (zum Beispiel
 	 * in {@linkplain Scanner#getCameras()}), damit die interne Liste "von außen"
-	 * nicht geändert werden kann.
+	 * nicht geändert werden kann. Die Klasse implementiert das {@linkplain Comparable}-Interface,
+	 * damit das Sortieren der Kameras funktioniert ({@linkplain Scanner#sortCameras()} über
+	 * die {@linkplain #nummer} aufsteigend).
 	 */
-	public class Camera {
+	public class Camera implements Comparable<Camera> {
 		int nummer;
 		int resolution;
 		String name;
@@ -58,6 +60,10 @@ public interface Scanner {
 		public String toString() {
 			return "Camera [nummer=" + nummer + ", resolution=" + resolution + ", name=" + name + "]";
 		}
+		@Override
+		public int compareTo(Camera o) {
+			return Integer.compare(this.nummer, o.nummer);
+		}
 	}
 
 
@@ -88,7 +94,14 @@ public interface Scanner {
 	 * Platz (Index <i>Length-1</i>) verschoben (demonstriert {@linkplain System#arraycopy(Object, int, Object, int, int)}).
 	 * @return eine Kopie der neuen Kameraliste im Scanner
 	 */
-	public Camera[] leftShiftCamera();
+	public Camera[] leftShiftCameras();
+
+	/**
+	 * Sortiert die Kameralist aufsteigend nach der {@linkplain Camera#nummer} (demonstriert
+	 * die Nutzung von {@linkplain Arrays#sort(Object[])})
+	 * @return eine Kopie der neuen Kameraliste im Scanner
+	 */
+	public Camera[] sortCameras();
 
 	/**
 	 * Klont ein Array von {@linkplain Camera}s.
