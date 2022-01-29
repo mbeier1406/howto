@@ -1,6 +1,8 @@
 package com.github.mbeier1406.howto.ausbildung.arrays.impl;
 
 import java.util.Arrays;
+import java.util.Objects;
+import java.util.function.IntFunction;
 
 import com.github.mbeier1406.howto.ausbildung.arrays.Scanner;
 
@@ -28,8 +30,21 @@ public class StdScannerImpl implements Scanner {
 
 	/** {@inheritDoc} */
 	@Override
+	public void setCameras(int len, IntFunction<Camera> f) {
+		this.listOfCameras = new Camera[len];
+		Arrays.setAll(this.listOfCameras, f);
+	}
+
+	/** {@inheritDoc} */
+	@Override
 	public Camera[] getCameras() {
 		return this.cloneCameraList(this.listOfCameras);
+	}
+
+	/** {@inheritDoc} */
+	@Override
+	public int getNumCameras() {
+		return Objects.requireNonNull(this.listOfCameras, "Keine Liste definiert!").length;
 	}
 
 	/** {@inheritDoc} */
@@ -66,6 +81,12 @@ public class StdScannerImpl implements Scanner {
 		*/
 		Arrays.parallelPrefix(this.listOfCameras, Camera::calcSumResolution);
 		return this.listOfCameras[this.listOfCameras.length-1].getSumResolution() / this.listOfCameras.length; // letzte Kamera enthält das Ergebnis
+	}
+
+	/** {@inheritDoc} */
+	@Override
+	public boolean listOfCameraEquals(Camera[] cameras) {
+		return Arrays.deepEquals(this.listOfCameras, cameras);
 	}
 
 	@Override

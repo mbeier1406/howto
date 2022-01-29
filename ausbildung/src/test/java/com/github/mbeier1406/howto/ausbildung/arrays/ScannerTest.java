@@ -1,10 +1,11 @@
 package com.github.mbeier1406.howto.ausbildung.arrays;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.allOf;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.sameInstance;
+import static org.hamcrest.Matchers.hasProperty;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.not;
 
 import java.util.Arrays;
 import java.util.stream.Stream;
@@ -39,6 +40,21 @@ public class ScannerTest {
 	@BeforeEach
 	public void init() {
 		scanner.setCameras(scanner.cloneCameraList(listOfCameras)); // Kopie verwenden
+	}
+
+	/** Prüft {@linkplain Scanner#STD_CAMERA_GENERATOR} mit {@linkplain Arrays#setAll(Object[], java.util.function.IntFunction)} */
+	@Test
+	public void testeCamerasUeberFunktionErzeugen() {
+		int anzahlKameras = 5;
+		scanner.setCameras(anzahlKameras, Scanner.STD_CAMERA_GENERATOR);
+		Camera[] cameras = scanner.getCameras();
+		Arrays.stream(cameras).forEach(LOGGER::info);
+		assertThat(cameras.length, equalTo(anzahlKameras));
+		for ( int i=1; i <= anzahlKameras; i++ )
+			assertThat(cameras[i-1], allOf(
+					hasProperty("nummer", equalTo(i)),
+					hasProperty("resolution", equalTo(i*1000)),
+					hasProperty("name", equalTo("Camera "+i))));
 	}
 
 	/** Prüfen, ob das Clonen eines Arrays funktioniert: unterschiedliche Instanzen mit gleichem Inhalt prüfen */
@@ -86,6 +102,12 @@ public class ScannerTest {
 	@Test
 	public void testeAvgResolution() {
 		assertThat(scanner.getAvgResolution(), equalTo(1500));
+	}
+
+	/** Prüfen, ob die initialisierte Liste im Scanner ist */
+	@Test
+	public void testeListOfCameraEquals() {
+		assertThat(scanner.listOfCameraEquals(listOfCameras), equalTo(true));
 	}
 
 	/** kein Test: Demonstiert die erweiterte Schleife mit ":" und das Setzen mit Aufzählung ","-separiert statt Array */

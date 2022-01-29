@@ -1,6 +1,7 @@
 package com.github.mbeier1406.howto.ausbildung.arrays;
 
 import java.util.Arrays;
+import java.util.function.IntFunction;
 
 import com.github.mbeier1406.howto.ausbildung.arrays.impl.StdScannerImpl;
 
@@ -77,6 +78,12 @@ public interface Scanner {
 		}
 	}
 
+	/**
+	 * Funktion zur Erzeugung einer Kamera.
+	 * @see Scanner#setCameras(int, IntFunction)
+	 */
+	public static final IntFunction<Camera> STD_CAMERA_GENERATOR = i -> new Camera(i+1, (i+1)*1000, "Camera "+(i+1)); 
+
 
 	/**
 	 * Setzt eine Liste von Kameras in einem Scanner, die evtl. bereits enthaltene
@@ -88,11 +95,27 @@ public interface Scanner {
 	public void setCameras(Camera... cameras);
 
 	/**
-	 * Liefet eine <u>Kopie</u> der im Scanner gesetzten Kameras (demonstriert das Kopieren/Clonen von Arrays).
+	 * Generiert eine Liste der Länge <i>len</i> von Kameras in einem Scanner
+	 * unde erzeugt diese über die Funktion <i>f</i>. Demonstriert die Nutzung
+	 * von {@linkplain Arrays#setAll(Object[], IntFunction)}. 
+	 * @param len die Anzahl der Kameras
+	 * @param f die Funktion, mit der sie generiert werden
+	 */
+	public void setCameras(int len, IntFunction<Camera> f);
+
+	/**
+	 * Liefert eine <u>Kopie</u> der im Scanner gesetzten Kameras (demonstriert das Kopieren/Clonen von Arrays).
 	 * @return Kopie der Liste der Kameras
 	 * @see #cloneCameraList(Camera[])
 	 */
 	public Camera[] getCameras();
+
+	/**
+	 * Liefert die Anzahl der vohandenen Kameras, im Gegensatz dazu, die Länge der Liste in
+	 * {@linkplain Scanner#getCameras()} abzufragen, werden hier keine Kameras geklont.
+	 * @return Länge der Liste der Kameras im Scanner
+	 */
+	public int getNumCameras();
 
 	/**
 	 * Liste der Kameras als String, demonstriert {@linkplain Arrays#toString()}.
@@ -123,6 +146,14 @@ public interface Scanner {
 	 * @return Durchschnittliche Auflösung über alle Kameras in der Liste 
 	 */
 	public int getAvgResolution();
+
+	/**
+	 * Prüft, ob die übergebene Kameraliste der des Scanners gleicht.
+	 * Demonstriert die Benutzung von {@linkplain Arrays#deepEquals(Object[], Object[])}. 
+	 * @param cameras
+	 * @return <b>true</b> wenn gleich, sonst <b>false</b>
+	 */
+	public boolean listOfCameraEquals(Camera[] cameras);
 
 	/**
 	 * Klont ein Array von {@linkplain Camera}s.
