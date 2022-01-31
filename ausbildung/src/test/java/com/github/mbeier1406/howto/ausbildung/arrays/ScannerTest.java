@@ -8,6 +8,7 @@ import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.not;
 
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.apache.logging.log4j.LogManager;
@@ -32,8 +33,8 @@ public class ScannerTest {
 	/** Ein paar Kameras zum testen aufsteigend nach Nummer sortiert */
 	public Camera[] listOfCameras = {
 			new Camera(1, 1000, "Camera 1"),
-			new Camera(2, 1500, "Camera 2"),
-			new Camera(3, 2000, "Camera 3"),
+			new Camera(2, 2000, "Camera 2"),
+			new Camera(3, 3000, "Camera 3"),
 	};
 
 	/** {@linkplain #scanner} initialisieren, {@linkplain #listOfCameras} für Tests unverändert */
@@ -49,12 +50,7 @@ public class ScannerTest {
 		scanner.setCameras(anzahlKameras, Scanner.STD_CAMERA_GENERATOR);
 		Camera[] cameras = scanner.getCameras();
 		Arrays.stream(cameras).forEach(LOGGER::info);
-		assertThat(cameras.length, equalTo(anzahlKameras));
-		for ( int i=1; i <= anzahlKameras; i++ )
-			assertThat(cameras[i-1], allOf(
-					hasProperty("nummer", equalTo(i)),
-					hasProperty("resolution", equalTo(i*1000)),
-					hasProperty("name", equalTo("Camera "+i))));
+		pruefeStdKameraListe(cameras,anzahlKameras);
 	}
 
 	/** Prüfen, ob das Clonen eines Arrays funktioniert: unterschiedliche Instanzen mit gleichem Inhalt prüfen */
@@ -73,8 +69,8 @@ public class ScannerTest {
 	public void testeKamerasAlszeichenkette() {
 		assertThat(scanner.camerasAsString(), equalTo("[" +
 				"Camera [nummer=1, resolution=1000, name=Camera 1, sumResolution=0], " +
-				"Camera [nummer=2, resolution=1500, name=Camera 2, sumResolution=0], " +
-				"Camera [nummer=3, resolution=2000, name=Camera 3, sumResolution=0]]"));
+				"Camera [nummer=2, resolution=2000, name=Camera 2, sumResolution=0], " +
+				"Camera [nummer=3, resolution=3000, name=Camera 3, sumResolution=0]]"));
 	}
 
 	/** Prüfen, ob beim links-verschieben die Kameras korrekt angeordnet sind */
@@ -101,13 +97,40 @@ public class ScannerTest {
 	/** Summe über Scannerauflösung in {@linkplain #listOfCameras} geteilt durch drei (Scanner) */
 	@Test
 	public void testeAvgResolution() {
-		assertThat(scanner.getAvgResolution(), equalTo(1500));
+		assertThat(scanner.getAvgResolution(), equalTo(2000));
 	}
 
 	/** Prüfen, ob die initialisierte Liste im Scanner ist */
 	@Test
 	public void testeListOfCameraEquals() {
 		assertThat(scanner.listOfCameraEquals(listOfCameras), equalTo(true));
+	}
+
+	/** Prüfen, ob das Erweitern der Kameraliste im Scanner funktioniert */
+	@Test
+	public void testeListOfCameraErweitern() {
+		Camera[] cameras = scanner.appendCameras(new Camera[] { new Camera(4, 4000, "Camera 4"), new Camera(5, 5000, "Camera 5") });
+		Arrays.stream(scanner.getCameras()).forEach(LOGGER::info);
+		pruefeStdKameraListe(cameras, 5);
+	}
+
+	/** Suchen einer Kamera in der Kameraliste */
+	@Test
+	public void testeCameraSuchen() {
+		Camera camera3 = new Camera(3, 2000, "Camera 3");
+		Camera[] cameras = new Camera[] { // Liste ist nicht soritert!
+				camera3,
+				new Camera(1, 1000, "Camera 1"),
+				new Camera(2, 1500, "Camera 2"),
+				new Camera(5, 5500, "Camera 5"),
+				new Camera(4, 2500, "Camera 4")
+		};
+		scanner.setCameras(cameras);
+		Optional<Camera> camera = scanner.findCamera(6);
+		assertThat(camera.isEmpty(), equalTo(true)); // Kamera Nummer 6 gibt es nicht
+		camera = scanner.findCamera(3);
+		assertThat(camera.isPresent(), equalTo(true));
+		assertThat(camera.get(), equalTo(camera3));
 	}
 
 	/** kein Test: Demonstiert die erweiterte Schleife mit ":" und das Setzen mit Aufzählung ","-separiert statt Array */
@@ -120,6 +143,21 @@ public class ScannerTest {
 				new Camera(4, 2500, "Camera 4"));
 		for ( Camera c : scanner.getCameras() )
 			LOGGER.info(c);
+	}
+
+	/**
+	 * Prüft, ob eine Liste von Kameras den Vorgaben dieses Tests entsprechen:
+	 * <i>nummer = Index+1, Auflösung = 1000*nummer, Name = "Camera &lt;nummer&gt;"</i>
+	 * @param cameras Liste der zur prüfenden Kameras
+	 */
+	public void pruefeStdKameraListe(Camera[] cameras, int anzahlKameras) {
+		assertThat(cameras.length, equalTo(anzahlKameras));
+		for ( int i=1; i <= cameras.length; i++ )
+			assertThat(cameras[i-1], allOf(
+					hasProperty("nummer", equalTo(i)),
+					hasProperty("resolution", equalTo(i*1000)),
+					hasProperty("name", equalTo("Camera "+i))));
+
 	}
 
 }

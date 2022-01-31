@@ -1,6 +1,7 @@
 package com.github.mbeier1406.howto.ausbildung.arrays;
 
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.function.IntFunction;
 
 import com.github.mbeier1406.howto.ausbildung.arrays.impl.StdScannerImpl;
@@ -154,6 +155,23 @@ public interface Scanner {
 	 * @return <b>true</b> wenn gleich, sonst <b>false</b>
 	 */
 	public boolean listOfCameraEquals(Camera[] cameras);
+
+	/**
+	 * Erweitert die bestehenden Kameras im Scanner um eine Liste von neuen Kameras durch anhängen.
+	 * Demonstriert die Benutzung von {@linkplain Arrays#copyOf(Object[], int)}.
+	 * @param cameras Liste zusätzlicher Kameras
+	 * @return eine Kopie der neuen Liste der Kameras im Scanner
+	 */
+	public Camera[] appendCameras(Camera[] cameras);
+
+	/**
+	 * Sucht eine Kamera über ihre Nummer. Demonstriert die Nutzung von {@linkplain Arrays#binarySearch(Object[], Object)}.
+	 * <b>ACHTUNG</b>: benötigt eine sortierte Kameraliste im Scanner, von daher wird die reihenfolge über
+	 * {@linkplain #sortCameras()} geändert.
+	 * @param nummer Nummer der Kamera {@linkplain Camera#nummer}
+	 * @return Ein Optional, dass die Kamera enthält, falls vorhanden ist, sonst {@linkplain Optional#empty()}
+	 */
+	public Optional<Camera> findCamera(int nummer);
 
 	/**
 	 * Klont ein Array von {@linkplain Camera}s.

@@ -2,6 +2,7 @@ package com.github.mbeier1406.howto.ausbildung.arrays.impl;
 
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.IntFunction;
 
 import com.github.mbeier1406.howto.ausbildung.arrays.Scanner;
@@ -87,6 +88,23 @@ public class StdScannerImpl implements Scanner {
 	@Override
 	public boolean listOfCameraEquals(Camera[] cameras) {
 		return Arrays.deepEquals(this.listOfCameras, cameras);
+	}
+
+	/** {@inheritDoc} */
+	@Override
+	public Camera[] appendCameras(Camera[] cameras) {
+		Camera[] tmp= Arrays.copyOf(this.listOfCameras, this.listOfCameras.length+cameras.length);
+		System.arraycopy(cameras, 0, tmp, this.listOfCameras.length, cameras.length);
+		this.listOfCameras = tmp;
+		return getCameras();
+	}
+
+	/** {@inheritDoc} */
+	@Override
+	public Optional<Camera> findCamera(int nummer) {
+		sortCameras();
+		int index = Arrays.binarySearch(this.listOfCameras, new Camera(nummer, 0, ""));
+		return index < 0 ? Optional.empty() : Optional.of(this.listOfCameras[index]);
 	}
 
 	@Override
