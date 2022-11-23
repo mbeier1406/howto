@@ -13,8 +13,6 @@ import javax.xml.transform.stream.StreamSource;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import de.gmxhome.golkonda.howto.jse.rss.TRss;
-
 /**
  * Eine Implementierung des {@linkplain RssInterface} auf Basis von JAXB2.
  * @author mbeier

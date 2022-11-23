@@ -14,7 +14,7 @@
 	<description>Kleine Java-Tutorials Java Standard-Edition</description>
 
 	<properties>
-		<rss.xsd.src.dir>src/main/resources/de/gmxhome/golkonda/howto/jse/rss</rss.xsd.src.dir>
+		<rss.xsd.src.dir>src/main/resources/com/github/mbeier1406/howto/jse/rss</rss.xsd.src.dir>
 		<rss.xsd.gen.dir>${project.build.directory}/generated-sources/xsd</rss.xsd.gen.dir>
 	</properties>
 
