@@ -1,0 +1,10 @@
+
+- Allgemein
+  sdiff adatei1> <datei2>
+
+- Installation
+  apt search <Suche>
+  apt list <Package>
+  dpkg -l <Package>
+  dpkg -L <Package>
+
