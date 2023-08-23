@@ -1,10 +1,28 @@
 
 - Allgemein
-  sdiff adatei1> <datei2>
+  sdiff <datei1> <datei2>
 
 - Installation
+  apt --installed list / upgrade / update / install / (auto)remove / purge
   apt search <Suche>
   apt list <Package>
+  unmae -m; curl -O https://...; dpkg -i <Datei>
   dpkg -l <Package>
   dpkg -L <Package>
+
+- Boot /boot
+  lsb_release -i -s
+  /boot/grub/grub.cfg
+  dmesg, /var/log/dmesg
+  Ubuntu multi-user mit GUI = runlevel 2
+  /lib/systemd/system/runlevel2.target
+  systemctl get-default
+  systemctl set-default <Mode>.target (/etc/systemd/system/default.target.wants/)
+  systemctl isolate <Ziel>.target (z. B. reboot.target, shutdown.target, poweroff.target)
+
+- Logging
+  /etc/rsyslog.conf
+  logger -p <facility.severity> [-t <Tag Text>] ... (# logger -p mail.info -t xxx "Hallo Welt"; tail -1 /var/log/mail.log)
+  /etc/logrotate.conf
+  logrotate -fv /etc/logrotate.conf
 
