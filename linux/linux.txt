@@ -26,3 +26,14 @@
   /etc/logrotate.conf
   logrotate -fv /etc/logrotate.conf
 
+- Disk Management
+  fdisk -l; fdisk <Device>
+  # fdisk /dev/nvme0n2 n/g (new MBR/GPT) p (primary) (partition number) (start) (size) / t (partition type, 83) / p (print partition table)
+  mkswap <Device> / swapon <Device> / swapon -s
+  mkfs -t <Type> <Device> / ls -1 /sbin/mk* (FS Typs) / mount <Device> <Path> / df -h
+  Labeling: ext=e2label <Device> <Label> / lsblk -f / blkid / /etc/fstab 
+  LVM: Storage Device, Physical Volume PV (eg Partition), Volume Group VG, Logical Volume LV, Filesystem
+  lvmdiskscan/lsblk -p/fdsik -l / pvcreate <Device>/pvs/pvdisplay -m / vgcreate <Name> <Device>/vgs/vgdisplay / lvcreate -L <Size>/-l <Extends|x%FREE> -n <Name> <VG>/lvs/lvdisplay -m
+
+
+
