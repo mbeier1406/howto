@@ -1,0 +1,15 @@
+
+# Allgemeines
+docker version
+
+# Images
+docker image pull <Image:Version> # Z. B. alpine für ein Leichtgewichtiges Linux
+docker image ls
+
+# Container
+docker container run <Image:Version> [<Commandline>] # Z. B. docker container run alpine:latest ls -l
+docker conatiner run -it <Linux-Container> /bin/sh
+docker container ls [-a] # Bzw. ps [-a] um [auch gestoppte] Container anzuzeigen
+docker conatiner start <Container-Id> # Existierenden Container neu starten
+docker container exec <Container-Id> <Commandline> # Kommando im laufenden Container ausführen, z. B. einloggen über docker container exec -it <Container-Id> /bin/sh
+
