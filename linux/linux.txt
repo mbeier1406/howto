@@ -2,12 +2,15 @@
 - Allgemein
   sdiff <datei1> <datei2>
   pstree
+  cat <datei> | pv | compress -c
+  perf
 
 - Installation
+  apt update
   apt --installed list / upgrade / update / install / (auto)remove / purge
   apt search <Suche>
   apt list <Package>
-  unmae -m; curl -O https://...; dpkg -i <Datei>
+  uname -m; curl -O https://...; dpkg -i <Datei>
   dpkg -l <Package>
   dpkg -L <Package>
 
@@ -39,4 +42,11 @@
   # Mirror: lvcreate -m <copies> ... / lvs -a / pvdisplay -m
   # Migration: pvmove <Device from> <Device to>
 
+- User Management
+  /etc/passwd, /etc/shadow, /etc/group, /etc/login.defs, /etc/shells
+  useradd (-r == System, -m == User mit Files aus /etc/skel), userdel, usermod, passwd, groups, groupadd, groupdel, groupmod, newgrp, chsh
+
+- Network
+  ip (a l, link set lo up, ...), uname/hostname (/etc/hostname), host/dig, /etc/hosts, /etc/nsswitch.conf, /etc/services, netplan (/etc/netplan/*)
+  mtr/ping (icmp), traceroute/tracepath, tcpdump -i <interface> -A, netstat -t -r/i/lp, telnet
 
