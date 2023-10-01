@@ -3,8 +3,11 @@
 docker version
 
 # Images
-docker image pull <Image:Version> # Z. B. alpine für ein Leichtgewichtiges Linux
+docker image pull <Image:Version> # Z. B. docker image pull alpine für ein Leichtgewichtiges Linux
 docker image ls
+docker image build # Erzeugen aus Dockerfile; über docker container commit/tag s. u.
+docker image history # Layers anzeigen
+docker image inspect # Details des Images anzeigen
 
 # Container
 docker container run <Image:Version> [<Commandline>] # Z. B. docker container run alpine:latest ls -l
@@ -12,4 +15,34 @@ docker conatiner run -it <Linux-Container> /bin/sh
 docker container ls [-a] # Bzw. ps [-a] um [auch gestoppte] Container anzuzeigen
 docker conatiner start <Container-Id> # Existierenden Container neu starten
 docker container exec <Container-Id> <Commandline> # Kommando im laufenden Container ausführen, z. B. einloggen über docker container exec -it <Container-Id> /bin/sh
+
+# Beispiel Image erzeugen über commit/tag
+docker container run -ti ubuntu /bin/bash
+# apt-get update && apt-get install -y figlet
+# exit
+docker image ls -a
+docker container diff <Container-ID>
+docker container commit <Container-ID> # Image erzeugen
+docker image ls
+docker image tag <Image-ID> <Image-Name>
+docker container run <Image-Name> figlet "..."
+
+# Beispiel Image erzeugen ber Dockerfile
+cat >> index.js
+var os = require("os");
+var hostname = os.hostname();
+console.log("hostname: " + hostname);
+^D
+cat >> Dockerfile
+FROM alpine
+RUN apk update && apk add nodejs
+COPY . /app
+WORKDIR /app
+CMD ["node", "index.js"]
+docker image build -t <Image-name>:<Image-Version> .
+docker container run <Image-name>:<Image-Version>
+docker image history <Image-name>:<Image-Version>
+apt update && apt install -y jq
+docker inspect --format "{{json .RootFS.Layers}}" history <Image-name>:<Image-Version> | jq
+
 
