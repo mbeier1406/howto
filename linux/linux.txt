@@ -1,6 +1,7 @@
 
 - Allgemein
   sdiff <datei1> <datei2>
+  pstree
 
 - Installation
   apt --installed list / upgrade / update / install / (auto)remove / purge

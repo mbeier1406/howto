@@ -50,8 +50,8 @@
 	    <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
 	    <sonar.jacoco.reportPath>${project.basedir}/../target/jacoco.exec</sonar.jacoco.reportPath>
 	    <sonar.language>java</sonar.language>
-	    <maven.compiler.source>1.19</maven.compiler.source>
-	    <maven.compiler.target>1.19</maven.compiler.target>
+	    <maven.compiler.source>19</maven.compiler.source>
+	    <maven.compiler.target>19</maven.compiler.target>
 	</properties>
 
 	<distributionManagement>
@@ -72,8 +72,8 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.8.0</version>
 				<configuration>
-					<source>16</source>
-					<target>16</target>
+					<source>19</source>
+					<target>19</target>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -147,8 +147,8 @@
 					</execution>
 				</executions>
 			</plugin>
-			<plugin>
-				<!-- mvn -X org.jacoco:jacoco-maven-plugin:report -->
+<!--			<plugin>
+				<!- - mvn -X org.jacoco:jacoco-maven-plugin:report - ->
 			    <groupId>org.jacoco</groupId>
 			    <artifactId>jacoco-maven-plugin</artifactId>
 				<version>${jacoco.version}</version>
@@ -167,7 +167,7 @@
 			            </goals>
 			        </execution>
 			    </executions>
-			</plugin>
+			</plugin>-->
 		</plugins>
 	</build>
 
