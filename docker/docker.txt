@@ -1,5 +1,6 @@
 
 # Allgemeines
+apt update && apt install -y jq # JSON Formatierung
 docker version
 
 # Images
@@ -10,11 +11,17 @@ docker image history # Layers anzeigen
 docker image inspect # Details des Images anzeigen
 
 # Container
-docker container run <Image:Version> [<Commandline>] # Z. B. docker container run alpine:latest ls -l
+docker container run --name <Container-Name> <Image:Version> [<Commandline>] # Z. B. docker container run alpine:latest ls -l
 docker conatiner run -it <Linux-Container> /bin/sh
 docker container ls [-a] # Bzw. ps [-a] um [auch gestoppte] Container anzuzeigen
 docker conatiner start <Container-Id> # Existierenden Container neu starten
 docker container exec <Container-Id> <Commandline> # Kommando im laufenden Container ausführen, z. B. einloggen über docker container exec -it <Container-Id> /bin/sh
+
+# Volumes
+docker volume ls
+docker volume create --name <Volume-Name> # Erzeugung eines Volumes über Dockerfile bzw. Hostfolder in einen Container einbinden s. u.
+docker volume inspect <Volume-Name>
+
 
 # Beispiel Image erzeugen über commit/tag
 docker container run -ti ubuntu /bin/bash
@@ -42,7 +49,31 @@ CMD ["node", "index.js"]
 docker image build -t <Image-name>:<Image-Version> .
 docker container run <Image-name>:<Image-Version>
 docker image history <Image-name>:<Image-Version>
-apt update && apt install -y jq
 docker inspect --format "{{json .RootFS.Layers}}" history <Image-name>:<Image-Version> | jq
 
+# Beispiel lokale Dateien und Volumes
+docker container run --name c1 -ti alpine sh
+# mkdir /data && cd /data && touch data.txt
+docker container inspect --format "{{json .GraphDriver}}" c1 | jq # Containerverzeichnis
+ls -l <UpperDir>/data
+docker container rm c1 # Löscht auch das Containerverzeichnis
+cat >> Dockerfile
+FROM alpine
+VOLUME ["/data"]
+^D
+docker image build -t i2:latest .
+docker container run --name c2 -it i2
+# cd /data
+/data # touch data.txt
+/data # ^D
+docker container inspect --format "{{json .Mounts}}" c2 | jq
+ls -l <Source-Dir> # Inhalt des Volumes anzeigen
+docker container stop c2 && docker container rm c2 # Inhalt des Volumes überlebt
+docker volume create --name html
+docker volume ls
+docker volume inspect [--format "{{json .Mountpoint}}"] html
+docker container run --name www -d -p 8080:80 -v html:/usr/share/nginx/html nginx # Volume in Container einbinden
+ls -l /var/lib/docker/volumes/html/_data # Enthält die von nginx angelegten Dateien
+# Hostfolder in Container einbinden, Achtung überschreibt Containerpfade!!!
+docker conatiner run -v <existierender Hostpfad>:<evtl. nicht existierener Containerpfad> ... 
 
