@@ -77,3 +77,13 @@ ls -l /var/lib/docker/volumes/html/_data # Enthält die von nginx angelegten Dat
 # Hostfolder in Container einbinden, Achtung überschreibt Containerpfade!!!
 docker conatiner run -v <existierender Hostpfad>:<evtl. nicht existierener Containerpfad> ... 
 
+
+# Docker Compose Beispiel
+apt update && apt install tree -y && apt install docker-compose -y
+git clone https://github.com/ibnesayeed/linkextractor.git && cd linkextractor && git checkout -f step2 && tree
+docker image build -t linkextractor:step2 .
+docker container run --rm linkextractor:step2 https://www.google.com
+
+
+
+
