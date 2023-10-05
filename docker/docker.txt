@@ -16,6 +16,8 @@ docker conatiner run -it <Linux-Container> /bin/sh
 docker container ls [-a] # Bzw. ps [-a] um [auch gestoppte] Container anzuzeigen
 docker conatiner start <Container-Id> # Existierenden Container neu starten
 docker container exec <Container-Id> <Commandline> # Kommando im laufenden Container ausführen, z. B. einloggen über docker container exec -it <Container-Id> /bin/sh
+docker container logs <Container-Name oder -ID> # Für Container im detached Modus (start -d)
+docker container rm <Container-Name oder -ID> # Conatiner löschen (-f für detached Container)
 
 # Volumes
 docker volume ls
@@ -80,10 +82,11 @@ docker conatiner run -v <existierender Hostpfad>:<evtl. nicht existierener Conta
 
 # Docker Compose Beispiel
 apt update && apt install tree -y && apt install docker-compose -y
-git clone https://github.com/ibnesayeed/linkextractor.git && cd linkextractor && git checkout -f step2 && tree
-docker image build -t linkextractor:step2 .
-docker container run --rm linkextractor:step2 https://www.google.com
-
-
-
+git clone https://github.com/ibnesayeed/linkextractor.git && cd linkextractor && git checkout -f step6 && tree
+docker-compose up -d --build
+docker-compose exec redis redis-cli monitor
+curl -i http://localhost:4567/api/http://example.com
+curl -i http://localhost:80/?url=http://example.com
+docker-compose down
+cat logs/extraction.log
 
