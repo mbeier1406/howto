@@ -90,3 +90,20 @@ curl -i http://localhost:80/?url=http://example.com
 docker-compose down
 cat logs/extraction.log
 
+
+# Docker Swarm Mode Beispiel
+# (Drei für Quorum) Manager Nodes für Management- und Container-Tasks und in jedem mehrere Worker Nodes (Container-Tasks)
+# Tasks (Containers) => Services  => Stack
+apt update && apt install tree -y
+docker swarm init # Z. B. auf Knoten 1 => Manager
+docker swarm leave --force # Beenden
+docker swarm join --token <Token aus init> <IP:Port aus init> # Z. B. auf Knoten 2 => Worker
+docker node ls # Auf Knoten 1 == Manager
+git clone https://github.com/docker/example-voting-app && cd example-voting-app && tree
+docker stack deploy --compose-file=docker-stack.yml <Stack-Name>
+docker stack ls
+docker stack services <Stack-Name>
+docker service ps <Service-Name...> # <Stack-Name>_vote, <Stack-Name>_db, ...
+# Frontend http://159.69.82.250:5000/ Result http://159.69.82.250:5001/
+docker service scale <Service-Name...>=<Anzahl Knoten>
+
