@@ -1,0 +1,15 @@
+
+# Bootloader (GRUB) sichern:
+..linux../vmlinuz...init=/bin/bash # Startet die Bash als Init-Prozess
+>> /etc/grub.d/40_custom
+set superuser="root"
+password root root # bzw. password_pbkdf2 root `grub-mkpasswd-pbkdf2`
+# grub-mkconfig -o /boot/grub/grub.cfg
+
+# Single-User Mode
+Bootloader (GRUB) -> e (edit)
+initd-Systeme: "..linux../vmlinuz...<runlevel> # 1, S, s = Single-User Modus
+-> /etc/sysconfig/init: SINGLE=/sbin/sulogin
+systemd-Systeme: "..linux../vmlinuz...<target> # systemd.unit=rescue.target = Single-User Modus
+-> /lib/systemd/system emergency.service rescue.service: ExecStart=.../sbin/sulogin...
+
