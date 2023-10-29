@@ -13,3 +13,5 @@ initd-Systeme: "..linux../vmlinuz...<runlevel> # 1, S, s = Single-User Modus
 systemd-Systeme: "..linux../vmlinuz...<target> # systemd.unit=rescue.target = Single-User Modus
 -> /lib/systemd/system emergency.service rescue.service: ExecStart=.../sbin/sulogin...
 
+# LUKS / dm-crypt
+

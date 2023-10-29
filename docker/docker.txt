@@ -107,3 +107,32 @@ docker service ps <Service-Name...> # <Stack-Name>_vote, <Stack-Name>_db, ...
 # Frontend http://159.69.82.250:5000/ Result http://159.69.82.250:5001/
 docker service scale <Service-Name...>=<Anzahl Knoten>
 
+# Docker Networking
+docker info # Network Plugins
+docker network ls
+docker network inspect <Network>
+=> bridge:  verfügbar auf localhost = Linux Bridge / virtual switch, per NAT -p extern verfuegbar machen
+apt update && apt install bridge-utils
+brctl show # zeigt das Docker-Netzwerk, noch kein Container angeschlossen (Spalte interfaces)
+ip a # Infos zum Docker Netzwerk
+docker run -dt ubuntu:22.04 sleep infinity # Irgendeinen Container starten
+brctl show # Jetzt ist ein Container angeschlossen
+docker network inspect bridge # Zeigt den Container mit IP-Adresse
+ping <IP-Adresse>
+=> overlay: Beispiel swarm
+host1# docker swarm init; docker node ls # Swarm mit zwei Knoten starten
+host2# docker swarm join --token <Token> <IP:Port>
+host1# docker network create -d overlay swarmnet
+host1# docker network ls # Netzwerk wird angezeigt
+host2# docker network ls # Netzwerk wird nicht angezeigt
+host1# docker network inspect swarmnet
+host1# docker service create --name swarmservcie --network swarmnet --replicas 2 ubuntu sleep infinity
+host1# docker service ls && docker service ps swarmservice
+host1/2# docker network inspect swarmnet
+host1/2# docker ps;
+       docker exec -it <Container-ID> /bin/bash; 
+       $ apt update && apt install iputils-ping -y
+       $ ping <IP> # Adresse aus host2# docker network inspect swarmnet
+       $ ping swarmservice # DNS in /etc/resolve.conf
+host1# docker service inspect swarmservcie # VirtualIPs == ping swarmservice
+
