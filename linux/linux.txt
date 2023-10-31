@@ -50,3 +50,11 @@
   ip (a l, link set lo up, ...), uname/hostname (/etc/hostname), host/dig, /etc/hosts, /etc/nsswitch.conf, /etc/services, netplan (/etc/netplan/*)
   mtr/ping (icmp), traceroute/tracepath, tcpdump -i <interface> -A, netstat -t -r/i/lp, telnet
 
+- TLS
+  # Anzeige der Client Cipher Suite: https://www.howsmyssl.com/
+  # Info: https://ciphersuite.info/cs/
+  # Beispiel TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256 - TLS <Key Exchange> <Authentication> <Encryption> <Integrity Checking>
+  sudo tcpdump "tcp port 443" -i ens33 -w tls.pcap # TCP-Pakete aufzeichnen
+  curl https://www.google.com
+  tshark -r tls.pcap -V # Cipher Suite ab Bereich: TLS.. Record Layer: Handshake Protocol: Client Hello
+
