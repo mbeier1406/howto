@@ -1,12 +1,21 @@
 
 # Lightweight Kubernetes: k3s
   curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION=v1.24.4+k3s1 sh - # Installation und Start k3s
-  cubectl get nodes # Pruefen, ob der Cluster laeuft
+  kubectl get nodes # Pruefen, ob der Cluster laeuft
+  export KUBECONFIG=/etc/rancher/k3s/k3s.yml # Client Konfigurationsdatei kubeconfig
+  # Kubernetes Objekte wie zB Pods (record of intend) mit Sepc/Status ueber den API-Server (zB ueber kubectl) pflegen:
+  # - containerisierte Anwendungen auf den Nodes
+  # - welche Ressourcen fuer sie zur Verfuegung stehen
+  # - Richtlinien fuer Neustarte, Upgrades, Fehlertoleranz, ...
+  # Objepbeschreibungen: https://kubernetes.io/docs/reference/kubernetes-api/
+  kubectl apply -f ngnix.yaml # Pod anlegen
+  kubectl get pods # Pods anzeigen
+  kubectl delete -f ngnix.yaml # Pod wieder loeschen
 
 # Kubernetes: k9s
   # Installationsanleitung in https://github.com/derailed/k9s#installation
   curl -sS https://webinstall.dev/k9s | bash # Beispiel ueber Webinstall
   export PATH=/root/.local/bin:${PATH}
   k9s # :q fuer Ende
-  k9s --kubeconfig /etc/rancher/k3s/k3s.yaml # Oder export KUBECONFIG=...
+  k9s --kubeconfig ...yaml # Oder export KUBECONFIG=...
 
