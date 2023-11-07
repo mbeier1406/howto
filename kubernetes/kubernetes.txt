@@ -1,7 +1,7 @@
 
 # Lightweight Kubernetes: k3s
   curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION=v1.24.4+k3s1 sh - # Installation und Start k3s
-  cubectl get nodes # Pruefen, ob der Cluster laeuft
+  kubectl get nodes # Pruefen, ob der Cluster laeuft
 
 # Kubernetes: k9s
   # Installationsanleitung in https://github.com/derailed/k9s#installation
@@ -9,4 +9,7 @@
   export PATH=/root/.local/bin:${PATH}
   k9s # :q fuer Ende
   k9s --kubeconfig /etc/rancher/k3s/k3s.yaml # Oder export KUBECONFIG=...
+
+  - DaemonSets
+    kubectl get daemonsets -A
 
