@@ -2,13 +2,42 @@
 # Lightweight Kubernetes: k3s
   curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION=v1.24.4+k3s1 sh - # Installation und Start k3s
   kubectl get nodes # Pruefen, ob der Cluster laeuft
+  export KUBECONFIG=/etc/rancher/k3s/k3s.yml # Client Konfigurationsdatei kubeconfig
+  # Objekte wie zB Pods (record of intend) mit Sepc/Status ueber den API-Server (zB ueber kubectl) pflegen:
+  # - containerisierte Anwendungen auf den Nodes
+  # - welche Ressourcen fuer sie zur Verfuegung stehen
+  # - Richtlinien fuer Neustarte, Upgrades, Fehlertoleranz, ...
+  # Objektbeschreibungen: https://kubernetes.io/docs/reference/kubernetes-api/
+  # Objektinfos:
+  # - Metadata
+  # - Spec = desired state
+  # - Status = aktueller Stand
+  # Definition der drei: https://github.com/kubernetes/community/blob/master/contributors/devel/sig-architecture/api-conventions.md
+  kubectl apply -f ngnix-pod.yaml # Pod anlegen
+  kubectl get pods # Pods anzeigen
+  kubectl delete -f ngnix-pod.yaml # Pod wieder loeschen
+  # Deployments managen ReplicaSets (automatischer Neustart usw.) = mehrere identische Pods:
+  # - Verschiedene Updatestrategien (rolling update usw.) und rollback zu aelterem Stand
+  # - Automatische Skalierung ueber Anzahl der Pods
+  # - Automatischer Neustart
+  kubectl apply -f nginx-deployment.yaml # Deployment anlegen, yaml-Date aendern erneut ausfuehren = Update
+  kubectl get deployments
+  watch kubectl get pods -o wide
+  # Automatisch wird ein ReplicaSet mit angelegt
+  # Bei Updates bleibt ein Deployment, aber mehrere ReplicaSets (nicht-aktive mit 0 desired Pods!)
+  kubectl get replicasets
+  # Skalierung: ReplicaSet aendern
+  watch kubectl get pods # "desired state" des aktiven ReplicaSets anpassen
+  kubectl scale deployment/nginx-deployment --replicas=...
+  kubectl delete pod <Pod-Name>; watch kubectl get replicasets # wird wieder auf die spezifizierte Anzahl Pods geaendert
+  # Namespaces
 
 # Kubernetes: k9s
   # Installationsanleitung in https://github.com/derailed/k9s#installation
   curl -sS https://webinstall.dev/k9s | bash # Beispiel ueber Webinstall
   export PATH=/root/.local/bin:${PATH}
   k9s # :q fuer Ende
-  k9s --kubeconfig /etc/rancher/k3s/k3s.yaml # Oder export KUBECONFIG=...
+  k9s --kubeconfig ...yaml # Oder export KUBECONFIG=...
 
   - DaemonSets
     kubectl get daemonsets -A
