@@ -13,14 +13,15 @@
   # - Spec = desired state
   # - Status = aktueller Stand
   # Definition der drei: https://github.com/kubernetes/community/blob/master/contributors/devel/sig-architecture/api-conventions.md
-  kubectl apply -f ngnix-pod.yaml # Pod anlegen
+  kubectl apply --filename ngnix-pod.yaml # Pod anlegen
+  kubectl describe pod ... # Infos zum Pod
   kubectl get pods # Pods anzeigen
-  kubectl delete -f ngnix-pod.yaml # Pod wieder loeschen
+  kubectl delete --filename ngnix-pod.yaml # Pod wieder loeschen
   # Deployments managen ReplicaSets (automatischer Neustart usw.) = mehrere identische Pods:
   # - Verschiedene Updatestrategien (rolling update usw.) und rollback zu aelterem Stand
   # - Automatische Skalierung ueber Anzahl der Pods
   # - Automatischer Neustart
-  kubectl apply -f nginx-deployment.yaml # Deployment anlegen, yaml-Date aendern erneut ausfuehren = Update
+  kubectl apply --filename nginx-deployment.yaml # Deployment anlegen, yaml-Date aendern erneut ausfuehren = Update
   kubectl get deployments
   watch kubectl get pods -o wide
   # Automatisch wird ein ReplicaSet mit angelegt
@@ -30,7 +31,18 @@
   watch kubectl get pods # "desired state" des aktiven ReplicaSets anpassen
   kubectl scale deployment/nginx-deployment --replicas=...
   kubectl delete pod <Pod-Name>; watch kubectl get replicasets # wird wieder auf die spezifizierte Anzahl Pods geaendert
-  # Namespaces
+  # Namespaces fuer mulit-user Szenarios, Workloads trennen
+  # Produktion absichern: https://kubernetes.io/docs/tasks/administer-cluster/securing-a-cluster/
+  kubectl create namespace ... # fuer einen privaten Workload
+  kubectl get namespaces
+  kubectl get pods --namespace=... # zB kube-system fuer interne Pods
+  kubectl get pods --all-namspaces # alle Pods in allen Namespaces
+  # Logging (nur fuer Pods)
+  kubectl apply --filename counter-pod.yaml # Pod mit Ausgaben auf stdout
+  kubectl logs counter --follow
+  # Command execution (nur fuer Pods)
+  kubectl exec --tty --stdin <Pod> -- <Kommando>
+
 
 # Kubernetes: k9s
   # Installationsanleitung in https://github.com/derailed/k9s#installation
