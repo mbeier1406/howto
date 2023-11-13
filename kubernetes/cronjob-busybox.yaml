@@ -1,0 +1,20 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: busybox-cronjob
+spec:
+  schedule: "*/1 * * * *"
+  # weitere Optionen:
+  # concurrencyPolicy (Allow/Forbid/Replace): parallel starten, wenn vorheriger noch laeuft bzw. ersetzen?
+  # startingDeadlineSeconds: falls Zeit verpasst, max. Zeit in der noch gestartet werdne darf, sonst ueberspringen
+  # suspend (true/false): Job in/aktiv
+  # Infos zu Zeitzonen: https://kubernetes.io/docs/concepts/workloads/controllers/cron-jobs/#time-zones
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: busybox-cronjob-container
+            image: busybox
+            command: ["/bin/sh", "-c", "date; echo Hallo Busybox"]
+          restartPolicy: OnFailure

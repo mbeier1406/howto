@@ -43,6 +43,18 @@
   # Command execution (nur fuer Pods)
   kubectl exec --tty --stdin <Pod> -- <Kommando>
 
+  # Jobs/CronJobs
+  # Jobs: ein oder mehrere Pods starten und Erolg sicherstellen: fuer kurze Prozesse/Batch
+  # CronJob: Jobs mit Zeitsteuerung
+  kubectl apply -f job-busybox.yaml
+  kubectl get jobs
+  kubectl describe job <Jobname> # hier: busybox-job
+  kubectl get pods -ljob-name=<Jobname>
+  kubectl logs -ljob-name=<Jobname>
+  kubectl apply -f cronjob-busybox.yaml
+  kubectl get cronjobs
+  kubectl describe cronjob <Cronjobname> # hier: busybox-cronjob
+  watch kubectl get pods --selector=job-name=<Cronjobname>
 
 # Kubernetes: k9s
   # Installationsanleitung in https://github.com/derailed/k9s#installation
