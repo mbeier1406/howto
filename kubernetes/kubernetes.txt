@@ -1,8 +1,26 @@
-
-# Lightweight Kubernetes: k3s
+# Installationen
+  - Rancher's next-generation Kubernetes
+  echo "Y3VybCAtc2ZMIGh0dHBzOi8vZ2V0LnJrZTIuaW8gfCBzaCAtCgogICAgc3lzdGVtY3RsIGVuYWJsZSAtLW5vdyBya2UyLXNlcnZlci5zZXJ2aWNlCgogICAgY3VybCAtTE8gaHR0cHM6Ly9kbC5rOHMuaW8vcmVsZWFzZS92MS4yMS4wL2Jpbi9saW51eC9hbWQ2NC9rdWJlY3RsCgogICAgY2htb2QgK3gga3ViZWN0bAoKICAgIG12IC9yb290L2t1YmVjdGwgL3Vzci9iaW4vCgogICAga3ViZWN0bCAtLWt1YmVjb25maWcgL2V0Yy9yYW5jaGVyL3JrZTIvcmtlMi55YW1sIGdldCBhbGwgLW4ga3ViZS1zeXN0ZW0KCiAgICBleHBvcnQgS1VCRUNPTkZJRz0vZXRjL3JhbmNoZXIvcmtlMi9ya2UyLnlhbWwKCiAgICBlY2hvICJQbGVhc2UgcnVuIHRoZSBmb2xsb3dpbmcgY29tbWFuZCBmb3IgY29ubmVjdGluZyB0byB0aGUgY2x1c3RlcjoiCgogICAgZWNobyAiZXhwb3J0IEtVQkVDT05GSUc9L2V0Yy9yYW5jaGVyL3JrZTIvcmtlMi55YW1sIg==" | base64 --decode | bash
+  export KUBECONFIG=/etc/rancher/rke2/rke2.yaml
+  - Lightweight Kubernetes: k3s
   curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION=v1.24.4+k3s1 sh - # Installation und Start k3s
-  kubectl get nodes # Pruefen, ob der Cluster laeuft
   export KUBECONFIG=/etc/rancher/k3s/k3s.yml # Client Konfigurationsdatei kubeconfig
+  - Kubernetes: k9s
+  # Installationsanleitung in https://github.com/derailed/k9s#installation
+  curl -sS https://webinstall.dev/k9s | bash # Beispiel ueber Webinstall
+  export PATH=/root/.local/bin:${PATH}
+  k9s # :q fuer Ende
+  k9s --kubeconfig ...yaml # Oder export KUBECONFIG=...
+
+# Kubernetes
+  # Imperative Kommandos
+  kubectl run nginx-pod --image nginx:1.12.0 # Pod im default Namespace starten
+  kubectl get pods -ocustom-columns="NAME:.metadata.name,IMAGE:.spec.containers[0].image,NAMESPACE:.metadata.namespace" # bestimmte Spalten anzeigen
+  kubectl create namespace localns; kubectl run redis --image redis:alpine --labels app=db --namespace localns --port 8080 # im eigenen Namespace
+  kubectl create deployment web --image jcdemo/flaskapp --replicas 4 # Deployment mit vier Replicas
+  kubectl run httpd --image httpd:alpine --port 80 --expose # Pod mit Service (Cluster IP)
+
+  kubectl get nodes # Pruefen, ob der Cluster laeuft
   # Objekte wie zB Pods (record of intend) mit Sepc/Status ueber den API-Server (zB ueber kubectl) pflegen:
   # - containerisierte Anwendungen auf den Nodes
   # - welche Ressourcen fuer sie zur Verfuegung stehen
@@ -56,12 +74,6 @@
   kubectl describe cronjob <Cronjobname> # hier: busybox-cronjob
   watch kubectl get pods --selector=job-name=<Cronjobname>
 
-# Kubernetes: k9s
-  # Installationsanleitung in https://github.com/derailed/k9s#installation
-  curl -sS https://webinstall.dev/k9s | bash # Beispiel ueber Webinstall
-  export PATH=/root/.local/bin:${PATH}
-  k9s # :q fuer Ende
-  k9s --kubeconfig ...yaml # Oder export KUBECONFIG=...
 
   - DaemonSets
     kubectl get daemonsets -A
