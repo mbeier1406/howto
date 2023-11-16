@@ -1,0 +1,24 @@
+# Beispiel fuer ein Manifest fuer einen statischen Pod
+# Zu Speichern im Verzeichnis, das in der Kublet-Konfiguration (staticPodPath) angegeben ist (zB /etc/kubernetes/manifests)
+apiVersion: v1
+kind: Pod
+metadata:
+  name: static-busybox
+  namespace: default
+spec:
+  containers:
+  - name: static-busybox
+    image: busybox
+    command: ["sleep", "500"]
+    imagePullPolicy: IfNotPresent
+apiVersion: v1
+kind: Pod
+metadata:
+  name: static-busybox
+  namespace: default
+spec:
+  containers:
+  - name: static-busybox
+    image: busybox
+    command: ["sleep", "500"]
+    imagePullPolicy: IfNotPresent

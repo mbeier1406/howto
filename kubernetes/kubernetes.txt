@@ -1,11 +1,11 @@
 # Installationen
-  - Rancher's next-generation Kubernetes
+  - Rancher's next-generation Kubernetes rke2
   echo "Y3VybCAtc2ZMIGh0dHBzOi8vZ2V0LnJrZTIuaW8gfCBzaCAtCgogICAgc3lzdGVtY3RsIGVuYWJsZSAtLW5vdyBya2UyLXNlcnZlci5zZXJ2aWNlCgogICAgY3VybCAtTE8gaHR0cHM6Ly9kbC5rOHMuaW8vcmVsZWFzZS92MS4yMS4wL2Jpbi9saW51eC9hbWQ2NC9rdWJlY3RsCgogICAgY2htb2QgK3gga3ViZWN0bAoKICAgIG12IC9yb290L2t1YmVjdGwgL3Vzci9iaW4vCgogICAga3ViZWN0bCAtLWt1YmVjb25maWcgL2V0Yy9yYW5jaGVyL3JrZTIvcmtlMi55YW1sIGdldCBhbGwgLW4ga3ViZS1zeXN0ZW0KCiAgICBleHBvcnQgS1VCRUNPTkZJRz0vZXRjL3JhbmNoZXIvcmtlMi9ya2UyLnlhbWwKCiAgICBlY2hvICJQbGVhc2UgcnVuIHRoZSBmb2xsb3dpbmcgY29tbWFuZCBmb3IgY29ubmVjdGluZyB0byB0aGUgY2x1c3RlcjoiCgogICAgZWNobyAiZXhwb3J0IEtVQkVDT05GSUc9L2V0Yy9yYW5jaGVyL3JrZTIvcmtlMi55YW1sIg==" | base64 --decode | bash
   export KUBECONFIG=/etc/rancher/rke2/rke2.yaml
   - Lightweight Kubernetes: k3s
   curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION=v1.24.4+k3s1 sh - # Installation und Start k3s
   export KUBECONFIG=/etc/rancher/k3s/k3s.yml # Client Konfigurationsdatei kubeconfig
-  - Kubernetes: k9s
+  - Kubernetes mit Terminal UI: k9s
   # Installationsanleitung in https://github.com/derailed/k9s#installation
   curl -sS https://webinstall.dev/k9s | bash # Beispiel ueber Webinstall
   export PATH=/root/.local/bin:${PATH}
@@ -20,8 +20,11 @@
   kubectl create deployment web --image jcdemo/flaskapp --replicas 4 # Deployment mit vier Replicas
   kubectl run httpd --image httpd:alpine --port 80 --expose # Pod mit Service (Cluster IP)
 
+  # Cluster Administration
   kubectl get nodes # Pruefen, ob der Cluster laeuft
-  # Objekte wie zB Pods (record of intend) mit Sepc/Status ueber den API-Server (zB ueber kubectl) pflegen:
+
+  # Objekte
+  # Kubernetesobjekte wie zB Pods (record of intend) mit Sepc/Status ueber den API-Server (zB ueber kubectl) pflegen:
   # - containerisierte Anwendungen auf den Nodes
   # - welche Ressourcen fuer sie zur Verfuegung stehen
   # - Richtlinien fuer Neustarte, Upgrades, Fehlertoleranz, ...
@@ -73,6 +76,12 @@
   kubectl get cronjobs
   kubectl describe cronjob <Cronjobname> # hier: busybox-cronjob
   watch kubectl get pods --selector=job-name=<Cronjobname>
+
+  # Static Pods
+  # Statische Pods (an einen Knoten gebunden) sind vom CONTROLLER-Typ Node und werden direkt vom kubelet (nicht API-Server) verwaltet
+  # Ablegen der yaml-Datei im Manifest-Verzeichnis (Kublet Konfiguration) des Knotens
+  # Beispiel static-pod-manifest.yaml
+  kubectl get pods --all-namespaces --output custom-columns="NAME:.metadata.name,CONTROLLER:.metadata.ownerReferences[].kind"
 
 
   - DaemonSets
