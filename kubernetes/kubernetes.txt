@@ -1,3 +1,7 @@
+#
+# Kubernetes
+#
+
 # Installationen
   - Rancher's next-generation Kubernetes rke2
   echo "Y3VybCAtc2ZMIGh0dHBzOi8vZ2V0LnJrZTIuaW8gfCBzaCAtCgogICAgc3lzdGVtY3RsIGVuYWJsZSAtLW5vdyBya2UyLXNlcnZlci5zZXJ2aWNlCgogICAgY3VybCAtTE8gaHR0cHM6Ly9kbC5rOHMuaW8vcmVsZWFzZS92MS4yMS4wL2Jpbi9saW51eC9hbWQ2NC9rdWJlY3RsCgogICAgY2htb2QgK3gga3ViZWN0bAoKICAgIG12IC9yb290L2t1YmVjdGwgL3Vzci9iaW4vCgogICAga3ViZWN0bCAtLWt1YmVjb25maWcgL2V0Yy9yYW5jaGVyL3JrZTIvcmtlMi55YW1sIGdldCBhbGwgLW4ga3ViZS1zeXN0ZW0KCiAgICBleHBvcnQgS1VCRUNPTkZJRz0vZXRjL3JhbmNoZXIvcmtlMi9ya2UyLnlhbWwKCiAgICBlY2hvICJQbGVhc2UgcnVuIHRoZSBmb2xsb3dpbmcgY29tbWFuZCBmb3IgY29ubmVjdGluZyB0byB0aGUgY2x1c3RlcjoiCgogICAgZWNobyAiZXhwb3J0IEtVQkVDT05GSUc9L2V0Yy9yYW5jaGVyL3JrZTIvcmtlMi55YW1sIg==" | base64 --decode | bash
@@ -12,7 +16,6 @@
   k9s # :q fuer Ende
   k9s --kubeconfig ...yaml # Oder export KUBECONFIG=...
 
-# Kubernetes
   # Imperative Kommandos
   kubectl run nginx-pod --image nginx:1.12.0 # Pod im default Namespace starten
   kubectl get pods -ocustom-columns="NAME:.metadata.name,IMAGE:.spec.containers[0].image,NAMESPACE:.metadata.namespace" # bestimmte Spalten anzeigen
@@ -64,6 +67,39 @@
   # Command execution (nur fuer Pods)
   kubectl exec --tty --stdin <Pod> -- <Kommando>
 
+  # Resourcen
+  # * Secrets
+  # kubectl create secret <Typ> <Name> <Daten>
+  # Im Standard unverschluesselt im etcd gespeichert
+  # => Loesung: 1. Definition RBAC-Rolle 2. Zugriff auf spezielle Container einschraenken 3. externe Speicher
+  # Typen:
+  # - opaque: Allgemein fuer Text
+  # - docker-registry: Zugriff auf private Docker Registries
+  # - tls: private Schluessel und Zertifikate
+  # - ssh: private Schluessel, fingerprints
+  # - service-account-token: Zugriff auf Serviceaccounts ueber den API-Server
+  kubectl get secrets # Spalte DATA: Anzahl Eintraege
+  kubectl get secret <Secret-Name> --output yaml
+  kubectl describe secret <Secret-Name>
+  # Opaque
+  kubectl create secret generic geheim-opaque --from-literal=user=... --from-literal=pass=... # alternativ --from-file=<dir>
+  kubectl apply --filename pod-opaque-secret.yaml # Testen...
+  kubectl exec --tty --stdin pod-opaque-secret -- /bin/bash
+  $ echo $user $pass
+  # TLS
+  openssl req -x509 -newkey rsa:4096 -nodes -keyout tls.key -out tls.crt -subj "/CN=golkonda.de" # Key und Zertifikat
+  kubectl create secret tls geheim-tls --cert=tls.crt --key=tls.key # Test analog Opaque
+  # docker-registry: wird auf dem Node fuer das Kubelet zur Anmeldung an der Image-Registry benoetigt
+  kubectl create secret docker-registry geheim-dockerregistry  \
+  --docker-server=DOCKER_REGISTRY_SERVER \
+  --docker-username=DOCKER_USER \
+  --docker-password=DOCKER_PASSWORD \
+  --docker-email=DOCKER_EMAIL
+  kubectl apply --filename pod-dockerregistry-secret.yaml # laedt das Image von der zuvor definierten Registry
+  # Da Secrets von jedem API/etcd-User, Pod, Deployment, ... ausgelesen werden koennen, externer Speicher mit mehr Sicherheit:
+  # - https://www.vaultproject.io/docs/
+  # - https://aws.amazon.com/secrets-manager/
+
   # Jobs/CronJobs
   # Jobs: ein oder mehrere Pods starten und Erolg sicherstellen: fuer kurze Prozesse/Batch
   # CronJob: Jobs mit Zeitsteuerung
@@ -83,7 +119,11 @@
   # Beispiel static-pod-manifest.yaml
   kubectl get pods --all-namespaces --output custom-columns="NAME:.metadata.name,CONTROLLER:.metadata.ownerReferences[].kind"
 
+  # Application Logging
 
-  - DaemonSets
+  # DaemonSets
     kubectl get daemonsets -A
+
+  # Helm
+  curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash # Installation
 
