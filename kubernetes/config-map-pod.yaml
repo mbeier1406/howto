@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  namespace: ...
+  name: ...
+spec:
+  containers:
+  - image: ...
+    name: ...
+    args: ...
+    env:
+    - name: VARIABLE_NAME
+      valueFrom:
+        configMapKeyRef:
+          name: config-map # siehe Datei config-map.yaml
+          key: config-map-var1

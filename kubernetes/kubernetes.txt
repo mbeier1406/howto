@@ -18,10 +18,12 @@
 
   # Imperative Kommandos
   kubectl run nginx-pod --image nginx:1.12.0 # Pod im default Namespace starten
+  kubectl run <Podname> --image <Image> -- <Command> # spezielles Kommando im Pod ausfuehren
   kubectl get pods -ocustom-columns="NAME:.metadata.name,IMAGE:.spec.containers[0].image,NAMESPACE:.metadata.namespace" # bestimmte Spalten anzeigen
   kubectl create namespace localns; kubectl run redis --image redis:alpine --labels app=db --namespace localns --port 8080 # im eigenen Namespace
   kubectl create deployment web --image jcdemo/flaskapp --replicas 4 # Deployment mit vier Replicas
   kubectl run httpd --image httpd:alpine --port 80 --expose # Pod mit Service (Cluster IP)
+  kubectl run ... --dry-run=client --output=<Format (yaml, json, ...)> > <Dateiname> # Pod-Definition als Datei speichern
 
   # Cluster Administration
   kubectl get nodes # Pruefen, ob der Cluster laeuft
@@ -41,7 +43,8 @@
   kubectl describe pod ... # Infos zum Pod
   kubectl get pods # Pods anzeigen
   kubectl delete --filename ngnix-pod.yaml # Pod wieder loeschen
-  # Deployments managen ReplicaSets (automatischer Neustart usw.) = mehrere identische Pods:
+  # Deployments: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
+  # Managen ReplicaSets (automatischer Neustart usw.) = mehrere identische Pods:
   # - Verschiedene Updatestrategien (rolling update usw.) und rollback zu aelterem Stand
   # - Automatische Skalierung ueber Anzahl der Pods
   # - Automatischer Neustart
@@ -82,7 +85,8 @@
   kubectl get secret <Secret-Name> --output yaml
   kubectl describe secret <Secret-Name>
   # Opaque
-  kubectl create secret generic geheim-opaque --from-literal=user=... --from-literal=pass=... # alternativ --from-file=<dir>
+  kubectl create secret generic geheim-opaque --from-literal=user=... --from-literal=pass=...
+  # alternativ --from-file=<dir> oder kubectl apply --filename opaque-secret.yaml
   kubectl apply --filename pod-opaque-secret.yaml # Testen...
   kubectl exec --tty --stdin pod-opaque-secret -- /bin/bash
   $ echo $user $pass
@@ -99,6 +103,21 @@
   # Da Secrets von jedem API/etcd-User, Pod, Deployment, ... ausgelesen werden koennen, externer Speicher mit mehr Sicherheit:
   # - https://www.vaultproject.io/docs/
   # - https://aws.amazon.com/secrets-manager/
+  # * ConfigMaps: Konfigurationsvariablen fuer Pods bereitstellen
+  kubectl apply --filename=config-map.yaml
+  kubectl apply --filename=config-map-pod.yaml
+  # * Service: https://kubernetes.io/docs/concepts/services-networking/service/: Anwendung im Cluster bekannt machen
+  kubectl apply --filename deployment-mongodb.yaml # Beispiel MongoDB mit Gaestebuch
+  kubectl apply --filename service-mongodb.yaml
+  kubectl apply --filename deployment-guestbook.yaml
+  kubectl apply --filename deployment-guestbook.yaml
+  kubectl get service frontend
+  curl http://localhost:30080
+  # * Ingress: https://kubernetes.io/docs/concepts/services-networking/ingress/: Anwendungen veroeffentlichen ueber Reverse Proxy
+  # Alternative zum Service mit NodePort
+  kubectl apply --filename ingress-guestbook.yaml
+  kubectl get ingress
+  curl http://localhost:80
 
   # Jobs/CronJobs
   # Jobs: ein oder mehrere Pods starten und Erolg sicherstellen: fuer kurze Prozesse/Batch
