@@ -104,8 +104,14 @@
   # - https://www.vaultproject.io/docs/
   # - https://aws.amazon.com/secrets-manager/
   # * ConfigMaps: Konfigurationsvariablen fuer Pods bereitstellen
+  kubectl get configmap <Name> # aus metadata/name
+  kubectl describe configmap <Name>
+  # Bereitstellen als Umgebungsvariablen => werden bei Updates NICHT automatisch aktualisiert
   kubectl apply --filename=config-map.yaml
   kubectl apply --filename=config-map-pod.yaml
+  # Bereitstellen als  Konfigurationsdateien => werden bei Updates automatisch aktualisiert
+  kubectl apply --filename=config-map-file.yaml
+  kubectl apply --filename=config-map-file-pod.yaml
   # * Service: https://kubernetes.io/docs/concepts/services-networking/service/: Anwendung im Cluster bekannt machen
   kubectl apply --filename deployment-mongodb.yaml # Beispiel MongoDB mit Gaestebuch
   kubectl apply --filename service-mongodb.yaml

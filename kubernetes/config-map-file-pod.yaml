@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: ...
+spec:
+  containers:
+  - name: ...
+    image: ...
+    volumeMounts:
+    - name: config-volume # Name s. u.
+      mountPath: /etc/config # Verzeichnis, unter dem die Dateien bereitgestellt werden sollen
+  volumes:
+  - name: config-volume # s. o.
+    configMap:
+      name: config-map-file # aus config-map-file.yaml
