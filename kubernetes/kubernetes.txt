@@ -16,6 +16,9 @@
   k9s # :q fuer Ende
   k9s --kubeconfig ...yaml # Oder export KUBECONFIG=...
 
+  # Cluster Administration, Startup Probes usw.
+  kubectl get nodes # Pruefen, ob der Cluster laeuft
+
   # Imperative Kommandos
   kubectl run nginx-pod --image nginx:1.12.0 # Pod im default Namespace starten
   kubectl run <Podname> --image <Image> -- <Command> # spezielles Kommando im Pod ausfuehren
@@ -24,9 +27,6 @@
   kubectl create deployment web --image jcdemo/flaskapp --replicas 4 # Deployment mit vier Replicas
   kubectl run httpd --image httpd:alpine --port 80 --expose # Pod mit Service (Cluster IP)
   kubectl run ... --dry-run=client --output=<Format (yaml, json, ...)> > <Dateiname> # Pod-Definition als Datei speichern
-
-  # Cluster Administration
-  kubectl get nodes # Pruefen, ob der Cluster laeuft
 
   # Objekte
   # Kubernetesobjekte wie zB Pods (record of intend) mit Sepc/Status ueber den API-Server (zB ueber kubectl) pflegen:
@@ -44,6 +44,14 @@
     kubectl describe pod ... # Infos zum Pod
     kubectl get pods # Pods anzeigen
     kubectl delete --filename ngnix-pod.yaml # Pod wieder loeschen
+  # * Probes: laufen die Container?
+  #   Die Restart-Policy betrifft immer den gesamten Pod! Bei Deployments/DeamonSets/StatefulSets immer "Always"
+  #   - Liveness: "Lebt" der Container? Neustart des Containers bei Fehlern.
+    kubectl apply --filename liveness-pod.yaml
+  #   - Readiness: Verarbeitet der Container Anfragen? Keine weiteren werden dorthin delegiert bei Fehlern.
+    kubectl apply --filename readiness-pod.yaml
+  #   - Startup: Ist der Container bereits hochgefahren? Vorher keine Liveness/Readiness Proben
+    kubectl apply --filename startupprobe-pod.yaml
   # * Deployments: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
   #   Managen ReplicaSets (automatischer Neustart usw.) = mehrere identische Pods:
   #   - Verschiedene Updatestrategien (rolling update usw.) und rollback zu aelterem Stand

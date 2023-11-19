@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: ...
+spec:
+  restartPolicy: ... # Always: bei jedem Exit (auch OK) des Containers Neustart (Default)
+                     # OnFailure: bei Exit des Containers mit einem "Nicht-Null-Wert"
+                     # Never: nur einmaliger Lauf des Containers, kein Neustart
+  containers:
+  - name: ...
+    livenessProbe:           # Alternativ: exec um im Container zu testen
+      httpGet:               # In diesem Beispiel wird ein HTTP-Aufruf verwendet
+        path: /health-check  # Unter diesem Pfad/Port muss die Anwendung mit HTTP-Code 200
+        port: 8080           # reagieren, damit die Probe als OK gewertet wird
+      initialDelaySeconds: 5 # 5 Sekunden vor dem ersten Check warten
+      failureThreshold: 3    # Drei Fehlschlaege bewirken Status "Fehler" und Neustart
+      periodSeconds: 10      # Alle 10 Sekunden pruefen

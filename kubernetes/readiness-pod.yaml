@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: ...
+spec:
+  containers:
+  - name: ...
+    readinessProbe:    # Alternativ: httpGet um den Container von aussen zu testen
+      exec:            # In diesem Beispiel wird die Existenz einer Datei geprueft
+        command:       # Es wird erwartet, dass die Anwendung im Container nach
+        - sh           # erfolgreichem Start die Datei anlegt
+        - -c
+        - 'test -f /tmp/start'
+      periodSeconds: 5 # Alle 5 Sekunden pruefen, ob der Container gestartet ist

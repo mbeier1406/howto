@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: ...
+spec:
+  containers:
+  - name: ...
+    startupProbe:
+      ...   # httpGet oder exec analog readiness-pod.yaml/liveness-pod.yaml
+        ... # Konfiguration der Probe
+      failureThreshold: 30 # Container hat fuenf Minuten Zeit zum Starten (30x 10 Sekunden),
+      periodSeconds: 10    # bevor die liveness/readiness Probe gestartet wird, ansonsten Neustart
