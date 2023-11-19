@@ -39,91 +39,106 @@
   # - Spec = desired state
   # - Status = aktueller Stand
   # Definition der drei: https://github.com/kubernetes/community/blob/master/contributors/devel/sig-architecture/api-conventions.md
-  kubectl apply --filename ngnix-pod.yaml # Pod anlegen
-  kubectl describe pod ... # Infos zum Pod
-  kubectl get pods # Pods anzeigen
-  kubectl delete --filename ngnix-pod.yaml # Pod wieder loeschen
-  # Deployments: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
-  # Managen ReplicaSets (automatischer Neustart usw.) = mehrere identische Pods:
-  # - Verschiedene Updatestrategien (rolling update usw.) und rollback zu aelterem Stand
-  # - Automatische Skalierung ueber Anzahl der Pods
-  # - Automatischer Neustart
-  kubectl apply --filename nginx-deployment.yaml # Deployment anlegen, yaml-Date aendern erneut ausfuehren = Update
-  kubectl get deployments
-  watch kubectl get pods -o wide
-  # Automatisch wird ein ReplicaSet mit angelegt
-  # Bei Updates bleibt ein Deployment, aber mehrere ReplicaSets (nicht-aktive mit 0 desired Pods!)
-  kubectl get replicasets
-  # Skalierung: ReplicaSet aendern
-  watch kubectl get pods # "desired state" des aktiven ReplicaSets anpassen
-  kubectl scale deployment/nginx-deployment --replicas=...
-  kubectl delete pod <Pod-Name>; watch kubectl get replicasets # wird wieder auf die spezifizierte Anzahl Pods geaendert
-  # Namespaces fuer mulit-user Szenarios, Workloads trennen
-  # Produktion absichern: https://kubernetes.io/docs/tasks/administer-cluster/securing-a-cluster/
-  kubectl create namespace ... # fuer einen privaten Workload
-  kubectl get namespaces
-  kubectl get pods --namespace=... # zB kube-system fuer interne Pods
-  kubectl get pods --all-namspaces # alle Pods in allen Namespaces
-  # Logging (nur fuer Pods)
-  kubectl apply --filename counter-pod.yaml # Pod mit Ausgaben auf stdout
-  kubectl logs counter --follow
+  # * Pods
+    kubectl apply --filename ngnix-pod.yaml # Pod anlegen
+    kubectl describe pod ... # Infos zum Pod
+    kubectl get pods # Pods anzeigen
+    kubectl delete --filename ngnix-pod.yaml # Pod wieder loeschen
+  # * Deployments: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
+  #   Managen ReplicaSets (automatischer Neustart usw.) = mehrere identische Pods:
+  #   - Verschiedene Updatestrategien (rolling update usw.) und rollback zu aelterem Stand
+  #   - Automatische Skalierung ueber Anzahl der Pods
+  #   - Automatischer Neustart
+    kubectl apply --filename nginx-deployment.yaml # Deployment anlegen, yaml-Date aendern erneut ausfuehren = Update
+    kubectl get deployments
+    watch kubectl get pods -o wide
+  # * ReplicaSets
+  #   Automatisch wird ein ReplicaSet mit angelegt
+  #   Bei Updates bleibt ein Deployment, aber mehrere ReplicaSets (nicht-aktive mit 0 desired Pods!)
+    kubectl get replicasets
+  #   Skalierung: ReplicaSet aendern
+    watch kubectl get pods # "desired state" des aktiven ReplicaSets anpassen
+    kubectl scale deployment/nginx-deployment --replicas=...
+    kubectl delete pod <Pod-Name>; watch kubectl get replicasets # wird wieder auf die spezifizierte Anzahl Pods geaendert
+  # * Namespaces
+  #   Fuer mulit-user Szenarios, Workloads trennen
+  #   Produktion absichern: https://kubernetes.io/docs/tasks/administer-cluster/securing-a-cluster/
+    kubectl create namespace ... # fuer einen privaten Workload
+    kubectl get namespaces
+    kubectl get pods --namespace=... # zB kube-system fuer interne Pods
+    kubectl get pods --all-namspaces # alle Pods in allen Namespaces
+  # * Logging
+  #  Nur fuer Pods
+    kubectl apply --filename counter-pod.yaml # Pod mit Ausgaben auf stdout
+    kubectl logs counter --follow
   # Command execution (nur fuer Pods)
   kubectl exec --tty --stdin <Pod> -- <Kommando>
 
   # Resourcen
   # * Secrets
-  # kubectl create secret <Typ> <Name> <Daten>
-  # Im Standard unverschluesselt im etcd gespeichert
-  # => Loesung: 1. Definition RBAC-Rolle 2. Zugriff auf spezielle Container einschraenken 3. externe Speicher
-  # Typen:
-  # - opaque: Allgemein fuer Text
-  # - docker-registry: Zugriff auf private Docker Registries
-  # - tls: private Schluessel und Zertifikate
-  # - ssh: private Schluessel, fingerprints
-  # - service-account-token: Zugriff auf Serviceaccounts ueber den API-Server
-  kubectl get secrets # Spalte DATA: Anzahl Eintraege
-  kubectl get secret <Secret-Name> --output yaml
-  kubectl describe secret <Secret-Name>
-  # Opaque
-  kubectl create secret generic geheim-opaque --from-literal=user=... --from-literal=pass=...
-  # alternativ --from-file=<dir> oder kubectl apply --filename opaque-secret.yaml
-  kubectl apply --filename pod-opaque-secret.yaml # Testen...
-  kubectl exec --tty --stdin pod-opaque-secret -- /bin/bash
-  $ echo $user $pass
-  # TLS
-  openssl req -x509 -newkey rsa:4096 -nodes -keyout tls.key -out tls.crt -subj "/CN=golkonda.de" # Key und Zertifikat
-  kubectl create secret tls geheim-tls --cert=tls.crt --key=tls.key # Test analog Opaque
-  # docker-registry: wird auf dem Node fuer das Kubelet zur Anmeldung an der Image-Registry benoetigt
-  kubectl create secret docker-registry geheim-dockerregistry  \
-  --docker-server=DOCKER_REGISTRY_SERVER \
-  --docker-username=DOCKER_USER \
-  --docker-password=DOCKER_PASSWORD \
-  --docker-email=DOCKER_EMAIL
-  kubectl apply --filename pod-dockerregistry-secret.yaml # laedt das Image von der zuvor definierten Registry
-  # Da Secrets von jedem API/etcd-User, Pod, Deployment, ... ausgelesen werden koennen, externer Speicher mit mehr Sicherheit:
-  # - https://www.vaultproject.io/docs/
-  # - https://aws.amazon.com/secrets-manager/
-  # * ConfigMaps: Konfigurationsvariablen fuer Pods bereitstellen
-  kubectl get configmap <Name> # aus metadata/name
-  kubectl describe configmap <Name>
-  # Bereitstellen als Umgebungsvariablen => werden bei Updates NICHT automatisch aktualisiert
-  kubectl apply --filename=config-map.yaml
-  kubectl apply --filename=config-map-pod.yaml
-  # Bereitstellen als  Konfigurationsdateien => werden bei Updates automatisch aktualisiert
-  kubectl apply --filename=config-map-file.yaml
-  kubectl apply --filename=config-map-file-pod.yaml
-  # * Service: https://kubernetes.io/docs/concepts/services-networking/service/: Anwendung im Cluster bekannt machen
-  kubectl apply --filename deployment-mongodb.yaml # Beispiel MongoDB mit Gaestebuch
-  kubectl apply --filename service-mongodb.yaml
-  kubectl apply --filename deployment-guestbook.yaml
-  kubectl apply --filename deployment-guestbook.yaml
-  kubectl get service frontend
-  curl http://localhost:30080
-  # * Ingress: https://kubernetes.io/docs/concepts/services-networking/ingress/: Anwendungen veroeffentlichen ueber Reverse Proxy
-  # Alternative zum Service mit NodePort
-  kubectl apply --filename ingress-guestbook.yaml
-  kubectl get ingress
-  curl http://localhost:80
+  #   Im Standard unverschluesselt im etcd gespeichert
+  #   => Loesung: 1. Definition RBAC-Rolle 2. Zugriff auf spezielle Container einschraenken 3. externe Speicher
+  #   Typen:
+  #   - opaque: Allgemein fuer Text
+  #   - docker-registry: Zugriff auf private Docker Registries
+  #   - tls: private Schluessel und Zertifikate
+  #   - ssh: private Schluessel, fingerprints
+  #   - service-account-token: Zugriff auf Serviceaccounts ueber den API-Server
+    kubectl create secret <Typ> <Name> <Daten>
+    kubectl get secrets # Spalte DATA: Anzahl Eintraege
+    kubectl get secret <Secret-Name> --output yaml
+    kubectl describe secret <Secret-Name>
+    # Opaque
+    kubectl create secret generic geheim-opaque --from-literal=user=... --from-literal=pass=...
+    # alternativ --from-file=<dir> oder kubectl apply --filename opaque-secret.yaml
+    kubectl apply --filename pod-opaque-secret.yaml # Testen...
+    kubectl exec --tty --stdin pod-opaque-secret -- /bin/bash
+    $ echo $user $pass
+    # TLS
+    openssl req -x509 -newkey rsa:4096 -nodes -keyout tls.key -out tls.crt -subj "/CN=golkonda.de" # Key und Zertifikat
+    kubectl create secret tls geheim-tls --cert=tls.crt --key=tls.key # Test analog Opaque
+    # docker-registry: wird auf dem Node fuer das Kubelet zur Anmeldung an der Image-Registry benoetigt
+    kubectl create secret docker-registry geheim-dockerregistry  \
+    --docker-server=DOCKER_REGISTRY_SERVER \
+    --docker-username=DOCKER_USER \
+    --docker-password=DOCKER_PASSWORD \
+    --docker-email=DOCKER_EMAIL
+    kubectl apply --filename pod-dockerregistry-secret.yaml # laedt das Image von der zuvor definierten Registry
+    # Da Secrets von jedem API/etcd-User, Pod, Deployment, ... ausgelesen werden koennen, externer Speicher mit mehr Sicherheit:
+    # - https://www.vaultproject.io/docs/
+    # - https://aws.amazon.com/secrets-manager/
+  # * ConfigMaps
+  #   Konfigurationsvariablen fuer Pods bereitstellen
+    kubectl get configmap <Name> # aus metadata/name
+    kubectl describe configmap <Name>
+    # Bereitstellen als Umgebungsvariablen => werden bei Updates NICHT automatisch aktualisiert
+    kubectl apply --filename=config-map.yaml
+    kubectl apply --filename=config-map-pod.yaml
+    # Bereitstellen als  Konfigurationsdateien => werden bei Updates automatisch aktualisiert
+    kubectl apply --filename=config-map-file.yaml
+    kubectl apply --filename=config-map-file-pod.yaml
+  # * Service
+  #   https://kubernetes.io/docs/concepts/services-networking/service/: Anwendung im Cluster bekannt machen
+    kubectl apply --filename deployment-mongodb.yaml # Beispiel MongoDB mit Gaestebuch
+    kubectl apply --filename service-mongodb.yaml
+    kubectl apply --filename deployment-guestbook.yaml
+    kubectl apply --filename deployment-guestbook.yaml
+    kubectl get service frontend
+    curl http://localhost:30080
+  # * Ingress
+  #    https://kubernetes.io/docs/concepts/services-networking/ingress/: Anwendungen veroeffentlichen ueber Reverse Proxy
+  #    Alternative zum Service mit NodePort
+    kubectl apply --filename ingress-guestbook.yaml
+    kubectl get ingress
+    curl http://localhost:80
+  # * PersistentVolume
+  #   Anforderung (PVC): https://kubernetes.io/docs/concepts/storage/persistent-volumes/#persistentvolumeclaims
+  #   Manuell bereitgestellt (PV): https://kubernetes.io/docs/concepts/storage/persistent-volumes/
+  #   Automatisch ueber StorageClass: https://kubernetes.io/docs/concepts/storage/storage-classes
+  #   Unabhaengig von Pods, Daten "ueberleben" auch deren Loeschung
+    kubectl apply --filename pvc.yaml # Anforderung des Volumes mit Namen PVC-NAME
+    kubectl apply --filename pv.yaml # Verwnedung des Volumes mit Namen PVC-NAME
+    kubectl get/describe pv/pvc
 
   # Jobs/CronJobs
   # Jobs: ein oder mehrere Pods starten und Erolg sicherstellen: fuer kurze Prozesse/Batch

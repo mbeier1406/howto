@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  ...
+spec:
+  containers:
+  - ...
+    volumeMounts:
+    - name: persistent-storage-name # Name des persistent volume s. u.
+      mountPath: ... # z. B. /opt/daten
+  volumes:
+  - name: persistent-storage-name # Verwendung s. o.
+    persistentVolumeClaim:
+      claimName: PVC-NAME # Siehe Definition in pvc.yaml
