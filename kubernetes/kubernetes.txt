@@ -9,6 +9,7 @@
   - Lightweight Kubernetes: k3s
   curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION=v1.24.4+k3s1 sh - # Installation und Start k3s
   export KUBECONFIG=/etc/rancher/k3s/k3s.yml # Client Konfigurationsdatei kubeconfig
+  ln -sf /etc/rancher/k3s/k3s.yaml ~/.kube/config
   - Kubernetes mit Terminal UI: k9s
   # Installationsanleitung in https://github.com/derailed/k9s#installation
   curl -sS https://webinstall.dev/k9s | bash # Beispiel ueber Webinstall
@@ -252,5 +253,15 @@
     kubectl delete statefulset <Name> --cascade=false
 
   # Helm
+  # https://helm.sh/: Applikationen aus Repositories im Cluster deployen
+  # Wird auf dem Client installiert, kommuniziert mit dem API-Server mit dem Cluster: https://helm.sh/docs/intro/install/
   curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash # Installation
+  helm version --client
+  # Installation mit Datei values.yaml <key>: <value> ersetzt {{ .Values.<key> }} durch <value>
+  helm install <Name> --filename=<values.yaml> <Installationsverzeichnis>
+  helm upgrade <Name> --set <key>=<value>
+  helm list
+  helm rollback <Name> <Revision>
+  helm history <Name>
+  helm uninstall <Name1> [<Name2>] ...
 
