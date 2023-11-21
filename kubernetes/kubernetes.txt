@@ -184,8 +184,8 @@
   kubectl get jobs
   kubectl describe job <Jobname> # hier: busybox-job
   kubectl get pods -ljob-name=<Jobname>
-  kubectl logs -ljob-name=<Jobname>
-  kubectl apply -f cronjob-busybox.yaml
+  kubectl logs --selector=job-name=<Jobname>
+  kubectl apply --filename cronjob-busybox.yaml
   kubectl get cronjobs
   kubectl describe cronjob <Cronjobname> # hier: busybox-cronjob
   watch kubectl get pods --selector=job-name=<Cronjobname>
@@ -197,6 +197,22 @@
   kubectl get pods --all-namespaces --output custom-columns="NAME:.metadata.name,CONTROLLER:.metadata.ownerReferences[].kind"
 
   # Application Logging
+  # kubectl logs gilt nur fuer gerade laufende Pods, "ueberlebt" den Neustart nicht! => Log Aggregierung
+  # log aggregation: logs -> Promtail -> Grafana loki (Central Log Collector) -> Grafana (Rendering)
+  # Helm installieren:
+    curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+    export KUBECONFIG=...
+    helm repo add grafana https://grafana.github.io/helm-charts
+    helm repo update
+    helm upgrade --install loki grafana/loki-stack  --set grafana.enabled=true,prometheus.enabled=true,prometheus.alertmanager.persistentVolume.enabled=false,prometheus.server.persistentVolume.enabled=false
+    kubectl apply --filename=grafana-dashboard.yaml
+  # Loki-Adresse im Cluster: http://loki:3100/
+  # Kennwort ermitteln:
+    kubectl get secret loki-grafana --output=jsonpath="{.data.admin-password}" | base64 --decode ; echo
+  # Grafana Dashboard ueber http://localhost:80/login
+  # Ueberpruefen, ob Loki als Datasource vorhanden ist: Configuration -> Data sources
+  # Wenn fehlt: Add Datasource (Choose Loki from the list); Enter http://loki:3100/ as URL
+  # Ergebnisse der Pods in Explore -> {<key>=<value>} (.metatdata.labels) -> <SHIFT>-<ENTER>
 
   # DaemonSets
   # Kopien eines bestimmten Pods sollen auf mehreren/allen Knoten im Cluster laufen (mehere bei node labels)
