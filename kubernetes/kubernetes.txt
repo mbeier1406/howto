@@ -71,13 +71,15 @@
     kubectl get pods # Pods anzeigen
     kubectl delete --filename ngnix-pod.yaml # Pod wieder loeschen
   # * Probes: laufen die Container?
-  #   Die Restart-Policy betrifft immer den gesamten Pod! Bei Deployments/DeamonSets/StatefulSets immer "Always"
+  #   Die Restart-Policy betrifft immer den gesamten Pod! Bei Deployments/DaemonSets/StatefulSets immer "Always"
   #   - Liveness: "Lebt" der Container? Neustart des Containers bei Fehlern.
     kubectl apply --filename liveness-pod.yaml
   #   - Readiness: Verarbeitet der Container Anfragen? Keine weiteren werden dorthin delegiert bei Fehlern.
     kubectl apply --filename readiness-pod.yaml
   #   - Startup: Ist der Container bereits hochgefahren? Vorher keine Liveness/Readiness Proben
     kubectl apply --filename startupprobe-pod.yaml
+  # Image eines Containers anzeigen:
+    kubectl get pod <Name> --template '{{range $i, $c := .spec.containers}}{{$c.image}}{{end}}'
   # * Deployments: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
   #   Managen ReplicaSets (automatischer Neustart usw.) = mehrere identische Pods:
   #   - Verschiedene Updatestrategien (rolling update usw.) und rollback zu aelterem Stand
@@ -93,6 +95,7 @@
   #   Skalierung: ReplicaSet aendern
     watch kubectl get pods # "desired state" des aktiven ReplicaSets anpassen
     kubectl scale deployment/nginx-deployment --replicas=...
+    kubectl patch deployment/nginx-deployment '{"spec":{"replicas":<Number>}}' # alternativ
     kubectl delete pod <Pod-Name>; watch kubectl get replicasets # wird wieder auf die spezifizierte Anzahl Pods geaendert
   # * Namespaces
   #   Fuer mulit-user Szenarios, Workloads trennen
@@ -196,7 +199,41 @@
   # Application Logging
 
   # DaemonSets
-    kubectl get daemonsets -A
+  # Kopien eines bestimmten Pods sollen auf mehreren/allen Knoten im Cluster laufen (mehere bei node labels)
+  # Benoetigt fuer Monitoring, Logging, Ingress usw. Beim Einfuegen eines neuen knoten in den Cluster wird eine Kopie aus dem DaemonSet erzeugt.
+    kubectl get daemonsets --all-namespaces
+  # Definiert wie Deployment (kind: DaemonSet) ohne replicas, strategy und status Attribute
+    kubectl create deployment ...-ds --image ... --dry-run=client --output=yaml > deployment-template.yaml # editieren
+    kubectl apply --filename=deployment-template.yaml
+    kubectl get daemonsets
+    kubectl get pods
+  # Sollen nur bestimmte Knoten fuer den DaemonSet gelten, muessen diese gelabeld werden:
+    kubectl label nodes <NodeName> <key>=<value>
+  # In spec.template.spec.nodeSelector:
+       nodeSelector:
+        <key>: <value>
+
+  # StatefulSets
+  # Fuer Stateful Applications in verteilten Systemen (also stabilen Namen, Speicher usw.)
+  # Insbesondere kann die Updatestrategie (RollingUpdate, OnDelete) fuer die Pods festgelegt werden.
+    kubectl apply --filename=statefullset-example.yaml # Ein Beispiel
+  # Pods werden einer nach dem anderen gestartet, sobald der Pod im Status "Running" und "Ready" (readiness)
+  # Pod-Name und Hostname erhalten den Index als Extension: ...-0, ...-1, ...
+  # Die Namen "ueberleben" einen Neustart des Pods (auch auf einem anderen Knoten), _nicht_ die IP!
+  # Gilt auch fuer den DNS-namen des Services:
+    kubectl run -i --tty --image busybox:1.28 dns-test --restart=Never --rm
+    nslookup <StatefulSet-Name>-0.<Service-Name>
+    nslookup <StatefulSet-Name>-1.<Service-Name>
+  # Pods loeschen und kontrollieren, wie sie in der Reihe wieder neu gestartet werden und die Hostnames gleich geblieben sind:
+    kubectl delete pod --selector=<key>=<value>
+    kubectl get pods --selector=<key>=<value> --watch=true
+  # Persistent/Stable Storage PV/PVC, Skalierung wie bei ReplicaSets
+  # Updates:
+    kubectl patch statefulset <Name> --patch '{"spec":{"updateStrategy":{"type":"..."}}}'
+    kubectl patch statefulset <Name> --type='json' --patch='[{"op": "replace", "path": "/spec/template/spec/containers/<Index>/image", "value":"..."}]'
+    kubectl get pods --selector=<key>=<value> --watch=true
+  # Loeschen: bei nicht cascadierend "ueberleben" die Pods!
+    kubectl delete statefulset <Name> --cascade=false
 
   # Helm
   curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash # Installation
