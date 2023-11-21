@@ -16,8 +16,34 @@
   k9s # :q fuer Ende
   k9s --kubeconfig ...yaml # Oder export KUBECONFIG=...
 
-  # Cluster Administration, Startup Probes usw.
-  kubectl get nodes # Pruefen, ob der Cluster laeuft
+  # Cluster Administration
+  # * Pruefen, ob der Cluster laeuft
+    kubectl get nodes # muessen Status "Ready" haben
+  # * RBAC und Authentifizierung
+  #   User werden lokal verwaltet oder extern ueber LDAP/AD (je nach Cluster Setup)
+  #   Regel (Rule) => Gruppierung Zugriffsberechtigungen auf (eine Gruppe von) Ressourcen und deren Scope: Ressource, Verb, apiGroup
+  #     Ressource: Pod, Deployment, ... (s. u.)
+  #     Verb: get, list, watch, create, update, scale, delete, ...
+  #     ApiGroup: "" (Core), apps, batch, extensions, ...
+  #   Rolle => Gruppierung von Regeln (vordefiniert zB "cluster-admin" fuer alle Ressourcen im Cluster, "admin" fuer alle im Namespace)
+        kubectl create role/clusterrole ...
+        kubectl get/describe role/clusterrole ...
+        kubectl create rolebinding/clusterrolebinding
+  #   Pruefen, ob ein bestimmter User ein Recht hat:
+        kubectl auth can-i <verb> <resource> --namespace <name> --as <username>/--group[..., ...]
+  #   User/Gruppen => werden Rollen zugewiesen
+  #   - User Typen:
+  #     + ServcieAccount: Gehoert zum Pod/Deployment fuer den Zugriff auf den API-Service mit entsprechenden Berechtigungen (Standard: default)
+  #       https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/
+        kubectl get serviceaccount default --namespace ...
+  #       Im Pod (oder Deployment) kann der ServiceAccount gewechset werden mit "spec.serviceAccountName"
+  #   - User Authentication:
+  #     + Basic Authentication: User/Password
+  #     + Token-based Authentication: Eindeutige Zeichenkette des Authentication Servers
+  #     + Client Certificate Authentication: Digitales Client-Zertifikat
+  #   - Rollen:
+  #     + ClusterRole: betrifft die Ressourcen im gesamten Cluster, unabhaengig vom Namespace (z. B. "node")
+  #     + Role: betrifft nur Ressourcen in einem bestimmten Namespace
 
   # Imperative Kommandos
   kubectl run nginx-pod --image nginx:1.12.0 # Pod im default Namespace starten
