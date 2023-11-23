@@ -1,0 +1,139 @@
+# Namespace erzeugen
+# kubectl create namespace catserver --dry-run=client --output=yaml
+apiVersion: v1
+kind: Namespace
+metadata:
+  creationTimestamp: null
+  name: catserver
+spec: {}
+status: {}
+---
+# Konfiguration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: catserver-nginx
+  namespace: catserver
+data:
+  nginx.conf: |
+    user nginx;
+    worker_processes  1;
+    error_log  /var/log/nginx/error.log;
+    events {
+      worker_connections  1024;
+    }
+    http {
+      server {
+          listen       80;
+          server_name  localhost;
+          location /cats {
+            root   /usr/share/nginx/html;
+            index  index.html;
+        }
+      }
+    }
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: catserver-nginx-html
+  namespace: catserver
+data:
+  cats.html: |
+    <h1> Cats are here </h1>
+---
+# Anwendung anlegen
+# kubectl create deployment catserver --namespace=catserver --image=nginx:latest --dry-run=client --output=yaml
+# ACHTUNG: manuelle Nachbearbeitung!
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: catserver
+  name: catserver
+  namespace: catserver
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: catserver
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: catserver
+    spec:
+      containers:
+      - image: nginx:latest
+        name: nginx
+        resources: {}
+        volumeMounts:
+        - name: nginx-config
+          mountPath: /etc/nginx/nginx.conf
+          subPath: nginx.conf
+          readOnly: true
+        - name: nginx-config-html
+          mountPath: /usr/share/nginx/html/cats/index.html
+          subPath: cats.html
+          readOnly: true
+      volumes:
+      - name: nginx-config
+        configMap:
+          name: catserver-nginx
+          items:
+          - key: nginx.conf
+            path: nginx.conf
+      - name: nginx-config-html
+        configMap:
+          name: catserver-nginx-html
+          items:
+          - key: cats.html
+            path: cats.html
+status: {}
+---
+# Im Netzwerk verfuegbar machen
+# kubectl create service clusterip catserver --tcp=80:80 --namespace=catserver --dry-run=client --output=yaml
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  labels:
+    app: catserver
+  name: catserver
+  namespace: catserver
+spec:
+  ports:
+  - name: 80-80
+    port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    app: catserver
+  type: ClusterIP
+status:
+  loadBalancer: {}
+---
+# URL verfuegbar machen
+# kubectl create ingress catserver --namespace=catserver --rule="/=catserver:80" --dry-run=client --output=yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  creationTimestamp: null
+  name: catserver
+  namespace: catserver
+spec:
+  rules:
+  - http:
+      paths:
+      - backend:
+          service:
+            name: catserver
+            port:
+              number: 80
+        path: /
+        pathType: Prefix
+status:
+  loadBalancer: {}
+
