@@ -42,9 +42,26 @@ data:
   cats.html: |
     <h1> Cats are here </h1>
 ---
+# Permanenten Speicher zur Verfuegung stellen aus lokalem Verzeichnis
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: cats-pvc
+  namespace: catserver
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: local-path
+  resources:
+    requests:
+      storage: 1Gi
 # Anwendung anlegen
 # kubectl create deployment catserver --namespace=catserver --image=nginx:latest --dry-run=client --output=yaml
-# ACHTUNG: manuelle Nachbearbeitung!
+# ACHTUNG: manuelle Nachbearbeitung der Volumes!
+# Damit Dateien im /cats7images-Verzeichnis verfuegbar sind: Dateien in Volume-Verzeichnis kopieren.
+# kubectl get pv --namespace=catserver
+# kubectl describe pv <Name>
+# Eintrag "Path: ..." zeigt auf das Verzeichnis, das unten gemounted wird
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -78,6 +95,8 @@ spec:
           mountPath: /usr/share/nginx/html/cats/index.html
           subPath: cats.html
           readOnly: true
+        - name: images
+          mountPath: /usr/share/nginx/html/cats/images
       volumes:
       - name: nginx-config
         configMap:
@@ -91,6 +110,9 @@ spec:
           items:
           - key: cats.html
             path: cats.html
+      - name: images
+        persistentVolumeClaim:
+           claimName: cats-pvc
 status: {}
 ---
 # Im Netzwerk verfuegbar machen
