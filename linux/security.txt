@@ -17,6 +17,11 @@ set superuser="root"
 password root root # bzw. password_pbkdf2 root `grub-mkpasswd-pbkdf2`
 # grub-mkconfig -o /boot/grub/grub.cfg # oder update-grub (Ubuntu)
 
+
+#
+# Filesystem Encryption
+#
+
 # Frontend LUKS (Linux unified key setup) fuer dm-crypt (device-mapper crypt)
 # Erzeugt ein block-device in /dev/mapper
 # Physical device (/dev/...) -> dm-crypt -> virtual device (/dev/mapper/...) -> filesystem (zB EXT4) -> files+directory (/...)
@@ -31,6 +36,60 @@ sudo vi /etc/crypttab # Eintrag notwendig, damit beim Booten das Kennwort abgefr
 cdisk1          /dev/sda                none            luks
 # Alternativ statt /dev/sda kann die UUID-Syntax gewaehlt werden (sudo blkid /dev/sda)
 # Fuer mobile Geraete die ggf. andere Devicenamen nach einem Reboot bekommen
+sudo cryptsetup luksClose <logical device> # Nach umount
+# Wenn kein blocklevel-Zugriff moeglich ist (cloud), Datei als Filesystem verwenden
+sudo fallocate -l <size> <File> # Datei anlegen
+sudo strings file.enc # ist leer
+sudo if=/dev/urandom of=`pwd`/file.enc bs=1M count=100 # Datei file.enc mit Groesse 100M zufaellig fuellen
+sudo cryptsetup luksFormat `pwd`/file.enc # ab hier so wie bei Disks
+sudo cryptsetup luksOpen `pwd`/file.enc cfile1
+sudo fdisk -l /dev/mapper/cfile1
+sudo mkfs ...
+sudo mount ...
+sudo blkid | grep -i luks # verwendet /dev/loop... als loopback-device, um Dateien wie Block-Devices zu behandeln
 
+
+#
+# Account Security
+#
+
+# /etc/login.defs: > UID_MIN User-Accounts, 1..UID_MIN vorgesehen fuer System Accounts, Account Aging, ...
+# pwconv/grpconv um Passwortshadowing einzuschalten (Parameter aus /etc/login.defs)
+chage -l <Username> um Accountinfos aus /etc/shadow anzuzeigen
+# chage um Einstellungen vorzunehmen, d. h. User zwingen, Kennwort zu anedern usw.
+# PAM Authentifizierung abstrahiert Nutzerprogramme (login) vom Authentifizierungsprogramm (/etc/passwd, /etc/shadow; fingerprint; ...)
+# Konfiguration in /etc/pam.d/... Aufbau: <Modul Interface> <Control Flag> <Module Name> [<Module Args>]
+# Modul Interfaces: auth (Authentifizierung), account (Zugriff erlaubt?), password (Passwortrichtlinien), session (User Session Mgt)
+# Control Flag: required (sonst Fehlschlag nach kompletter Ausfuehrung alle Module), requisite (wie required aber sofortiger Abbruch),
+#               sufficient (wenn kein required fehlgeschlagen sofortiger Erfolg), optional (wenn sonst kein Modul das Interface benutzt),
+#               include (Konfiguration aus anderer Datei), [attr=value-Liste] (Complex control flags)
+# man <Module Name ohne .so> fuer Infos
+# pam_pwquality fuer Passwortqualitaet konfigurieren in /etc/security/pwquality.conf
+# pam_pwhistory fuer Kennworthistorie auf lokaler Maschine (nicht LDAP, Kerberos usw.)
+# pam_nologin   fuer Wartung usw. wenn /etc/nologin oder /var/run/nologin existiert wird der Inhalt angezeigt
+# pam_securetty fuer root-Logins von /etc/securetty und /sys/class/tty/console/active bzw. console= Kernel Commandline
+#               bei ssh in /etc/ssh/ssh_config: PermitRootLogin no; DenyUsers ... (wirksam machen mit systemctl reload sshd)
+passwd -l/-u <account> # Ent-/sperren eines Accounts, oder /usr/sbin/nologin in /etc/passwd verwenden (chsh -s ...nologin <User>)
+last # zeigt letzte logins aus /var/log/wtmp an
+lastb # zeigt letzte fehlerhafte logins aus /var/log/btmp an
+lastlog # Letztes Login anzeigen aus /var/log/lastlog
+# Logs in /var/log/syslog, /var/log/auth.log siehe /etc/rsyslog.conf
+# Fuer Zwei-Faktor-Authentifizierung: PAM Modul von Google oder DuoSecurity bzw. RSA SecurID fuer Token verwenden
+# Nicht mehr benoetigte User/Serviceaccounts
+userdel [-r] ...
+find / -user <uid> oder -nouser # Dateileichen aufspueren
+w # wer ist eingeloggt und welches Programm wird ausgefuehrt
+sudo visudo # Syntax Check fuer /etc/sudoers oder -f /etc/sudoers.d/<Name> zB Username
+sudo -ll -U <User> # um anzuzeigen, was der User ausfuehren darf
+# Log in /var/log/auth.log (siehe /etc/rsyslog.conf)
+
+
+#
+# Sonstiges
+#
+
+# Neustart ueber <CTL>-<ALT>-<DEL> unterdruecken
+sudo systemctl mask ctrl-alt-del.target # /lib/systemd/system/ctrl-alt-del.target
+sudo systemctl daemon-reload # Benoetigt dann keinen Reboot, um wirksam zu werden
 
 
