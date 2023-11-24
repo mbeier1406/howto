@@ -1,17 +1,36 @@
 
-# Bootloader (GRUB) sichern:
-..linux../vmlinuz...init=/bin/bash # Startet die Bash als Init-Prozess
->> /etc/grub.d/40_custom
-set superuser="root"
-password root root # bzw. password_pbkdf2 root `grub-mkpasswd-pbkdf2`
-# grub-mkconfig -o /boot/grub/grub.cfg
+#
+# Bootloader (GRUB) sichern
+#
 
-# Single-User Mode
+# Single-User Mode mit Kennwort absichern
 Bootloader (GRUB) -> e (edit)
 initd-Systeme: "..linux../vmlinuz...<runlevel> # 1, S, s = Single-User Modus
 -> /etc/sysconfig/init: SINGLE=/sbin/sulogin
 systemd-Systeme: "..linux../vmlinuz...<target> # systemd.unit=rescue.target = Single-User Modus
 -> /lib/systemd/system emergency.service rescue.service: ExecStart=.../sbin/sulogin...
 
-# LUKS / dm-crypt
+# Gegen Aendeungen der Bootkonfiguration beim booten sichern
+..linux../vmlinuz...init=/bin/bash # Startet die Bash als Init-Prozess
+>> /etc/grub.d/40_custom
+set superuser="root"
+password root root # bzw. password_pbkdf2 root `grub-mkpasswd-pbkdf2`
+# grub-mkconfig -o /boot/grub/grub.cfg # oder update-grub (Ubuntu)
+
+# Frontend LUKS (Linux unified key setup) fuer dm-crypt (device-mapper crypt)
+# Erzeugt ein block-device in /dev/mapper
+# Physical device (/dev/...) -> dm-crypt -> virtual device (/dev/mapper/...) -> filesystem (zB EXT4) -> files+directory (/...)
+sudo shred -v -n1 /dev/<physical disk> # Disk mit Zufallswerten beschreiben
+sudo cryptsetup luksFormat /dev/... # verschluesselte Partition initialisieren
+sudo cryptsetup luksOpen /dev/... <logical device name zB cdisk1> # Legt in /dev/mapper/cdisk1 das block-device an
+sudo mkfs -t <fs-type> /dev/mapper/... # Dateisystem anlegen
+sudo mount /dev/mapper/... ...
+sudo vi /etc/crypttab # Eintrag notwendig, damit beim Booten das Kennwort abgefragt wird
+# Beispiel (kein keyfile=password prompt; option luks=Standardformat der Platte):
+# <target name>	<source device>		<key file>	<options>
+cdisk1          /dev/sda                none            luks
+# Alternativ statt /dev/sda kann die UUID-Syntax gewaehlt werden (sudo blkid /dev/sda)
+# Fuer mobile Geraete die ggf. andere Devicenamen nach einem Reboot bekommen
+
+
 
