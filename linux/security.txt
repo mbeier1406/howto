@@ -85,6 +85,83 @@ sudo -ll -U <User> # um anzuzeigen, was der User ausfuehren darf
 
 
 #
+# Network Security
+#
+
+systemctl # Aktive Services anzeigen, starten, stoppen, disablen
+netstat -nutlp # UDP/TCP, listening sockets, PID/Process
+lsof -i # alternativ
+nmap <ip> # port scanning
+telnet <host> <port> # pruefen, ob Port TCP antwortet
+nc -v <host> <port> # alternativ
+# xinetd am Besten ausschalten
+
+# SSH:
+# ssh-keygen ~/.ssh/id_rsa[.pub], ssh-copy-id ~/.ssh/authorized_keys
+# ssh config in /etc/ssh/ssh_config sichern:
+# - PubkeyAuthentication yes, PaswordAuthentication no, PermitRootLogin no, Allow/DenyUsers Allow/DenyGroups verwenden
+# - AllowTcpForwarding no (s.u.), GatewayPorts no (Verbindungen von aussen zuallesn)
+# - Prtocol 2 (sshv2), ListenAdress <host/ip> (einschraenken ueber welche Adresse man sich einloggen kann)
+ssh -L <local-port>:<target-ip/host>:<target-port> <remote-ip/host> # TCP forwarding
+# Alles von localhost Port 8080 nach Google ueber server1 senden: sudo ssh -L 8080:goolge.com:80 server1
+# Forwarding wieder loeschen: sudo ssh -O cancel -L 8080:goolge.com:80 server1
+ssh -D <local-port> <remote-ip/host> # gesamten Traffic 8080 ueber Remote Server senden
+# Alles von localhost Port 8080 nach Server1: sudo ssh -D 8080 server1
+# Reverse Port forwarding: ssh -R <remoteserver-port>:<local-ip/host>:<local-port>
+
+
+# Linux Firewall:
+# Netfilter + IPTables: Table1 -> Chain1 -> Rule1..RuleN .. ChainM -> RuleM1..RuleMX .. TableY ..
+# Std. IPTables: Filter (block connections), NAT (NAT konfigurieren), Mangle (IP-Pakete aendern),
+#                Raw (connection tracking), Security (fuer SELinux)
+# Std. Chains: INPUT, OUTPUT, FORWARD, PRE/POSTROUTING
+# Filter: INPUT, OUTPUT, FORWARD
+# NAT: INPUT, OUTPUT, PRE/POSTROUTING
+# Mangle: INPUT, OUTPUT, FORWARD, PRE/POSTROUTING
+# Raw: OUTPUT, PREROUTING
+# Security: INPUT, OUTPUT, FORWARD
+# Verwendung der Chains:
+# - Eingehende Pakete: PREROUTING -> INPUT -> (local system)
+# - Weitergeleitete Pakete: PREROUTING -> FORWARD -> POSTROUTING
+# - Ausgehende Pakete: (local system) -> OUTPUT -> POSTROUTING
+# Ablauf (nur Filter und NAT):
+# 1. Eingehendes Paket
+# 2. NAT/PREROUTING
+# 3. Forwarding? ja -> 4. nein -> 7.
+# 4. Filter/FORWARD
+# 5. NAT/POSTROUTING
+# 6. Ausgehendes Paket / Ende
+# 7.Filter/INPUT
+# 8. Lokaler Prozess / Ende
+# 9. Ausgehendes Paket
+# 10. NAT/OUTPUT
+# 11. Filter/OUTPUT -> 5.
+# Rules:
+#   - Match: Proocol, Source/Destination IP/Network, Source/Destination Port, Network Interface
+#   - Target: ACCEPT, DROP, REJECT, LOG, RETURN, ...
+iptables -t <table> -L # Tabelle <table> anzeigen -t <table> -A <CHAIN>
+# Standardverhalten einer Chain setzen mit -P Option
+iptables -P INPUT DROP # Alle eingehenden Pakete, die nicht zu einer definierten Regel passen, verwerfen
+# Regel (an einer bestimmen Stelle der Chain) Einfuegen: -I [Zeilennummer] <Regel>;  anhaengen: -A <Regel>;
+# loeschen -D <Regel oder Zeilennummer>; alle Regeln loeschen-F [CHAIN]
+# Rules definieren:
+# -s <source>: IP oder Netzwerk
+# -d <destination>: IP oder Netzwerk
+# -p <protocol>: tcp, udp, icmp, ...
+# --dport <port>: Destination Port
+# --sport <port>: Source Port
+# -j <target>: Chain oder Target
+iptables -t <table> -nL # IPTable/Tabelle <table> anzeigen
+iptables -A INPUT -s <ip> -j DROP # Tabelle Filter: alle Pakete von <ip> verwerfen (Regel anhaengen)
+iptables -A INPUT -s <network> -p tcp --dport 22 -j ACCEPT # Tabelle Filter: eingehende ssh-Verbindung von <network> akzeptieren
+iptables -A INPUT -p tcp --dport 22 -j DROP # ssh-Verbindungen von allen anderen Quellen verwerfen
+iptables -I INPUT -p tcp --dport 80 -m limit --limit 50/min --limit-burst 200 -m state --state NEW  -j REJECT # Regel einfuegen: DDOS-Atacken blocken
+netflter-persistent save # Aenderungen sichern (apt install netflter-persistent)
+iptables-save # Aktuelel Tabellen im CLI-Format ausgeben
+# Als Frontend kann UFW (Ubuntu) oder Firewalld (Red Had Linux RHEL), GUFW, ...
+
+
+#
 # Sonstiges
 #
 
