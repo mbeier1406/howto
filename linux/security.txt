@@ -160,6 +160,24 @@ netflter-persistent save # Aenderungen sichern (apt install netflter-persistent)
 iptables-save # Aktuelel Tabellen im CLI-Format ausgeben
 # Als Frontend kann UFW (Ubuntu) oder Firewalld (Red Had Linux RHEL), GUFW, ...
 
+# TCP Wrappers
+# ACL-System, dass fuer einzelne Services gilt
+# Service muss mit libwrap.so kompiliert sein
+ldd /usr/sbin/sshd  | grep libwrap # Pruefen, ob sshd TCP-Wrapping unterstuetzt
+# Konfiguriert in /etc/hosts.allow und /etc/hosts.deny
+# Reihenfolge: hosts.allow: Treffer=ok -> hosts.deny: Treffer=block -> ok
+# Format: <Service/s> : <Client/s> [: <Action/s>]
+# hosts.deny: sshd, imapd : <ip> Zugriff von <ip> fuer sshd und imapd sperren
+# hosts.deny: ALL : <ip>, <net> Zugriff von <ip> und <net> fuer alle Services sperren
+# hosts.deny: ALL : .example.com Zugriff von allen Hosts aus der Domaen fuer alle Services sperren
+# hosts.deny: ALL : <ip-sub-teil>. Zugriff von allen Hosts aus Netz <ip-sub-teil>.* fuer alle Services sperren
+# hosts.deny: ALL : <file> Zugriff von allen Hosts in Datei <file> fuer alle Services sperren
+# hosts.deny: ALL : ALL EXCEPT ... Zugriff von allen Hosts  ausser ... fuer alle Services sperren
+# Action:
+# - severity ... zB emerg Log-Message konfigurieren
+# - spawn ... zB /usr/bin/wall "... %c" Prozess starten mit Client Information
+#             %a/%A client/server Adressen, %d deamn name, ...
+
 
 #
 # Sonstiges
