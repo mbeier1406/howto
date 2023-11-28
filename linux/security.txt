@@ -50,6 +50,64 @@ sudo blkid | grep -i luks # verwendet /dev/loop... als loopback-device, um Datei
 
 
 #
+# Filesystem Security
+#
+
+# Kritische Dateianederungen ueberwachen mit Tripwire, OSSEC usw.
+sudo find / -user root -perm /4000 -ls 2> /dev/null # Alle Programme mit owner root und setuid suchen: suche nach 4777 oder 4775!!!!
+sudo find / -perm /2000 -ls 2> /dev/null # Alle Programme mit setgid suchen
+
+# File Attributes (meiste Dateisysteme)
+# Nicht ale Atribute sind auf allen Dateisystem verfuegbar
+# i=immutable: kein loeschen/aendern/umbenennen/hardlinken
+# a=append: nur anhaengen (fuer Sicherheit von Logfiles)
+# s=secure deletion: ueberschreibt Dateiinhalte
+# Alle definierten Attribute: man chattr
+lsattr ...
+chattr +/-/=...
+sudo chattr +a /var/log/auth.log # Kritisches Logfile gegen Aenderungen des Inhalts sichern
+
+# Access Control Lists ACL
+# Fein-granulare Rechtevergabe (z. B. Zugriff auf Datei fuer eine Person, ohne sie der Gruppe zuzuordnen)
+# - Typ Access: Zugriffe fuer spezielle Dateien oder Verzeichnisse
+# - Typ Default: nur fuer Verzeichnisse nicht rueckwirkend)
+# Fuer: Benutzer; Gruppen; Nutzer, die nicht in der Gruppe einer Datei sind; effekive Rechte-Maske
+# Dateisystem muss mit ACL-Support gemounet werden:
+sudo mount -o acl ... <dev> <path>
+sudo tune2fs -o acl <dev>
+sudo tune2fs -l <dev> | fgrep -i options # Anzeigen, ob ACL fuer ein Dateisystem aktiv
+# ACL (Rule)-Format: [d:]<u/g/o/m/d>:<name>:rwx [default](user/group/others/effectiv-rigths-mask)
+$ sudo setfacl -m u:osboxes:rx <Datei> # osboxes Lese- und Ausfuehrungsrecht geben
+$ ls -l /opt/cfile1/x.sh
+rwxr-x---+ 1 mbeier mbeier 20 Nov 28 14:12 /opt/cfile1/x.sh # osboxes kann ausfuehren (siehe + im Dateistatus)
+$ getfacl  /opt/cfile1/x.sh 
+getfacl: Removing leading '/' from absolute path names
+# file: opt/cfile1/x.sh
+# owner: mbeier
+# group: mbeier
+user::rwx
+user:osboxes:r-x		# osboxes kann die Datei ausfuehren
+group::r-x
+mask::r-x
+other::---
+$ setfacl -m d:g:lpadmin:rwx /opt/cfile1/mdd	# default ACL fuer das Verzeichnis: lpadmin rwx
+$ touch /opt/cfile1/mdd/abc
+$ getfacl /opt/cfile1/mdd/abc 			# neue Datei abc erhaelt automatisch Berechtigungen fuer die Gruppe lpadmin
+getfacl: Removing leading '/' from absolute path names
+# file: opt/cfile1/mdd/abc
+# owner: mbeier
+# group: mbeier
+user::rw-
+group::r-x			#effective:r--
+group:lpadmin:rwx		#effective:rw-
+mask::rw-
+other::r--
+$ ls -ld /opt/cfile1/mdd
+drwxr-xr-x+ 2 mbeier root 4096 Nov 28 14:45 /opt/cfile1/mdd # + zeigt die konfigurierte ACL an
+
+
+
+#
 # Account Security
 #
 
