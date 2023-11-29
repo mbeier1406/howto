@@ -53,7 +53,7 @@ sudo blkid | grep -i luks # verwendet /dev/loop... als loopback-device, um Datei
 # Filesystem Security
 #
 
-# Kritische Dateianederungen ueberwachen mit Tripwire, OSSEC usw.
+# Kritische Dateianederungen ueberwachen mit AIDE, Tripwire, OSSEC usw.
 sudo find / -user root -perm /4000 -ls 2> /dev/null # Alle Programme mit owner root und setuid suchen: suche nach 4777 oder 4775!!!!
 sudo find / -perm /2000 -ls 2> /dev/null # Alle Programme mit setgid suchen
 
@@ -105,6 +105,52 @@ other::r--
 $ ls -ld /opt/cfile1/mdd
 drwxr-xr-x+ 2 mbeier root 4096 Nov 28 14:45 /opt/cfile1/mdd # + zeigt die konfigurierte ACL an
 
+
+#
+# Rootkits
+#
+
+# Check Rootkit:
+$ sudo apt install chkrootkit
+$ zless /usr/share/doc/chkrootkit/README.gz 
+# Konfiguration in /etc/chkrootkit/chkrootkit.conf
+# Taeglich ausfuehren: /etc/cron.daily/chkrootkit
+# Ergebnis in /var/log/chkrootkit/log.today
+
+# Rootkit Hunter:
+$ sudo apt install rkhunter -y
+$ sudo vi /etc/rkhunter.conf
+MIRRORS_MODE=1 -> MIRRORS_MODE=0
+UPDATE_MIRRORS=0 -> UPDATE_MIRRORS=1
+WEB_CMD="/bin/false" -> WEB_CMD=""
+MAIL_CMD=...
+MAIL-ON-WARNING=...
+ALLOWHIDDENDIR=...	# Wenn erforderlich da gueltige Dateien/Verzeichnisse
+ALLOWHIDDENFILE=...
+$ sudo vi /var/lib/rkhunter/db/mirrors.dat # Mirrors konfigurieren
+$ sudo rkhunter --update # Regelwerk zum Auffinden von Rootkits aktualisieren
+$ sudo rkhunter --propupd # Baseline Properties mit dem aktuellen Stand des OS aktualisieren als Vergleichsdatenbank
+$ sudo crontab -e # Als Cronjob einrichten
+0 0 * * * /usr/local/bin/rkhunter --crontab --update > /path/to/logfile 2>&1
+$ sudo rkhunter -c --rwo # Check ausfuehren, nur Warnungen ausgeben (nicht interaktiv)
+$ sudo vi /var/log/rkhunter.log # Ergebnis pruefen
+... # Beispielwarnung
+[14:58:43]   /usr/bin/lwp-request                            [ Warning ]
+[14:58:43] Warning: The command '/usr/bin/lwp-request' has been replaced by a script: /usr/bin/lwp-request: Perl script text executable
+...
+$ dpkg -S /usr/bin/lwp-request # rpm -qf <Datei> bei RHEL
+libwww-perl: /usr/bin/lwp-request
+$ dpkg -V libwww-perl && echo OK # Paket untersuchen rpm -V bei RHEL
+$ sudo vi /etc/rkhunter.conf # Ausnahme eintragen
+...
+SCRIPTWHITELIST=/usr/bin/lwp-request
+...
+$ sudo rkhunter --propupd # neie Konfiguration aktualisieren
+
+
+# OSSEC
+# Syscheck Module: user mode rootkits
+# Rootcheck Module: kernel und user mode rootkits
 
 
 #

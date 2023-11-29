@@ -11,8 +11,9 @@
   apt search <Suche>
   apt list <Package>
   uname -m; curl -O https://...; dpkg -i <Datei>
-  dpkg -l <Package>
-  dpkg -L <Package>
+  dpkg -l <Package> # Paketinfo anzeigen
+  dpkg -L <Package> # Dateien im Paket anzeigen
+  dpkg -S <File> # zu welchem Paket gehoert eine Datei?
 
 - Boot /boot
   lsb_release -i -s
