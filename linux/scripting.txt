@@ -1,0 +1,35 @@
+
+# Help fuer 
+$ type -a <command> # zB type -a [ oder type -a [[
+<command> is a shell keyword
+$ help <command> # zB help test
+$ man <command> # wenn nicht build-in
+$ shopt # Shell Options
+
+# Unicode nach UTF-8
+$ echo -e '\u0114\u0123\u0134' | file -
+$ echo -e '\u0114\u0123\u0134' | iconv -t UTF-8//TRANSLIT
+
+# Arithmetik
+$ let x=1+1; echo ${x}
+$ echo $((1+1))
+$ echo $[1+1]
+$ echo 3/4 | bc -l
+
+# Listenauswahl
+$ select opt in opt1 opt2 ...; do
+>   if [[ "${opt}" = "opt1" ]]; then
+>     ...
+>   fi
+> done
+1) opt1
+2) opt2
+3) ...
+#? 
+
+# Pattern matching
+$ x=123; [[ "${x}" == +(0|1)23 ]] && echo "Ist gleich."
+$ x=123; [[ "${x}" == ?(0|1)23 ]] && echo "Ist gleich."
+$ shopt -s extglob; f=datei.png; echo ${f%%*(.gif|.jpg|.png)} # datei
+$ shopt -s extglob; f=datei.pdf; echo ${f%%*(.gif|.jpg|.png)} # datei.pdf
+
