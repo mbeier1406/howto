@@ -1,10 +1,15 @@
 
-# Help fuer 
+# Help fuer Kommandos
 $ type -a <command> # zB type -a [ oder type -a [[
 <command> is a shell keyword
 $ help <command> # zB help test
 $ man <command> # wenn nicht build-in
+
+# Shell
 $ shopt # Shell Options
+$ shopt -u xpg_echo; echo "a\nb"; shopt -s xpg_echo; echo "a\nb" # zB: echo buildin setzen/loeschen
+$ set 1 2 3; echo ${*}; shift; echo ${*} ${1} ${#} # Argumentliste bearbeiten
+$ set 1 2 3; IFS=,; echo "${*}"; echo "${@}" # Ergibt 1,2,3\n1 2 3
 
 # Unicode nach UTF-8
 $ echo -e '\u0114\u0123\u0134' | file -
@@ -15,6 +20,7 @@ $ let x=1+1; echo ${x}
 $ echo $((1+1))
 $ echo $[1+1]
 $ echo 3/4 | bc -l
+$ echo "ibase=16;obase=A;F" | bc # => 15; Hex-Werte dezimal darstellen
 
 # Listenauswahl
 $ select opt in opt1 opt2 ...; do
@@ -28,8 +34,18 @@ $ select opt in opt1 opt2 ...; do
 #? 
 
 # Pattern matching
+# @(...), ?(...), +(...), *(...)
+$ shopt -s extglob
 $ x=123; [[ "${x}" == +(0|1)23 ]] && echo "Ist gleich."
 $ x=123; [[ "${x}" == ?(0|1)23 ]] && echo "Ist gleich."
-$ shopt -s extglob; f=datei.png; echo ${f%%*(.gif|.jpg|.png)} # datei
-$ shopt -s extglob; f=datei.pdf; echo ${f%%*(.gif|.jpg|.png)} # datei.pdf
+$ f=datei.png; echo ${f%%*(.gif|.jpg|.png)} # datei
+$ f=datei.pdf; echo ${f%%*(.gif|.jpg|.png)} # datei.pdf
+
+# Terminal: Input/Output
+$ man terminfo
+$ tput <cup> # zB $ tput cols lines, tput cup 4 7
+$ read -sp "Password: " pass; echo -e "\n${pass}" # Variable einlesen ohne anzuzeigen
+
+# Sonstiges
+$ for i in {1..14}; do printf "\x`printf \"%x\" \"$(let x=${RANDOM}%80+33; echo $x)\"`"; done # Zufälligen String erzeugen
 
