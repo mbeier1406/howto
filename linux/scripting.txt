@@ -10,6 +10,8 @@ $ shopt # Shell Options
 $ shopt -u xpg_echo; echo "a\nb"; shopt -s xpg_echo; echo "a\nb" # zB: echo buildin setzen/loeschen
 $ set 1 2 3; echo ${*}; shift; echo ${*} ${1} ${#} # Argumentliste bearbeiten
 $ set 1 2 3; IFS=,; echo "${*}"; echo "${@}" # Ergibt 1,2,3\n1 2 3
+$ set 1 "2 2" 3; for i in "${*}"; do echo "*: ${i}"; done; for i in "${@}"; do echo "@: ${i}"; done # Unterschied $* und $@
+$ hash -l # Pfade fuer bekannte Programme
 
 # Unicode nach UTF-8
 $ echo -e '\u0114\u0123\u0134' | file -
@@ -48,4 +50,7 @@ $ read -sp "Password: " pass; echo -e "\n${pass}" # Variable einlesen ohne anzuz
 
 # Sonstiges
 $ for i in {1..14}; do printf "\x`printf \"%x\" \"$(let x=${RANDOM}%80+33; echo $x)\"`"; done # Zufälligen String erzeugen
+$ fold -w80 <file> # Eingabedatei auf 80 Zeichen Breite ausgeben
+$ shuf -e .. -e .. # oder <file> usw. zufällige Permutationen erzeugen
+$ p=/tmp/p${$}; [[ ! -p ${p} ]] && mknod ${p} p; ( echo abc > ${p} &) ; cat < ${p}; rm ${p} # FIFO Beispiel
 
