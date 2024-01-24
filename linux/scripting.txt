@@ -4,6 +4,7 @@ $ type -a <command> # zB type -a [ oder type -a [[
 <command> is a shell keyword
 $ help <command> # zB help test
 $ man <command> # wenn nicht build-in
+# sudo updatedb;  locate <command> # Pfad finden
 
 # Shell
 $ shopt # Shell Options
@@ -18,11 +19,15 @@ $ echo -e '\u0114\u0123\u0134' | file -
 $ echo -e '\u0114\u0123\u0134' | iconv -t UTF-8//TRANSLIT
 
 # Arithmetik
-$ let x=1+1; echo ${x}
-$ echo $((1+1))
+$ let x=1+1; echo ${x} # help let
+$ a=1; b=1; echo $((a+b))
+$ a=1; ((a++)); ((a*=2)); echo ${a}
 $ echo $[1+1]
 $ echo 3/4 | bc -l
 $ echo "ibase=16;obase=A;F" | bc # => 15; Hex-Werte dezimal darstellen
+$ echo 3 4 + p q | dc
+$ awk 'BEGIN{print 6/4}'
+$ expr 3 + 4
 
 # Listenauswahl
 $ select opt in opt1 opt2 ...; do
