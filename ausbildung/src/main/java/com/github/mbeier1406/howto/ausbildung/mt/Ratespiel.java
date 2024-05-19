@@ -14,9 +14,9 @@ import org.apache.logging.log4j.Logger;
  * Das Spiel gewinnen entweder zwei zufällige, oder der systematische Thread.
  * @author mbeier
  */
-public class Demo1 {
+public class Ratespiel {
 
-	public static final Logger LOGGER = LogManager.getLogger(Demo1.class);
+	public static final Logger LOGGER = LogManager.getLogger(Ratespiel.class);
 
 	/** Die zu ratenden Zahl zwischen 0 und {@value #MAX_ZAHL}-1 */
 	public static final int MAX_ZAHL = 1000;
@@ -45,10 +45,19 @@ public class Demo1 {
 	public static abstract class RateTheadBasics extends Thread {
 		protected ZuratendeZahl zuratendeZahl;
 		protected int durchlauf = 0;
+		protected int gerateneZahl;
 		public RateTheadBasics(final ZuratendeZahl zuratendeZahl) {
 			this.zuratendeZahl = zuratendeZahl;
 			setPriority(MAX_PRIORITY);
 			setName(getName()+" ("+this.getClass().getSimpleName()+")");
+		}
+		public void logAndCheck() {
+			if ( durchlauf++%100 == 0 )
+				LOGGER.trace("{}: gerateneZahl={}", this, gerateneZahl);
+			if ( zuratendeZahl.pruefe(gerateneZahl) ) {
+				LOGGER.info("{}: Treffer: {}", this, gerateneZahl);
+				System.exit(0);
+			}
 		}
 	}
 
@@ -60,31 +69,21 @@ public class Demo1 {
 		@Override
 		public void run() {
 			while ( true ) {
-				var gerateneZahl = new Random().nextInt(MAX_ZAHL);
-				if ( durchlauf++%100 == 0 )
-					LOGGER.trace("{}: gerateneZahl={}", this, gerateneZahl);
-				if ( zuratendeZahl.pruefe(gerateneZahl) ) {
-					LOGGER.info("{}: Treffer: {}", this, gerateneZahl);
-					System.exit(0);
-				}
+				gerateneZahl = new Random().nextInt(MAX_ZAHL);
+				logAndCheck();
 			}
 		}
 	}
 
-	/** Diese Implementierung errät die Zahl durch hochzählen */
+	/** Diese Implementierung errät die Zahl durch herunterzählen */
 	public static class SystematischerRatethread extends RateTheadBasics {
 		public SystematischerRatethread(ZuratendeZahl zuratendeZahl) {
 			super(zuratendeZahl);
 		}
 		@Override
 		public void run() {
-			for( var gerateneZahl = 0; gerateneZahl < MAX_ZAHL; gerateneZahl++ ) {
-				if ( durchlauf++%100 == 0 )
-					LOGGER.trace("{}: gerateneZahl={}", this, gerateneZahl);
-				if ( zuratendeZahl.pruefe(gerateneZahl) ) {
-					LOGGER.info("{}: Treffer: {}", this, gerateneZahl);
-					System.exit(0);
-				}
+			for( gerateneZahl = MAX_ZAHL-1; gerateneZahl >= 0; gerateneZahl-- ) {
+				logAndCheck();
 			}
 		}
 	}
