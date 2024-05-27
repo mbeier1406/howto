@@ -1,5 +1,11 @@
 package com.github.mbeier1406.howto.ausbildung.mt;
 
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+
+import javax.imageio.ImageIO;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -12,6 +18,13 @@ import org.apache.logging.log4j.Logger;
 public class Latency {
 
 	public static final Logger LOGGER = LogManager.getLogger(Latency.class);
+
+	/** Das zu bearbeitende Image ist {@value} */
+	public static final String IMAGE_SOURCE = "src/main/resources/images/Cid.jpg";
+
+	/** Das fertig bearbeitete Image ist {@value} */
+	public static final String IMAGE_TARGET = "./target/Cid.jpg";
+
 
 	/**
 	 * Definiert die Maske und Shiftwerte für ARGB-Pixel.
@@ -33,6 +46,7 @@ public class Latency {
 			return this.shift;
 		}
 	}
+
 
 	/**
 	 * Liefert zu einem ARGB-Pixel den entsprechenden Alpha, rot, grün bzw. blau-Wert.
@@ -65,6 +79,26 @@ public class Latency {
 	 */
 	public static boolean isShadeOfGray(int red, int green, int blue) {
 		return Math.abs(red-green) < 30 && Math.abs(red-blue) < 30 && Math.abs(green-blue) < 30;
+	}
+
+	public static void recolorImage(BufferedImage sourceImage, BufferedImage targetImage, int x, int y) {
+		if ( x < 0 || x >= sourceImage.getWidth() || y < 0 || y >= sourceImage.getHeight() )
+			throw new IllegalArgumentException("sourceImage="+sourceImage+"; targetImage="+targetImage+"; x="+x+"; y="+y);
+		int rgb = sourceImage.getRGB(x, y);
+		int red = getArgb(ARGB.RED, rgb);
+		int green = getArgb(ARGB.GREEN, rgb);
+		int blue = getArgb(ARGB.BLUE, rgb);
+		if ( isShadeOfGray(red, green, blue) )
+			red = green = blue = 255;
+		rgb = createRgbFromColors(red, green, blue);
+		targetImage.getRaster().setDataElements(x, y, targetImage.getColorModel().getDataElements(rgb, null));
+	}
+
+
+	public static void main(String[] args) throws IOException {
+		final var sourceImage = ImageIO.read(new File(IMAGE_SOURCE));
+		LOGGER.info("sourceImage={}", sourceImage);
+		final var targetImage = new BufferedImage(sourceImage.getWidth(), sourceImage.getHeight(), BufferedImage.TYPE_INT_RGB);
 	}
 
 }
