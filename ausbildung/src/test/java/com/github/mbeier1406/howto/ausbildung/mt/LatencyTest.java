@@ -44,11 +44,19 @@ public class LatencyTest {
 		assertThat(getArgb(BLUE, (int) 0x12345678), equalTo(120));
 	}
 
+	/** Prüft, ob ein ARGB-Wert korrekt aus den einzelnen RGB-Werten berechnet wird */
 	@Test
 	public void testeCreateRgbFromColors() {
 		int rgb = Latency.createRgbFromColors(18, 52, 86);
 		LOGGER.info("rgb={}", rgb);
 		assertThat(rgb, equalTo(-15584170));
+	}
+
+	/** Prüft, ob das Ermitteln, ob ein RGB-Wert eine Grauschattierung ist, funktioniert */
+	@Test
+	public void testeIsShadeOfGray() {
+		assertThat(Latency.isShadeOfGray(50, 79, 60), equalTo(true)); // alle Farben nicht mehr als 29 auseinander
+		assertThat(Latency.isShadeOfGray(50, 79, 49), equalTo(false));// grün und blau mehr als 29 auseinander
 	}
 
 }

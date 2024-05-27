@@ -55,4 +55,16 @@ public class Latency {
 		return ((((0 | blue  << ARGB.BLUE.getShift()) | green << ARGB.GREEN.getShift()) | red << ARGB.RED.getShift()) | 0xff << ARGB.ALPHA.getShift());
 	}
 
+	/**
+	 * Ermittelt, ob die drei Farbwerte sich so ähnlich sind (einen ähnlichen Wert haben),
+	 * so dass die daraus resultierende RGB-Farbe ein Grauton ist. Als
+	 * @param red der Rotwert
+	 * @param green der Grünwert
+	 * @param blue der Blauwert
+	 * @return <b>true</b>, wenn die Differenz aus allen Farbwerten miteinander verglichen einen definierten Wert nicht übersteigt, sonst <b>false</b>
+	 */
+	public static boolean isShadeOfGray(int red, int green, int blue) {
+		return Math.abs(red-green) < 30 && Math.abs(red-blue) < 30 && Math.abs(green-blue) < 30;
+	}
+
 }
