@@ -23,19 +23,19 @@ public class LatencyTest {
 	/** Stellt sicher, dass der Alpha-Wert eines ARGB-Pixels korrekt ermittelt wird */
 	@Test
 	public void testeAlphaWert() {
-		assertThat(Latency.getArgb(ALPHA, (int) 0x12345678), Matchers.equalTo(301989888));
+		assertThat(Latency.getArgb(ALPHA, (int) 0x12345678), Matchers.equalTo(18));
 	}
 
 	/** Stellt sicher, dass der Rot-Wert eines ARGB-Pixels korrekt ermittelt wird */
 	@Test
 	public void testeRotWert() {
-		assertThat(Latency.getArgb(RED, (int) 0x12345678), Matchers.equalTo(3407872));
+		assertThat(Latency.getArgb(RED, (int) 0x12345678), Matchers.equalTo(52));
 	}
 
 	/** Stellt sicher, dass der Grün-Wert eines ARGB-Pixels korrekt ermittelt wird */
 	@Test
 	public void testeGruenWert() {
-		assertThat(getArgb(GREEN, (int) 0x12345678), Matchers.equalTo(22016));
+		assertThat(getArgb(GREEN, (int) 0x12345678), Matchers.equalTo(86));
 	}
 
 	/** Stellt sicher, dass der Blau-Wert eines ARGB-Pixels korrekt ermittelt wird */

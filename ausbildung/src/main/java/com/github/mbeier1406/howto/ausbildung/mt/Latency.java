@@ -14,16 +14,20 @@ public class Latency {
 	public static final Logger LOGGER = LogManager.getLogger(Latency.class);
 
 	public static enum ARGB {
-		ALPHA(0xff000000),
-		RED(0x00ff0000),
-		GREEN(0x0000ff00),
-		BLUE(0x000000ff);
-		private int mask;
-		private ARGB(int mask) {
+		ALPHA(0xff000000, 24),
+		RED(0x00ff0000, 16),
+		GREEN(0x0000ff00, 8),
+		BLUE(0x000000ff, 0);
+		private int mask, shift;
+		private ARGB(int mask, int shift) {
 			this.mask = mask;
+			this.shift = shift;
 		}
 		public int getMask() {
 			return this.mask;
+		}
+		public int getShift() {
+			return this.shift;
 		}
 	}
 
@@ -34,7 +38,7 @@ public class Latency {
 	 * @return den entsprechenden ARGB-Wert
 	 */
 	public static int getArgb(ARGB argb, int value) {
-		return value & argb.getMask();
+		return ( value & argb.getMask() ) >> argb.getShift();
 	}
 
 }
