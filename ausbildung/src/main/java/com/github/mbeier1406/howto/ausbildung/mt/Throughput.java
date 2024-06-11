@@ -21,7 +21,14 @@ import com.sun.net.httpserver.HttpServer;
  * werden. Für echte Durchsatzmessungen wird JMeter verwendet.<p/>
  * Aufrufbeispiel:
  * <pre><code>
- * $ curl localhost:8000/auftrag?zeit=999
+ * $ curl http://localhost:8000/auftrag?zeit=999
+ * </code></pre>
+ * Der JMeter Lasttest befindet sich in
+ * Das Erzeugen der Testdatei erfolgt mittels
+ * <i>/ausbildung/src/main/resources/com/github/mbeier1406/howto/ausbildung/mt/Throughput Test.jmx</i>.<br/>
+ * Die Testdatei mit den Wartezeiten kann so erzeugt werden:
+ * <pre><code>
+ * $ > throughput_test.txt; for i in {1..200}; do echo "${RANDOM} 1000 % p" | dc >> throughput_test.txt; done
  * </code></pre>
  * @author mbeier
  */
@@ -41,7 +48,8 @@ public class Throughput {
 		final var server = HttpServer.create(new InetSocketAddress(PORT), 0);
 		server.createContext("/auftrag", new Auftragsbearbeitung());
 		final var anzahlThreads = Integer.parseInt(System.getProperty("anzahlThreads", String.valueOf(ANZAHL_THREADS)));
-		final var executor = Executors.newFixedThreadPool(PORT);
+		LOGGER.debug("anzahlThreads={}", anzahlThreads);
+		final var executor = Executors.newFixedThreadPool(anzahlThreads);
 		server.setExecutor(executor);
 		server.start();
 	}
