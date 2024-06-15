@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -41,6 +42,9 @@ public class SharedDataProblem {
 		final List<Class<? extends Container>> testContainer = new ArrayList<>() {{
 			add(Container.class);
 			add(ContainerMethodenSynchronisiert.class);
+			add(ContainerAttributSynchronisiert.class);
+			add(ContainerObjektSynchronisiert.class);
+			add(ContainerObjekt2Synchronisiert.class);
 		}};
 
 		/* Die unterschiedlichen Methoden, die testContainer zu Befuellen und Leeren */
@@ -54,10 +58,10 @@ public class SharedDataProblem {
 			LOGGER.info("Container \"{}\":", cl);
 			testMethoden.entrySet().stream().forEach(m -> {
 				try {
-					var c = (Container) cl.getDeclaredConstructors()[0].newInstance();
+					var c = (Container) cl.getDeclaredConstructor().newInstance();
 					int anzahlTeile =  m.getValue().ausfuehren(c);
 					LOGGER.info("  Typ \"{}\"; Methode \"{}\": {} ({})", c.getTyp(), m.getKey(), anzahlTeile, anzahlTeile==0?"In Ordnung":"Fehler");
-				} catch (SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | InterruptedException e) {
+				} catch (SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | InterruptedException | NoSuchMethodException e) {
 					LOGGER.error("m={}", m.getKey(), e);
 				}
 			});
@@ -130,7 +134,7 @@ public class SharedDataProblem {
 		}
 	}
 
-	/** Stellt den <i>synchronisierten</i> Container bereit, der die Anzahl der enthaltenen Teile speichert */
+	/** Stellt den <i>Methoden-synchronisierten</i> (Monitor) Container bereit, der die Anzahl der enthaltenen Teile speichert */
 	public static class ContainerMethodenSynchronisiert extends Container {
 		protected String getTyp() {
 			return "Methoden-synchronisierter Container";
@@ -140,6 +144,58 @@ public class SharedDataProblem {
 		}
 		public synchronized void teilEntnehmen() {
 			anzahlTeile--;
+		}
+	}
+
+	/** Stellt den <i>Attribut-synchronisierten</i> Container bereit, der die Anzahl der enthaltenen Teile speichert */
+	public static class ContainerAttributSynchronisiert extends Container {
+		private AtomicInteger anzahlTeile = new AtomicInteger(0);
+		protected String getTyp() {
+			return "Attribut-synchronisierter Container";
+		}
+		public void teilEinfuegen() {
+			anzahlTeile.addAndGet(1);
+		}
+		public void teilEntnehmen() {
+			anzahlTeile.addAndGet(-1);
+		}
+		public int getAnzahlTeile() {
+			return anzahlTeile.get();
+		}
+	}
+
+	/** Stellt den <i>Objekt-synchronisierten</i> Container bereit, der die Anzahl der enthaltenen Teile speichert */
+	public static class ContainerObjektSynchronisiert extends Container {
+		protected String getTyp() {
+			return "Objekt-synchronisierter Container";
+		}
+		public void teilEinfuegen() {
+			synchronized(this) {
+				anzahlTeile++;
+			}
+		}
+		public void teilEntnehmen() {
+			synchronized(this) {
+				anzahlTeile--;
+			}
+		}
+	}
+
+	/** Stellt den <i>Objekt-synchronisierten</i> (Lock-Objekt) Container bereit, der die Anzahl der enthaltenen Teile speichert */
+	public static class ContainerObjekt2Synchronisiert extends Container {
+		private Object lock = new Object();
+		protected String getTyp() {
+			return "Objekt-synchronisierter Container";
+		}
+		public void teilEinfuegen() {
+			synchronized(this.lock) {
+				anzahlTeile++;
+			}
+		}
+		public void teilEntnehmen() {
+			synchronized(this.lock) {
+				anzahlTeile--;
+			}
 		}
 	}
 
