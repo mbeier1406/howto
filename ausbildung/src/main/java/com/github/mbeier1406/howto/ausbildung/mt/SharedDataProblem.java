@@ -22,8 +22,6 @@ public class SharedDataProblem {
 	/** {@value} definiert die Anzahl der Teile, die dem {@linkplain Container} hinzugefuegt oder entnommen werden */
 	public static final int ANZAHL_TEILE = 1000000;
 
-	private static Container newInstance;
-
 
 	/**	Definiert die Methode zum Befuellen und Leeren des {@linkplain Container}s */
 	@FunctionalInterface
@@ -39,6 +37,7 @@ public class SharedDataProblem {
 	public static void main(String[] args) {
 
 		/* Die unterschiedlichen Container, die getestet werden sollen */
+		@SuppressWarnings("serial")
 		final List<Class<? extends Container>> testContainer = new ArrayList<>() {{
 			add(Container.class);
 			add(ContainerMethodenSynchronisiert.class);
@@ -48,6 +47,7 @@ public class SharedDataProblem {
 		}};
 
 		/* Die unterschiedlichen Methoden, die testContainer zu Befuellen und Leeren */
+		@SuppressWarnings("serial")
 		final Map<String, ContainerFuelleUndLeeren> testMethoden = new HashMap<>() {{
 			put("Sequentielles Befuellen und Leeren", sequentiellAusfuehren);
 			put("Paralleles Befuellen und Leeren", parallelAusfuehren);
