@@ -80,7 +80,6 @@ public class Server {
 			try ( final var stream = exchange.getResponseBody() ) {
 				stream.write(response);
 			}
-
 		}
 
 	}
