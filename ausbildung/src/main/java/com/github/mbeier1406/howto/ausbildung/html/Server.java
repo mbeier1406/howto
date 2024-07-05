@@ -1,10 +1,13 @@
 package com.github.mbeier1406.howto.ausbildung.html;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.InetSocketAddress;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.concurrent.Executors;
+import java.util.stream.Stream;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -38,7 +41,9 @@ public class Server {
 	/** Startet den HTTP-Server */
 	public static final void main(String[] args) throws IOException {
 		final var server = HttpServer.create(new InetSocketAddress(PORT), 0);
-		server.createContext("/form", new Seite("form"));
+		Stream.of("form", "formPost", "textfield", "select").forEach(s -> {
+			try { server.createContext("/"+s, new Seite(s)); } catch (IOException e) { }
+		});
 		server.createContext("/anzeige", new Anzeige());
 		final var executor = Executors.newFixedThreadPool(1);
 		server.setExecutor(executor);
@@ -74,8 +79,15 @@ public class Server {
 		@Override
 		public void handle(HttpExchange exchange) throws IOException {
 			final var query = exchange.getRequestURI().getQuery();
-			LOGGER.trace("{}: query: {}", Thread.currentThread(), query);
-			byte[] response = String.valueOf("Query: " + query).getBytes();
+			String body = "";
+			String s = null;
+			do {
+				s = new BufferedReader(new InputStreamReader(exchange.getRequestBody(), "UTF-8")).readLine();
+				if ( s != null ) body += s;
+			}
+			while (s != null );
+			LOGGER.trace("{}: query: {}; body: {}", Thread.currentThread(), query, body);
+			byte[] response = String.valueOf("Query: " + query + "\nBody: " + body).getBytes();
 			exchange.sendResponseHeaders(200, response.length);
 			try ( final var stream = exchange.getResponseBody() ) {
 				stream.write(response);

@@ -1,0 +1,22 @@
+<!Doctype html>
+<!-- Ein Besipiel mit einem Auswahlmenü für eine HTML-Form -->
+<html lang="de-DE" encoding="UTF-8">
+	<head></head>
+	<body>
+		<div>
+			<form action="http://localhost:8000/anzeige" method="get">
+				<h3>Form mit einer Auswahl und Übergabe per GET</h3>
+				<label id="zahlenLabel" for="zahlenAuswahl">Auswahl:</label>
+				<select name="zahlen" id="zahlenAuswahl" size="3" multiple>
+					<option value="1" selected>eins</option>
+					<option value="2">zwei</option>
+					<option value="3">drei</option>
+					<option>vier</option>
+					<option>fünf</option>
+				</select>
+				<p/>
+				<button type="submit">Absenden</button>
+			</form>
+		</div>
+	</body>
+</html>
