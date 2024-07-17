@@ -179,18 +179,25 @@ public class Deadlock {
 	 */
 	public static void main(String[] args) throws InterruptedException {
 		String kreuzungZuTesten = System.getProperty("kreuzungZuTesten", KreuzungBlockierend.class.getSimpleName());
-		final Map<String, Kreuzung> listOfKreuzung = new HashMap<>();
-		Stream
+		final Map<String, Kreuzung> listOfKreuzung = Stream
 			.of(KreuzungBlockierend.class, KreuzungNichtBlockierend.class)
-			.forEach(c -> {
-				try {
-					listOfKreuzung.put(c.getSimpleName(), c.getDeclaredConstructor().newInstance());
-				} catch ( Exception e ) {
-					throw new RuntimeException(c.getSimpleName());
+			.reduce(
+				new HashMap<String, Kreuzung>(),
+				(map, c) -> {
+					try {
+						map.put(c.getSimpleName(), c.getDeclaredConstructor().newInstance());
+						return map;
+					} catch ( Exception e ) {
+						throw new RuntimeException(c.getSimpleName());
+					}
+				},
+				(map1, map2) -> {
+					map1.putAll(map2);
+					return map1;
 				}
-			});
+			);
 		final Kreuzung kreuzung = Optional.ofNullable(listOfKreuzung.get(kreuzungZuTesten)).orElseThrow(IllegalArgumentException::new);
-		LOGGER.info("Teste Kreuzung {}.", kreuzungZuTesten);
+		LOGGER.info("Teste Kreuzung '{}'.", kreuzungZuTesten);
 		final Consumer<Void> a = kreuzung::wegABefahren, b = kreuzung::wegBBefahren;
 		final List<Fahrzeug> fahrzeuge = Stream
 			.of(a, b)
