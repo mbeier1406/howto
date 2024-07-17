@@ -1,6 +1,10 @@
 package com.github.mbeier1406.howto.ausbildung.mt;
 
+import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.Random;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -23,13 +27,31 @@ public class Deadlock {
 
 	public static final Logger LOGGER = LogManager.getLogger();
 
-	/** Simuliert die Kreuzung mit zwei Wegen und zwei Ampeln. */
-	public static class Kreuzung {
+
+	/**
+	 * Alle Implementierungen einer Kreuzung müssen zwei
+	 * Fahrzeugen die Möglichkeit geben, sie über Weg A
+	 * oder Weg B zu passieren.
+	 */
+	public static interface Kreuzung {
+		public void wegABefahren(Void v);
+		public void wegBBefahren(Void v);
+	}
+
+
+	/**
+	 * Simuliert die Kreuzung mit zwei Wegen und zwei Ampeln.
+	 * Die Reihenfolge der Blockierung der Ampeln ist für beide
+	 * Wege unterschiedlich (circular wait), was zu einer Blockade
+	 * führen kann, da die Standardmethode <i>synchronized</i>
+	 * verwendet wird (nicht unterbrechbar).
+	 */
+	public static class KreuzungBlockierend implements Kreuzung {
 
 		/** Die Ampel für Weg A */
-		private Object ampelWegA = new Object();
+		protected Object ampelWegA = new Object();
 		/** Die Ampel für Weg B */
-		private Object ampelWegB = new Object();
+		protected Object ampelWegB = new Object();
 		/** Erzeugt die zufällige Durchfahrtszeit für ein Fahrzeug */
 		private Random random = new Random();
 
@@ -53,25 +75,53 @@ public class Deadlock {
 		}
 
 		/** Fahrzeug versucht auf Weg A die Kreuzung zu passieren */
+		@Override
 		public void wegABefahren(Void v) {
 			this.wegBefahren(this.ampelWegA, this.ampelWegB);
 		}
 
 		/** Fahrzeug versucht auf Weg B die Kreuzung zu passieren */
+		@Override
 		public void wegBBefahren(Void v) {
 			this.wegBefahren(this.ampelWegB, this.ampelWegA);
 		}
 
 	}
 
+
+	/**
+	 * Diese Implementierung von {@linkplain Kreuzung} ist nicht blockierend,
+	 * da die Ampeln von beiden Fahrzeugen in der gleichen Reihenfolge
+	 * blockiert werden (vermeidet <i>circular wait</i>).
+	 */
+	public static class KreuzungNichtBlockierend extends KreuzungBlockierend {
+		
+		/** Fahrzeug versucht auf Weg A die Kreuzung zu passieren */
+		@Override
+		public void wegABefahren(Void v) {
+			this.wegBefahren(this.ampelWegA, this.ampelWegB);
+		}
+
+		/** Fahrzeug versucht auf Weg B die Kreuzung zu passieren */
+		@Override
+		public void wegBBefahren(Void v) {
+			this.wegBefahren(this.ampelWegA, this.ampelWegB);
+		}
+
+	}
+
+
 	/**
 	 * Ein Fahrzeug, das in einer Endlosschleife die Kreuzung entweder
 	 * über Weg A ({@linkplain Kreuzung#wegABefahren(Void)}) oder
 	 * Weg B ({@linkplain Kreuzung#wegBBefahren(Void)}) passieren will.
+	 * Mittels {@linkplain Fahrzeug#getLetzteUeberquerung()} kann festgestellt
+	 * werden, ob das fahrzeug noch aktiv ist oder blockiert wurde.
 	 */
-	public static class Fahrzeug implements Runnable {
+	public static class Fahrzeug extends Thread {
 		private final Kreuzung kreuzung;
 		private final Consumer<Void> f;
+		private LocalDateTime letzteUeberquerung = LocalDateTime.now();
 		public Fahrzeug(final Kreuzung kreuzung, final Consumer<Void> f) {
 			this.kreuzung = kreuzung;
 			this.f = f;
@@ -80,24 +130,75 @@ public class Deadlock {
 		public void run() {
 			while ( true ) {
 				f.accept(null);
+				letzteUeberquerung = LocalDateTime.now();
+			}
+		}
+		public LocalDateTime getLetzteUeberquerung() {
+			return this.letzteUeberquerung;
+		}
+		public Kreuzung getKreuzung() {
+			return this.kreuzung;
+		}
+	}
+
+
+	/**
+	 * Dieser WatchDog wird in {@linkplain Deadlock#main(String[])} zusammen
+	 * mit den {@linkplain Fahrzeug}en gestartet. Ist ihre letzte Durchfahrt
+	 * durch die Kreuzung länger als eine Sekunde her, versucht er sie per
+	 * {@linkplain Thread#interrupt()} zu beenden.
+	 */
+	public static class WatchDog implements Runnable {
+		private final List<Fahrzeug> listeDerFahrzeuge;
+		public WatchDog(final List<Fahrzeug> listeDerFahrzeuge) {
+			this.listeDerFahrzeuge = listeDerFahrzeuge;
+		}
+		@Override
+		public void run() {
+			while ( true ) {
+				try { Thread.sleep(1000); } catch (InterruptedException e) { }
+				this.listeDerFahrzeuge.forEach(f -> {
+					if ( f.getLetzteUeberquerung().isBefore(LocalDateTime.now().minusSeconds(1)) ) {
+						LOGGER.info("Fahrzeug '{}' blockiert seit {}: anhalten...", f.getName(), f.getLetzteUeberquerung());
+						f.interrupt();
+					}
+				});
 			}
 		}
 	}
 
+
 	/**
 	 * Erzeugt die {@linkplain Kreuzung} und startet die beiden {@linkplain Fahrzeug}e
-	 * auf Weg A und Weg B. Terminiert nicht da die Threads (Fahrzeuge) in einer
-	 * Endlosschleife laufen.
+	 * auf Weg A und Weg B. Startet einen {@linkplain WatchDog}, der versucht, die
+	 * Fahrzeuge anzuhalten, wenn sie blockiert sind. Terminiert ggf. nicht da die Threads
+	 * (Fahrzeuge) in einer Endlosschleife laufen und bei Blockierung nicht auf
+	 * {@linkplain Thread#interrupt()} reagieren.<p/>
+	 * Es können verschieden blockierende/nicht-blockierende Kreuzungen ausprobiert werden.
+	 * Dazu das Systemproperty <b>kreuzungZuTesten</b> mit dem Klassennamen verwenden.
 	 */
 	public static void main(String[] args) throws InterruptedException {
-		final var kreuzung = new Kreuzung();
+		String kreuzungZuTesten = System.getProperty("kreuzungZuTesten", KreuzungBlockierend.class.getSimpleName());
+		final Map<String, Kreuzung> listOfKreuzung = new HashMap<>();
+		Stream
+			.of(KreuzungBlockierend.class, KreuzungNichtBlockierend.class)
+			.forEach(c -> {
+				try {
+					listOfKreuzung.put(c.getSimpleName(), c.getDeclaredConstructor().newInstance());
+				} catch ( Exception e ) {
+					throw new RuntimeException(c.getSimpleName());
+				}
+			});
+		final Kreuzung kreuzung = Optional.ofNullable(listOfKreuzung.get(kreuzungZuTesten)).orElseThrow(IllegalArgumentException::new);
+		LOGGER.info("Teste Kreuzung {}.", kreuzungZuTesten);
 		final Consumer<Void> a = kreuzung::wegABefahren, b = kreuzung::wegBBefahren;
-		List<Thread> threads = Stream
+		final List<Fahrzeug> fahrzeuge = Stream
 			.of(a, b)
-			.map(f -> new Thread(new Fahrzeug(kreuzung, f)))
+			.map(f -> new Fahrzeug(kreuzung, f))
 			.collect(Collectors.toList());
-		threads.forEach(Thread::start);
-		threads.forEach(t -> {
+		fahrzeuge.forEach(Thread::start);
+		new Thread(new WatchDog(fahrzeuge)).start();
+		fahrzeuge.forEach(t -> {
 			try { t.join(); } catch (InterruptedException e) { }
 		});
 	}
