@@ -6,6 +6,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -25,7 +28,7 @@ import org.apache.logging.log4j.Logger;
  */
 public class Deadlock {
 
-	public static final Logger LOGGER = LogManager.getLogger();
+	private static final Logger LOGGER = LogManager.getLogger();
 
 
 	/**
@@ -53,14 +56,14 @@ public class Deadlock {
 		/** Die Ampel für Weg B */
 		protected Object ampelWegB = new Object();
 		/** Erzeugt die zufällige Durchfahrtszeit für ein Fahrzeug */
-		private Random random = new Random();
+		protected Random random = new Random();
 
 		/**
 		 * Simuliert die Durchfahrt eines Fahrzeugs über die Kreuzung.
 		 * @param ampel1 wenn {@linkplain #ampelWegA}, dann Fahrzeug auf Weg A sonst Weg B
 		 * @param ampel2 wenn {@linkplain #ampelWegB}, dann Fahrzeug auf Weg A sonst Weg B
 		 */
-		public void wegBefahren(Object ampel1, Object ampel2) {
+		protected void wegBefahren(Object ampel1, Object ampel2) {
 			final var fahrzeug = ampel1==this.ampelWegA?"A":"B";
 			LOGGER.info("Fahrzeug {} wartet auf Ampel 1", fahrzeug);
 			synchronized(ampel1) { // Eigene Ampel blockieren
@@ -112,6 +115,126 @@ public class Deadlock {
 
 
 	/**
+	 * Eine nicht-performante/nicht-sichere Lösung für das Deadlock-Problem: soll die grundsätzliche Verwendung
+	 * von {@linkplain Lock}s zeigen: über {@linkplain ReentrantLock#isLocked()} prüfen, ob das Lock frei ist
+	 * und dann belegen. Kann trotzdem zum Deadlock führen, wenn nach der Abfrage ein anderer Thread das Lock erhält.<p/>
+	 * <em>Hinweis</em>: In {@linkplain KreuzungLockNichtBlockierendNichtSicher#wegABefahren(Void)} und
+	 * {@linkplain KreuzungLockNichtBlockierendNichtSicher#wegBBefahren(Void)} ist die selbe Logik wie in
+	 * {@linkplain KreuzungBlockierend#wegABefahren(Void)} etc., aber aufgrund des {@linkplain ReentrantLock}s
+	 * kann ein Deadlock hier vermieden werden.
+	 */
+	public static class KreuzungLockNichtBlockierendNichtSicher extends KreuzungBlockierend implements Kreuzung {
+
+		protected ReentrantLock ampelWegA = new ReentrantLock(), ampelWegB = new ReentrantLock();
+
+		protected void wegBefahren(ReentrantLock ampel1, ReentrantLock ampel2) {
+			final var fahrzeug = ampel1==this.ampelWegA?"A":"B";
+			try {
+				LOGGER.info("Fahrzeug {} wartet auf Ampel 1; wartend: {}", fahrzeug, ampel1.getQueueLength());
+				if ( ampel1.isLocked() ) return; else ampel1.lock(); // Eigene Ampel blockieren
+				try {
+					LOGGER.info("Fahrzeug {} wartet auf Ampel 2; wartend: {}", fahrzeug, ampel2.getQueueLength());
+					if ( ampel2.isLocked() ) return; else ampel2.lock(); // Ampel auf dem anderen Weg blockieren
+					LOGGER.info("Fahrzeug passiert Weg {} (ampel1={}; ampel2={})...", fahrzeug, ampel1.isHeldByCurrentThread(), ampel2.isHeldByCurrentThread());
+					Thread.sleep(random.nextInt(10));
+				} catch (InterruptedException e) { }
+				finally {
+					try { ampel2.unlock(); } catch ( IllegalMonitorStateException e ) {}
+				}
+			}
+			finally {
+				try { ampel1.unlock(); } catch ( IllegalMonitorStateException e ) {}
+			}
+		}
+
+		/** Fahrzeug versucht auf Weg A die Kreuzung zu passieren */
+		@Override
+		public void wegABefahren(Void v) {
+			this.wegBefahren(this.ampelWegA, this.ampelWegB);
+		}
+
+		/** Fahrzeug versucht auf Weg B die Kreuzung zu passieren */
+		@Override
+		public void wegBBefahren(Void v) {
+			this.wegBefahren(this.ampelWegB, this.ampelWegA);
+		}
+
+	}
+
+
+	/**
+	 * Diese Lösung ist nicht performant, funktioniert aber grundsätzlich: die Versuche, ein Lock
+	 * zu erhalten sind unterbrechungsfähig, der {@linkplain WatchDog} kann blockierte Fahrzeuge
+	 * freigeben (per {@linkplain Thread#interrupt()}, die dann ggf. bereits eine blockierte Ampel
+	 * wieder freigeben, so dass die Kreuzng wieder frei ist.
+	 */
+	public static class KreuzungLockUnterbrechbar extends KreuzungLockNichtBlockierendNichtSicher {
+
+		protected void wegBefahren(ReentrantLock ampel1, ReentrantLock ampel2) {
+			final var fahrzeug = ampel1==this.ampelWegA?"A":"B";
+			try {
+				LOGGER.info("Fahrzeug {} wartet auf Ampel 1...", fahrzeug);
+				ampel1.lockInterruptibly(); // Eigene Ampel blockieren, kann unterbrochen werden
+				try {
+					LOGGER.info("Fahrzeug {} wartet auf Ampel 2...", fahrzeug);
+					ampel2.lockInterruptibly(); // Ampel auf dem anderen Weg blockieren, kann unterbrochen werden
+					LOGGER.info("Fahrzeug passiert Weg {}!", fahrzeug);
+					Thread.sleep(random.nextInt(10));
+				}
+				catch (InterruptedException e) {
+					LOGGER.info("Fahrzeug {} bekommt Ampel 2 nicht, Ampel 1 freigeben!", fahrzeug);
+				}
+				finally {
+					if ( ampel2.isHeldByCurrentThread() ) ampel2.unlock();
+				}
+			}
+			catch (InterruptedException e1) {
+				LOGGER.info("Fahrzeug {} bekommt Ampel 1 nicht, neuer Versuch!", fahrzeug);
+			}
+			finally {
+				if ( ampel1.isHeldByCurrentThread() ) ampel1.unlock();
+			}
+		}
+	}
+
+
+	/**
+	 * Die korrekte Lösung: mittels {@linkplain ReentrantLock#tryLock()} versuchen,
+	 * das Lock zu erhalten, und ansonsten den Versuch, die Kreuzung zu überqueren
+	 * abbrechen und ggf. bereits die blockierte eigene Ampel (Ampel 1) wieder
+	 * freigeben.
+	 */
+	public static class KreuzungLock extends KreuzungLockNichtBlockierendNichtSicher {
+
+		protected void wegBefahren(ReentrantLock ampel1, ReentrantLock ampel2) {
+			final var fahrzeug = ampel1==this.ampelWegA?"A":"B";
+			try {
+				LOGGER.info("Fahrzeug {} wartet auf Ampel 1...", fahrzeug);
+				if ( !ampel1.tryLock(10L, TimeUnit.MILLISECONDS) ) return; // Eigene Ampel blockieren, max 10 ms warten
+				try {
+					LOGGER.info("Fahrzeug {} wartet auf Ampel 2...", fahrzeug);
+					if ( !ampel2.tryLock(10L, TimeUnit.MILLISECONDS) ) return; // Ampel auf dem anderen Weg blockieren, , max 10 ms warten
+					LOGGER.info("Fahrzeug passiert Weg {}!", fahrzeug);
+					Thread.sleep(random.nextInt(10));
+				}
+				catch (InterruptedException e) {
+					LOGGER.info("Fahrzeug {} bekommt Ampel 2 nicht, Ampel 1 freigeben!", fahrzeug);
+				}
+				finally {
+					if ( ampel2.isHeldByCurrentThread() ) ampel2.unlock();
+				}
+			}
+			catch (InterruptedException e1) {
+				LOGGER.info("Fahrzeug {} bekommt Ampel 1 nicht, neuer Versuch!", fahrzeug);
+			}
+			finally {
+				if ( ampel1.isHeldByCurrentThread() ) ampel1.unlock();
+			}
+		}
+	}
+
+
+	/**
 	 * Ein Fahrzeug, das in einer Endlosschleife die Kreuzung entweder
 	 * über Weg A ({@linkplain Kreuzung#wegABefahren(Void)}) oder
 	 * Weg B ({@linkplain Kreuzung#wegBBefahren(Void)}) passieren will.
@@ -119,11 +242,9 @@ public class Deadlock {
 	 * werden, ob das fahrzeug noch aktiv ist oder blockiert wurde.
 	 */
 	public static class Fahrzeug extends Thread {
-		private final Kreuzung kreuzung;
 		private final Consumer<Void> f;
 		private LocalDateTime letzteUeberquerung = LocalDateTime.now();
-		public Fahrzeug(final Kreuzung kreuzung, final Consumer<Void> f) {
-			this.kreuzung = kreuzung;
+		public Fahrzeug(final Consumer<Void> f) {
 			this.f = f;
 		}
 		@Override
@@ -136,9 +257,6 @@ public class Deadlock {
 		public LocalDateTime getLetzteUeberquerung() {
 			return this.letzteUeberquerung;
 		}
-		public Kreuzung getKreuzung() {
-			return this.kreuzung;
-		}
 	}
 
 
@@ -146,7 +264,7 @@ public class Deadlock {
 	 * Dieser WatchDog wird in {@linkplain Deadlock#main(String[])} zusammen
 	 * mit den {@linkplain Fahrzeug}en gestartet. Ist ihre letzte Durchfahrt
 	 * durch die Kreuzung länger als eine Sekunde her, versucht er sie per
-	 * {@linkplain Thread#interrupt()} zu beenden.
+	 * {@linkplain Thread#interrupt()} zu beenden/aufzuwecken.
 	 */
 	public static class WatchDog implements Runnable {
 		private final List<Fahrzeug> listeDerFahrzeuge;
@@ -180,8 +298,11 @@ public class Deadlock {
 	public static void main(String[] args) throws InterruptedException {
 		String kreuzungZuTesten = System.getProperty("kreuzungZuTesten", KreuzungBlockierend.class.getSimpleName());
 		final Map<String, Kreuzung> listOfKreuzung = Stream
-			.of(KreuzungBlockierend.class, KreuzungNichtBlockierend.class)
-			.reduce(
+			.of(
+					KreuzungBlockierend.class, KreuzungNichtBlockierend.class,
+					KreuzungLockNichtBlockierendNichtSicher.class, KreuzungLockUnterbrechbar.class,
+					KreuzungLock.class
+			).reduce(
 				new HashMap<String, Kreuzung>(),
 				(map, c) -> {
 					try {
@@ -201,7 +322,7 @@ public class Deadlock {
 		final Consumer<Void> a = kreuzung::wegABefahren, b = kreuzung::wegBBefahren;
 		final List<Fahrzeug> fahrzeuge = Stream
 			.of(a, b)
-			.map(f -> new Fahrzeug(kreuzung, f))
+			.map(f -> new Fahrzeug(f))
 			.collect(Collectors.toList());
 		fahrzeuge.forEach(Thread::start);
 		new Thread(new WatchDog(fahrzeuge)).start();
