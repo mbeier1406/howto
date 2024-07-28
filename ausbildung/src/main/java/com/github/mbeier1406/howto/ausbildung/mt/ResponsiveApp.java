@@ -80,6 +80,7 @@ public class ResponsiveApp extends Application {
 	@Override
 	public void start(final Stage primaryStage) {
 
+		/* Anzeige der Werte: Klick auf eine Währung ändert die Farbe */
 		final var gridPane = new GridPane();
 		gridPane.setVgap(10.0);
 		gridPane.setHgap(10.0);
@@ -97,25 +98,29 @@ public class ResponsiveApp extends Application {
 				gridPane.add(e.getValue().label(), 1, row.get());
 			});
 
+		/* Hintergrundfarbe sekündlich wechseln */
 		final var background = new Rectangle(BREITE, HOEHE);
 		final var fillTransition = new FillTransition(Duration.millis(1000), background, Color.LIGHTGRAY, Color.LIGHTBLUE);
 		fillTransition.setCycleCount(Timeline.INDEFINITE);
 		fillTransition.setAutoReverse(true);
 		fillTransition.play();
 
+		/* Baut die GUI zusammen */
 		final var root = new StackPane();
 		root.getChildren().addAll(background, gridPane);
 
+		/* Diese Klasse liest aus der geteilten Ressource und blockiert die GUI, falls der Aufruf blockiert wird */
 		final var waehrungsHandelssystemReader = new WaehrungsHandelssystemReader(waehrungsHandelssystem);
 
-		final var animationTimer = new AnimationTimer() {
+		/* Startet das aktualisieren der Währungsanzeige */
+		new AnimationTimer() {
 			@Override
 			public void handle(long now) {
 				waehrungsHandelssystemReader.update();
 			}
-		};
-		animationTimer.start();
+		}.start();
 
+		/* GUI anzeigen */
 		primaryStage.setTitle("Handelssystem - Währungen");
 		primaryStage.setScene(new Scene(root, BREITE, HOEHE));
 		primaryStage.setX(screen.getWidth()/2-BREITE/2); // Anwendung zentral am oberen Bildschirmrand plazieren
@@ -124,18 +129,21 @@ public class ResponsiveApp extends Application {
 	}
 
 
+	/** Initialisiert das (nicht-)blockierende Handelssystem und startet die beiden Threads Lesen/Schreiben */
 	public static void main(String[] args) {
-		waehrungsHandelssystem = new WaehrungsHandelssystemBlockierend();
-//		anzeige = waehrungsHandelssystem
-//				.getWaehrungsListe()
-//				.stream()
-//				.map(w -> new Waehrungsanzeiger(new Label("0"), w))
-//				.collect(Collectors.toMap(x -> x.waehrung.getName(), x -> x));
+		// waehrungsHandelssystem = new WaehrungsHandelssystemBlockierend(); // verwendet die blockierende geteilte Ressource -> GUI nicht benutzbar
+		waehrungsHandelssystem = new WaehrungsHandelssystemNichtBlockierend(); // verwendet die nicht-blockierende geteilte Ressource -> GUI bleibt benutzbar
+		anzeige = waehrungsHandelssystem
+				.getWaehrungsListe()
+				.stream()
+				.map(w -> new Waehrungsanzeiger(new Label("0"), w))
+				.collect(Collectors.toMap(x -> x.waehrung.getName(), x -> x));
 		new WaehrungsHandelssystemFeeder(waehrungsHandelssystem).start();
 		launch(args);
 	}
 
 
+	/** Definiert die Schnittstelle zur geteilten Ressource */
 	public static interface WaehrungsHandelssystem {
 		public static class Waehrung {
 			private final WAEHRUNGEN waehrung;
@@ -151,11 +159,14 @@ public class ResponsiveApp extends Application {
 		public static enum WAEHRUNGEN { EUR, GBP, USD, DKR, PLS };
 		public static final List<Waehrung> WAEHRUNGSLISTE = new ArrayList<>();
 		public List<Waehrung> getWaehrungsListe();
-		public double getWert(WAEHRUNGEN waehrung) throws RuntimeException;
-		public void wertAktualisieren(Waehrung waehrung, double wert) throws RuntimeException;
+		/** Diese Methode wird vom Lese-GUI-Thread JavaFX verwendet */
+		public double getWert(WAEHRUNGEN waehrung) throws IllegalArgumentException;
+		/** Diese Methode wird vom Schreib-Thread {@linkplain WaehrungsHandelssystemFeeder} verwendet */
+		public void wertAktualisieren(Waehrung waehrung, double wert) throws IllegalArgumentException;
 	}
 
 
+	/** Der Schreib-Thread verwendet die geteilte Ressource {@linkplain WaehrungsHandelssystem} zum Aktuaisieren der Werte */
 	public static class WaehrungsHandelssystemFeeder extends Thread {
 		private final WaehrungsHandelssystem waehrungsHandelssystem;
 		private Random random = new Random();
@@ -175,6 +186,7 @@ public class ResponsiveApp extends Application {
 	}
 
 
+	/** Diese Klasse wird vom GUI-Thread verwendet, um die aktualisierten Werte in der GUI zu aktualisieren */
 	public static class WaehrungsHandelssystemReader {
 		private final WaehrungsHandelssystem waehrungsHandelssystem;
 		private Random random = new Random();
@@ -187,12 +199,14 @@ public class ResponsiveApp extends Application {
 				.entrySet()
 				.stream()
 				.forEach(w -> {
-					w.getValue().label().setText(String.valueOf(this.waehrungsHandelssystem.getWert(w.getKey())));
+					double wert = this.waehrungsHandelssystem.getWert(w.getKey());
+					if ( wert != -1.0 ) w.getValue().label().setText(String.valueOf(wert));
 				});
 		}
 	}
 
 
+	/** Diese geteilte Ressource blockiert Lese- und Schreibzugriffe und macht die GUI unbenutzbar */
 	public static class WaehrungsHandelssystemBlockierend implements WaehrungsHandelssystem {
 		static {
 			Arrays.stream(WAEHRUNGEN.values()).forEach(w -> WAEHRUNGSLISTE.add(new Waehrung(w)));
@@ -202,7 +216,7 @@ public class ResponsiveApp extends Application {
 		@Override
 		public final List<Waehrung> getWaehrungsListe() { return WAEHRUNGSLISTE; }
 		@Override
-		public double getWert(WAEHRUNGEN waehrung) throws RuntimeException {
+		public double getWert(WAEHRUNGEN waehrung) throws IllegalArgumentException {
 			lock.lock();
 			try {
 				Optional<Waehrung> wertZuALiefern = getWaehrungsListe()
@@ -210,7 +224,7 @@ public class ResponsiveApp extends Application {
 						.filter(w -> w.getName().equals(waehrung))
 						.findAny();
 				if ( wertZuALiefern.isEmpty() )
-					throw new RuntimeException(waehrung.toString());
+					throw new IllegalArgumentException(waehrung.toString());
 				else {
 					LOGGER.info("Liefere {}: {}", waehrung, wertZuALiefern.get().getWert());
 					return wertZuALiefern.get().getWert();
@@ -221,7 +235,7 @@ public class ResponsiveApp extends Application {
 			}
 		}
 		@Override
-		public void wertAktualisieren(Waehrung waehrung, double wert) throws RuntimeException {
+		public void wertAktualisieren(Waehrung waehrung, double wert) throws IllegalArgumentException {
 			lock.lock();
 			try {
 				Optional<Waehrung> wertZuAktualisieeren = getWaehrungsListe()
@@ -229,7 +243,7 @@ public class ResponsiveApp extends Application {
 					.filter(w -> w.getName().equals(waehrung.getName()))
 					.findAny();
 				if ( wertZuAktualisieeren.isEmpty() )
-					throw new RuntimeException(waehrung.toString());
+					throw new IllegalArgumentException(waehrung.toString());
 				else {
 					LOGGER.info("Aktualisiere {}: {}", wertZuAktualisieeren.get().getName(), wert);
 					wertZuAktualisieeren.get().setWert(wert);
@@ -240,6 +254,62 @@ public class ResponsiveApp extends Application {
 			}
 			finally {
 				lock.unlock();
+			}
+		}
+	}
+
+	/** Diese geteilte Ressource blockiert Lese- und Schreibzugriffe NICHT: die GUI bleibt benutzbar */
+	public static class WaehrungsHandelssystemNichtBlockierend implements WaehrungsHandelssystem {
+		static {
+			Arrays.stream(WAEHRUNGEN.values()).forEach(w -> WAEHRUNGSLISTE.add(new Waehrung(w)));
+		}
+		private Lock lock = new ReentrantLock();
+		private Random random = new Random();
+		@Override
+		public final List<Waehrung> getWaehrungsListe() { return WAEHRUNGSLISTE; }
+		@Override
+		public double getWert(WAEHRUNGEN waehrung) throws IllegalArgumentException {
+			if ( lock.tryLock() ) {
+				try {
+					Optional<Waehrung> wertZuALiefern = getWaehrungsListe()
+							.stream()
+							.filter(w -> w.getName().equals(waehrung))
+							.findAny();
+					if ( wertZuALiefern.isEmpty() )
+						throw new IllegalArgumentException(waehrung.toString());
+					else {
+						LOGGER.info("Liefere {}: {}", waehrung, wertZuALiefern.get().getWert());
+						return wertZuALiefern.get().getWert();
+					}
+				}
+				finally {
+					lock.unlock();
+				}
+			}
+			else
+				return -1.0; // Nicht anzeigen
+		}
+		@Override
+		public void wertAktualisieren(Waehrung waehrung, double wert) throws IllegalArgumentException {
+			if ( lock.tryLock() ) {
+				try {
+					Optional<Waehrung> wertZuAktualisieeren = getWaehrungsListe()
+						.stream()
+						.filter(w -> w.getName().equals(waehrung.getName()))
+						.findAny();
+					if ( wertZuAktualisieeren.isEmpty() )
+						throw new IllegalArgumentException(waehrung.toString());
+					else {
+						LOGGER.info("Aktualisiere {}: {}", wertZuAktualisieeren.get().getName(), wert);
+						wertZuAktualisieeren.get().setWert(wert);
+						try {
+							Thread.sleep(random.nextInt(1500));
+						} catch (InterruptedException e) { }
+					}
+				}
+				finally {
+					lock.unlock();
+				}
 			}
 		}
 	}
