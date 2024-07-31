@@ -1,7 +1,5 @@
 package com.github.mbeier1406.howto.ausbildung.mt;
 
-import com.github.mbeier1406.howto.ausbildung.mt.ResponsiveApp.WaehrungsHandelssystem.WAEHRUNGEN;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -15,6 +13,8 @@ import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import com.github.mbeier1406.howto.ausbildung.mt.ResponsiveApp.WaehrungsHandelssystem.WAEHRUNGEN;
 
 import javafx.animation.AnimationTimer;
 import javafx.animation.FillTransition;
@@ -189,7 +189,6 @@ public class ResponsiveApp extends Application {
 	/** Diese Klasse wird vom GUI-Thread verwendet, um die aktualisierten Werte in der GUI zu aktualisieren */
 	public static class WaehrungsHandelssystemReader {
 		private final WaehrungsHandelssystem waehrungsHandelssystem;
-		private Random random = new Random();
 		public WaehrungsHandelssystemReader(final WaehrungsHandelssystem waehrungsHandelssystem) {
 			LOGGER.info("Reader Start...");
 			this.waehrungsHandelssystem = waehrungsHandelssystem;
