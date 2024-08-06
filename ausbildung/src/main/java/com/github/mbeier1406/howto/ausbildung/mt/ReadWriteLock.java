@@ -1,13 +1,15 @@
 package com.github.mbeier1406.howto.ausbildung.mt;
 
 import java.nio.charset.Charset;
+import java.time.LocalDateTime;
 import java.util.Comparator;
-import java.util.Map.Entry;
 import java.util.Random;
 import java.util.TreeMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import org.apache.logging.log4j.LogManager;
@@ -17,7 +19,9 @@ public class ReadWriteLock {
 
 	public static final Logger LOGGER = LogManager.getLogger(ReadWriteLock.class);
 
-	public static final int NUM_ITEMS = 10;
+	public static final int NUM_ITEMS = 1000;
+
+	public static final int NUM_READER_THREADS = 100;
 
 	public static class Code implements Comparable<Code> {
 		private final char type;
@@ -111,15 +115,86 @@ public class ReadWriteLock {
 		}
 		@Override
 		public int suchen(Code code) {
-			return super.suchen(code);
+			lock.lock();
+			try {
+				return super.suchen(code);
+			}
+			finally {
+				lock.unlock();
+			}
 		}
 		@Override
 		public void entfernen(Code code) {
-			super.entfernen(code);
+			lock.lock();
+			try {
+				super.entfernen(code);
+			}
+			finally {
+				lock.unlock();
+			}
 		}
 		@Override
 		public void hinzufuegen(Code code) {
-			super.hinzufuegen(code);
+			lock.lock();
+			try {
+				super.hinzufuegen(code);
+			}
+			finally {
+				lock.unlock();
+			}
+		}
+	}
+
+	public static class CodeRepositoryNoneBlocking extends CodeRepositoryBasis implements CodeRepository {
+		private ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
+		private Lock readLock = lock.readLock(), writeLock = lock.writeLock();
+		public CodeRepositoryNoneBlocking(TreeMap<Code, Integer> map) {
+			super(map);
+		}
+		@Override
+		public int suchen(Code code) {
+			readLock.lock();
+			try {
+				return super.suchen(code);
+			}
+			finally {
+				readLock.unlock();
+			}
+		}
+		@Override
+		public void entfernen(Code code) {
+			writeLock.lock();
+			try {
+				super.entfernen(code);
+			}
+			finally {
+				writeLock.unlock();
+			}
+		}
+		@Override
+		public void hinzufuegen(Code code) {
+			writeLock.lock();
+			try {
+				super.hinzufuegen(code);
+			}
+			finally {
+				writeLock.unlock();
+			}
+		}
+	}
+
+	public static class CodeRepositoryReder extends Thread {
+		private CodeRepository codeRepository;
+		private Random random = new Random();
+		public CodeRepositoryReder(final CodeRepository codeRepository) {
+			this.codeRepository = codeRepository;
+		}
+		@Override
+		public void run() {
+			LOGGER.trace("Starte {}...", Thread.currentThread());
+			for ( int i=0; i < 100000; i++ )
+				codeRepository.suchen(new Code((char) (random.nextInt(26)+65), random.nextInt(NUM_ITEMS), ""));
+			LOGGER.trace("Fertig {}.", Thread.currentThread());
 		}
 	}
 
@@ -132,13 +207,16 @@ public class ReadWriteLock {
 			.mapToObj(i -> new Code((char) (random.nextInt(26)+65), i, new String(bytes, Charset.forName("UTF-8"))))
 			.peek(LOGGER::trace)
 			.forEach(c -> map.put(c, random.nextInt(1000)));
-		final var codeRepository = new CodeRepositoryBlocking(map);
-		Entry<Code, Integer> entry = map.entrySet().stream().findFirst().get();
-		LOGGER.info("a={}", entry);
-		codeRepository.hinzufuegen(entry.getKey());
-		LOGGER.info("b={}", map.get(entry.getKey()));
-		codeRepository.entfernen(entry.getKey());
-		LOGGER.info("c={}", map.get(entry.getKey()));
+		final var codeRepository = new CodeRepositoryNoneBlocking(map);
+		final var codeRepositoryRederList = IntStream
+				.range(0,  NUM_READER_THREADS)
+				.mapToObj(i -> new CodeRepositoryReder(codeRepository))
+				.collect(Collectors.toList());
+		final var start = LocalDateTime.now();
+		LOGGER.trace("Start: {}", start);
+		codeRepositoryRederList.forEach(Thread::start);
+		codeRepositoryRederList.forEach(t -> { try { t.join(); } catch (InterruptedException e) {} });
+		LOGGER.trace("Ende: {} -> {}", start, LocalDateTime.now());
 	}
 
 }
