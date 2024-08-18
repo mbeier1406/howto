@@ -4,6 +4,7 @@ import java.util.ArrayDeque;
 import java.util.Queue;
 import java.util.Random;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
@@ -13,7 +14,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * Beispiellösung des Consumer-Producer-Problems mit Hilfe von {@linkplain Semaphore}n.
+ * Beispiellösung des Consumer-Producer-Problems mit Hilfe von {@linkplain Semaphore}n
+ * und {@linkplain Condition}.
  * @author mbeier
  */
 public class ProducerConsumer {
@@ -40,7 +42,7 @@ public class ProducerConsumer {
 
 
 	/**
-	 * Bei dieser Lösung kann immer nur <u>ein Item</u> produziert und konsumiert werden, D. h.
+	 * Synchronisation über {@linkplain Semaphore}: Bei dieser Lösung kann immer nur <u>ein Item</u> produziert und konsumiert werden, D. h.
 	 * es kann jeweils nur ein Thread gleichzeitig arbeiten.
 	 */
 	public static class SingleItem implements Item {
@@ -83,7 +85,7 @@ public class ProducerConsumer {
 
 
 	/**
-	 * Bei dieser Lösung können <u>zwei Items</u> parallel produziert und konsumiert werden.
+	 * Synchronisation über {@linkplain Semaphore}: Bei dieser Lösung können <u>zwei Items</u> parallel produziert und konsumiert werden.
 	 */
 	public static class MultipleItem implements Item {
 		private static final int ANZ_PARALLEL = 2;
@@ -144,6 +146,63 @@ public class ProducerConsumer {
 	}
 
 
+	/**
+	 * Synchronisation über {@linkplain Condition}: Bei dieser Lösung kann immer nur <u>ein Item</u> produziert und konsumiert werden, D. h.
+	 * es kann jeweils nur ein Thread gleichzeitig arbeiten.
+	 */
+	public static class ConditionSingleItem implements Item {
+		private Lock lock = new ReentrantLock();
+		private Condition condition = lock.newCondition();
+		private Random random = new Random();
+		private Integer item = null;
+
+		/** {@inheritDoc} */
+		@Override
+		public void produce() {
+			lock.lock();
+			try {
+				if ( this.item != null ) {
+					LOGGER.trace("{}: noch nicht abgeholt: {}.", Thread.currentThread().getName(), this.item);
+					return;
+				}
+				this.item = this.random.nextInt();
+				LOGGER.trace("{}: Produziert: {}.", Thread.currentThread().getName(), this.item);
+				try { Thread.sleep(500); } catch (InterruptedException e) { }
+				this.condition.signal();
+				LOGGER.trace("{}: fertig.", Thread.currentThread().getName());
+			}
+			finally {
+				lock.unlock();
+			}
+		}
+
+		/** {@inheritDoc} */
+		@Override
+		public Integer consume() throws IllegalAccessException {
+			lock.lock();
+			try {
+				LOGGER.trace("{}: Item prüfen...", Thread.currentThread().getName());
+				if ( this.item == null )
+					try {
+						LOGGER.trace("{}: warten...", Thread.currentThread().getName());
+						this.condition.await();
+					} catch (InterruptedException e) { }
+				if ( this.item == null ) {
+					LOGGER.error("{}!!!", Thread.currentThread().getName());
+					System.exit(1);
+				}
+				var i = this.item;
+				LOGGER.trace("{}: i={}", Thread.currentThread().getName(), i);
+				this.item = null;
+				return i;
+			}
+			finally {
+				lock.unlock();
+			}
+		}
+	}
+
+
 	/** Der {@linkplain ProducerThread} erzeugt die Items in einer Endlosschleife */
 	public static class ProducerThread extends Thread {
 		private final ProducerConsumer.Item item;
@@ -183,9 +242,12 @@ public class ProducerConsumer {
 	/** Erzeugt den gewünschen Consumer/Producer-Item und startet die Threads */
 	public static void main(String[] args) {
 //		ProducerConsumer.Item item = new ProducerConsumer.SingleItem();
-		ProducerConsumer.Item item = new ProducerConsumer.MultipleItem();
-		final var consumerList = IntStream.range(0, NUM_CONSUMER).mapToObj(i -> new ConsumerThread(item)).collect(Collectors.toList());
-		final var producerList = IntStream.range(0, NUM_PRODUCER).mapToObj(i -> new ProducerThread(item)).collect(Collectors.toList());
+//		ProducerConsumer.Item item = new ProducerConsumer.MultipleItem();
+//		final var consumerList = IntStream.range(0, NUM_CONSUMER).mapToObj(i -> new ConsumerThread(item)).collect(Collectors.toList());
+//		final var producerList = IntStream.range(0, NUM_PRODUCER).mapToObj(i -> new ProducerThread(item)).collect(Collectors.toList());
+		ProducerConsumer.Item item = new ProducerConsumer.ConditionSingleItem();
+		final var consumerList = IntStream.range(0, 1).mapToObj(i -> new ConsumerThread(item)).collect(Collectors.toList());
+		final var producerList = IntStream.range(0, 1).mapToObj(i -> new ProducerThread(item)).collect(Collectors.toList());
 		consumerList.forEach(Thread::start);
 		producerList.forEach(Thread::start);
 	}
