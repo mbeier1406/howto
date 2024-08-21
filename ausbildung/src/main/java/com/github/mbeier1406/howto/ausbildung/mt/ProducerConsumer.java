@@ -151,10 +151,10 @@ public class ProducerConsumer {
 	 * es kann jeweils nur ein Thread gleichzeitig arbeiten.
 	 */
 	public static class ConditionSingleItem implements Item {
-		private Lock lock = new ReentrantLock();
-		private Condition condition = lock.newCondition();
-		private Random random = new Random();
-		private Integer item = null;
+		protected Lock lock = new ReentrantLock();
+		protected Condition condition = lock.newCondition();
+		protected Random random = new Random();
+		protected Integer item = null;
 
 		/** {@inheritDoc} */
 		@Override
@@ -163,13 +163,14 @@ public class ProducerConsumer {
 			try {
 				if ( this.item != null ) {
 					LOGGER.trace("{}: noch nicht abgeholt: {}.", Thread.currentThread().getName(), this.item);
-					return;
+					Thread.yield();
 				}
-				this.item = this.random.nextInt();
-				LOGGER.trace("{}: Produziert: {}.", Thread.currentThread().getName(), this.item);
-				try { Thread.sleep(500); } catch (InterruptedException e) { }
-				this.condition.signal();
-				LOGGER.trace("{}: fertig.", Thread.currentThread().getName());
+				else {
+					this.item = this.random.nextInt();
+					LOGGER.trace("{}: Produziert: {}.", Thread.currentThread().getName(), this.item);
+					try { Thread.sleep(500); } catch (InterruptedException e) { }
+					this.condition.signal();
+				}
 			}
 			finally {
 				lock.unlock();
@@ -183,6 +184,35 @@ public class ProducerConsumer {
 			try {
 				LOGGER.trace("{}: Item prüfen...", Thread.currentThread().getName());
 				if ( this.item == null )
+					try {
+						LOGGER.trace("{}: warten...", Thread.currentThread().getName());
+						this.condition.await();
+					} catch (InterruptedException e) { }
+				if ( this.item == null ) {
+					LOGGER.error("{}!!!", Thread.currentThread().getName());
+					System.exit(1);
+				}
+				var i = this.item;
+				LOGGER.trace("{}: i={}", Thread.currentThread().getName(), i);
+				this.item = null;
+				return i;
+			}
+			finally {
+				lock.unlock();
+			}
+		}
+	}
+
+
+	/** Analog {@linkplain ConditionSingleItem} für mehrere parallel laufende Theads */
+	public static class ConditionMultipleItem extends ConditionSingleItem implements Item {
+		/** {@inheritDoc} */
+		@Override
+		public Integer consume() throws IllegalAccessException {
+			lock.lock();
+			try {
+				LOGGER.trace("{}: Item prüfen...", Thread.currentThread().getName());
+				while ( this.item == null )
 					try {
 						LOGGER.trace("{}: warten...", Thread.currentThread().getName());
 						this.condition.await();
@@ -243,11 +273,12 @@ public class ProducerConsumer {
 	public static void main(String[] args) {
 //		ProducerConsumer.Item item = new ProducerConsumer.SingleItem();
 //		ProducerConsumer.Item item = new ProducerConsumer.MultipleItem();
-//		final var consumerList = IntStream.range(0, NUM_CONSUMER).mapToObj(i -> new ConsumerThread(item)).collect(Collectors.toList());
-//		final var producerList = IntStream.range(0, NUM_PRODUCER).mapToObj(i -> new ProducerThread(item)).collect(Collectors.toList());
-		ProducerConsumer.Item item = new ProducerConsumer.ConditionSingleItem();
-		final var consumerList = IntStream.range(0, 1).mapToObj(i -> new ConsumerThread(item)).collect(Collectors.toList());
-		final var producerList = IntStream.range(0, 1).mapToObj(i -> new ProducerThread(item)).collect(Collectors.toList());
+		ProducerConsumer.Item item = new ProducerConsumer.ConditionMultipleItem();
+		final var consumerList = IntStream.range(0, NUM_CONSUMER).mapToObj(i -> new ConsumerThread(item)).collect(Collectors.toList());
+		final var producerList = IntStream.range(0, NUM_PRODUCER).mapToObj(i -> new ProducerThread(item)).collect(Collectors.toList());
+//		ProducerConsumer.Item item = new ProducerConsumer.ConditionSingleItem();
+//		final var consumerList = IntStream.range(0, 1).mapToObj(i -> new ConsumerThread(item)).collect(Collectors.toList());
+//		final var producerList = IntStream.range(0, 1).mapToObj(i -> new ProducerThread(item)).collect(Collectors.toList());
 		consumerList.forEach(Thread::start);
 		producerList.forEach(Thread::start);
 	}
