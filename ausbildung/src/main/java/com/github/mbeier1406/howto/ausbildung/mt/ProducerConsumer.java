@@ -233,6 +233,40 @@ public class ProducerConsumer {
 	}
 
 
+	/** Synchronisiert Consomer/Producer über den Monitor */
+	public static class MonitorMultipleItem implements Item {
+		protected Random random = new Random();
+		protected Integer item = null;
+
+		/** {@inheritDoc} */
+		@Override
+		public synchronized void produce() {
+			if ( item != null ) {
+				LOGGER.trace("{}: noch nicht abgeholt: {}.", Thread.currentThread().getName(), this.item);
+				try { Thread.sleep(50); } catch (InterruptedException e) { }
+			}
+			else {
+				this.item = this.random.nextInt();
+				LOGGER.trace("{}: Produziert: {}.", Thread.currentThread().getName(), this.item);
+			}
+			notify();
+		}
+
+		/** {@inheritDoc} */
+		@Override
+		public synchronized Integer consume() throws IllegalAccessException {
+			while ( item == null ) {
+				LOGGER.trace("{}: warten...", Thread.currentThread().getName());
+				try { wait(); } catch (InterruptedException e) { }				
+			}
+			LOGGER.trace("{}: Erhalten: {}.", Thread.currentThread().getName(), this.item);
+			var i = this.item;
+			this.item = null;
+			return i;
+		}		
+	}
+
+
 	/** Der {@linkplain ProducerThread} erzeugt die Items in einer Endlosschleife */
 	public static class ProducerThread extends Thread {
 		private final ProducerConsumer.Item item;
@@ -273,7 +307,8 @@ public class ProducerConsumer {
 	public static void main(String[] args) {
 //		ProducerConsumer.Item item = new ProducerConsumer.SingleItem();
 //		ProducerConsumer.Item item = new ProducerConsumer.MultipleItem();
-		ProducerConsumer.Item item = new ProducerConsumer.ConditionMultipleItem();
+//		ProducerConsumer.Item item = new ProducerConsumer.ConditionMultipleItem();
+		ProducerConsumer.Item item = new ProducerConsumer.MonitorMultipleItem();
 		final var consumerList = IntStream.range(0, NUM_CONSUMER).mapToObj(i -> new ConsumerThread(item)).collect(Collectors.toList());
 		final var producerList = IntStream.range(0, NUM_PRODUCER).mapToObj(i -> new ProducerThread(item)).collect(Collectors.toList());
 //		ProducerConsumer.Item item = new ProducerConsumer.ConditionSingleItem();
