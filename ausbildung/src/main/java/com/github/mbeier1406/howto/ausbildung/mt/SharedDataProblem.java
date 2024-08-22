@@ -44,6 +44,7 @@ public class SharedDataProblem {
 			add(ContainerAttributSynchronisiert.class);
 			add(ContainerObjektSynchronisiert.class);
 			add(ContainerObjekt2Synchronisiert.class);
+			add(LockFreeContainer.class);
 		}};
 
 		/* Die unterschiedlichen Methoden, die testContainer zu Befuellen und Leeren */
@@ -136,12 +137,15 @@ public class SharedDataProblem {
 
 	/** Stellt den <i>Methoden-synchronisierten</i> (Monitor) Container bereit, der die Anzahl der enthaltenen Teile speichert */
 	public static class ContainerMethodenSynchronisiert extends Container {
+		@Override
 		protected String getTyp() {
 			return "Methoden-synchronisierter Container";
 		}
+		@Override
 		public synchronized void teilEinfuegen() {
 			anzahlTeile++;
 		}
+		@Override
 		public synchronized void teilEntnehmen() {
 			anzahlTeile--;
 		}
@@ -150,15 +154,19 @@ public class SharedDataProblem {
 	/** Stellt den <i>Attribut-synchronisierten</i> Container bereit, der die Anzahl der enthaltenen Teile speichert */
 	public static class ContainerAttributSynchronisiert extends Container {
 		private AtomicInteger anzahlTeile = new AtomicInteger(0);
+		@Override
 		protected String getTyp() {
 			return "Attribut-synchronisierter Container";
 		}
+		@Override
 		public void teilEinfuegen() {
 			anzahlTeile.addAndGet(1);
 		}
+		@Override
 		public void teilEntnehmen() {
 			anzahlTeile.addAndGet(-1);
 		}
+		@Override
 		public int getAnzahlTeile() {
 			return anzahlTeile.get();
 		}
@@ -166,14 +174,17 @@ public class SharedDataProblem {
 
 	/** Stellt den <i>Objekt-synchronisierten</i> Container bereit, der die Anzahl der enthaltenen Teile speichert */
 	public static class ContainerObjektSynchronisiert extends Container {
+		@Override
 		protected String getTyp() {
 			return "Objekt-synchronisierter Container";
 		}
+		@Override
 		public void teilEinfuegen() {
 			synchronized(this) {
 				anzahlTeile++;
 			}
 		}
+		@Override
 		public void teilEntnehmen() {
 			synchronized(this) {
 				anzahlTeile--;
@@ -184,18 +195,42 @@ public class SharedDataProblem {
 	/** Stellt den <i>Objekt-synchronisierten</i> (Lock-Objekt) Container bereit, der die Anzahl der enthaltenen Teile speichert */
 	public static class ContainerObjekt2Synchronisiert extends Container {
 		private Object lock = new Object();
+		@Override
 		protected String getTyp() {
 			return "Objekt-synchronisierter Container";
 		}
+		@Override
 		public void teilEinfuegen() {
 			synchronized(this.lock) {
 				anzahlTeile++;
 			}
 		}
+		@Override
 		public void teilEntnehmen() {
 			synchronized(this.lock) {
 				anzahlTeile--;
 			}
+		}
+	}
+
+	/** Verwendet Klassen aus <code>java.util.concurrent.atomic</code> um die Nachteile von Locks zu umgehen */
+	public static class LockFreeContainer extends Container{
+		private AtomicInteger anzahlTeile = new AtomicInteger(0);
+		@Override
+		protected String getTyp() {
+			return "Lock-free Container";
+		}
+		@Override
+		public int getAnzahlTeile() {
+			return anzahlTeile.get();
+		}
+		@Override
+		public void teilEinfuegen() {
+			anzahlTeile.incrementAndGet();
+		}
+		@Override
+		public void teilEntnehmen() {
+			anzahlTeile.decrementAndGet();
 		}
 	}
 
