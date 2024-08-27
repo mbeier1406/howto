@@ -6,13 +6,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Function;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
  * Demonstriert das Problem mit dem konkurrierend Zugriff von
- * Threads auf gemeinsame Ressourcen.
+ * Threads auf gemeinsame Ressourcen sowie veschiedene Lösungsansätze.
  * @author mbeier
  */
 public class SharedDataProblem {
@@ -45,6 +47,7 @@ public class SharedDataProblem {
 			add(ContainerObjektSynchronisiert.class);
 			add(ContainerObjekt2Synchronisiert.class);
 			add(LockFreeContainer.class);
+			add(LockFreeContainer2.class);
 		}};
 
 		/* Die unterschiedlichen Methoden, die testContainer zu Befuellen und Leeren */
@@ -55,6 +58,7 @@ public class SharedDataProblem {
 		}};
 
 		/* Fuer jeden Container die unterschiedlichen Methoden testen */
+		LOGGER.info("Start...");
 		testContainer.stream().forEach(cl -> {
 			LOGGER.info("Container \"{}\":", cl);
 			testMethoden.entrySet().stream().forEach(m -> {
@@ -67,6 +71,7 @@ public class SharedDataProblem {
 				}
 			});
 		});
+		LOGGER.info("Fertig!");
 	}
 
 
@@ -214,7 +219,7 @@ public class SharedDataProblem {
 	}
 
 	/** Verwendet Klassen aus <code>java.util.concurrent.atomic</code> um die Nachteile von Locks zu umgehen */
-	public static class LockFreeContainer extends Container{
+	public static class LockFreeContainer extends Container {
 		private AtomicInteger anzahlTeile = new AtomicInteger(0);
 		@Override
 		protected String getTyp() {
@@ -234,6 +239,33 @@ public class SharedDataProblem {
 		}
 	}
 
+	/** Synchronisiert ohne Locking mittels {@linkplain AtomicReference} und compareAndSet() */
+	public static class LockFreeContainer2 extends Container {
+		private AtomicReference<Integer> anzahlTeile = new AtomicReference<>(0);
+		@Override
+		protected String getTyp() {
+			return "Lock-free Container2";
+		}
+		@Override
+		public int getAnzahlTeile() {
+			return anzahlTeile.get();
+		}
+		@Override
+		public void teilEinfuegen() {
+			wertAendern(i -> i+1);
+		}
+		@Override
+		public void teilEntnehmen() {
+			wertAendern(i -> i-1);
+		}
+		private void wertAendern(Function<Integer, Integer> f) {
+			Integer alt, neu; // nicht int nehmen, da beim Boxing ab 128 neue Objekte erzeugt werden (Identitätsprüfung in compareAndSet)
+			do {
+				alt = anzahlTeile.get();
+				neu = f.apply(alt);
+			} while ( !anzahlTeile.compareAndSet(alt, neu) );
+		}
+	}
 
 	/*
 	 * Die Klassen zum Befuellen und Leeren von Containern
