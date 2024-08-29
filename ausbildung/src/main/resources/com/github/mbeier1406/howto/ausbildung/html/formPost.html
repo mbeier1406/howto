@@ -1,0 +1,35 @@
+<!Doctype html>
+<!-- Einfaches Besipiel für eine HTML-Form -->
+<html lang="de-DE">
+
+	<head>
+	  <meta charset="utf-8">
+	  <style>
+	  	.stil {
+	  		color: black;
+	  	}
+	  </style>
+	</head>
+
+	<body>
+		<div class="stil">
+			<form action="http://localhost:8000/anzeige" method="post">
+				<h3>Form mit Übergabe per GET</h3>
+				<label id="nameLabel" for="nameInput" maxlength="20">Benutzer: </label>
+				<input id="nameInput" type="text" name="Benutzer" placeholder="Benutzername" required/><p/>
+				<label id="passwortLabel" for="passwortInput">Kennwort: </label>
+				<input id="passwortInput" type="password" name="Passwort" placeholder="Kennwort" pattern="[0-9]{6}" title="PIN eingeben" required/><p/>
+				<label id="eMailLabel" for="eMailInput">E-Mail: </label>
+				<input id="eMailInput" type="eMail" name="E-Mail" placeholder="E-Mail" required/><p/>
+				<label id="anzahlLabel" for="anzahlInput">Anzahl: </label>
+				<input id="anzahlInput" type="number" name="Anzahl" value="0" min="0" max="9"/><p/>
+				<label id="anwendenLabel" for="anwendenInput">Anwenden: </label>
+				<input id="anwendenInput" type="checkbox" name="Anwenden" value="ja"/><p/>
+				<label id="anzahlLabel">Anzahl 1: </label><input id="anzahl1Input" type="radio" name="Anzahl" value="1"/>
+				<label id="anzahlLabel">Anzahl 2: </label><input id="anzahl2Input" type="radio" name="Anzahl" value="2"/><p/>
+				<button type="submit">Absenden</button> <input type="submit" name="Fertig" value="Fertig"/>
+			</form>
+		</div>
+	</body>
+
+</html>
