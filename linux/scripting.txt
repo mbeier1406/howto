@@ -14,6 +14,10 @@ $ set 1 2 3; IFS=,; echo "${*}"; echo "${@}" # Ergibt 1,2,3\n1 2 3
 $ set 1 "2 2" 3; for i in "${*}"; do echo "*: ${i}"; done; for i in "${@}"; do echo "@: ${i}"; done # Unterschied $* und $@
 $ hash -l # Pfade fuer bekannte Programme
 
+# I/O
+$ cat /etc/passwd /etc/nonexisting &> /tmp/log # neue Syntax fuer ... > /tmp/log 2>&1
+$ cat /etc/passwd /etc/nonexisting |& cat -n # neue Syntax fuer ...  2>&1 | cat -n
+
 # Unicode nach UTF-8
 $ echo -e '\u0114\u0123\u0134' | file -
 $ echo -e '\u0114\u0123\u0134' | iconv -t UTF-8//TRANSLIT
