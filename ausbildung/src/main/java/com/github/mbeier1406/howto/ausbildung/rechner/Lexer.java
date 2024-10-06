@@ -1,11 +1,15 @@
 package com.github.mbeier1406.howto.ausbildung.rechner;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
  * Lexikalische Analsyse für den Taschenrechner.
  */
 public interface Lexer {
+
+	/** Liste der Leerzeichen, die in der lexikalischen Analyse übersprungen werden */
+	public static final List<Character> LIST_OF_BLANKS = Arrays.asList(' ', '\t');
 
 	/** Das Plus-Zeichen <b>{@value}</b> für die Addition */
 	public static final char PLUS_SIGN = '+';

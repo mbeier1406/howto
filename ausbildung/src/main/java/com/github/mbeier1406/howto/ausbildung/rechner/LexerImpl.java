@@ -26,6 +26,7 @@ public class LexerImpl implements Lexer {
 			for ( int i=0; i < Objects.requireNonNull(text, "Text fehlt!").length(); i++ ) {
 				char ch = text.charAt(i);
 				LOGGER.trace("i={}; v={}", i, ch);
+				if ( LIST_OF_BLANKS.contains(ch) ) continue;
 				switch ( ch ) {
 					case PLUS_SIGN -> i = getOperandOrNumber(text, i, listOfTokens, PLUS_TOKEN, 1);
 					case MINUS_SIGN -> i = getOperandOrNumber(text, i, listOfTokens, MINUS_TOKEN, -1);

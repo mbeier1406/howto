@@ -2,6 +2,7 @@ package com.github.mbeier1406.howto.ausbildung.rechner;
 
 import static com.github.mbeier1406.howto.ausbildung.rechner.Lexer.PLUS_TOKEN;
 import static com.github.mbeier1406.howto.ausbildung.rechner.Lexer.TokenTyp.GANZZAHL;
+import static com.github.mbeier1406.howto.ausbildung.rechner.Lexer.LIST_OF_BLANKS;
 import static com.github.mbeier1406.howto.ausbildung.rechner.Lexer.MINUS_TOKEN;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -59,14 +60,15 @@ public class LexerImplTest {
 	@SuppressWarnings("serial")
 	public static Stream<Arguments> getKorrekteTestdaten() {
 		return Stream.of(
-				Arguments.of("+--", new ArrayList<Token>() {{ add(PLUS_TOKEN); add(MINUS_TOKEN); add(MINUS_TOKEN); }}),
-				Arguments.of("+-+", new ArrayList<Token>() {{ add(PLUS_TOKEN); add(MINUS_TOKEN); add(PLUS_TOKEN); }}),
-				Arguments.of("-+-", new ArrayList<Token>() {{ add(MINUS_TOKEN); add(PLUS_TOKEN); add(MINUS_TOKEN); }}),
+				Arguments.of("+"+LIST_OF_BLANKS.get(0)+"--", new ArrayList<Token>() {{ add(PLUS_TOKEN); add(MINUS_TOKEN); add(MINUS_TOKEN); }}),
+				Arguments.of("+-+"+LIST_OF_BLANKS.get(1), new ArrayList<Token>() {{ add(PLUS_TOKEN); add(MINUS_TOKEN); add(PLUS_TOKEN); }}),
+				Arguments.of(LIST_OF_BLANKS.get(1)+"-+-", new ArrayList<Token>() {{ add(MINUS_TOKEN); add(PLUS_TOKEN); add(MINUS_TOKEN); }}),
 				Arguments.of("--", new ArrayList<Token>() {{ add(MINUS_TOKEN); add(MINUS_TOKEN); }}),
 				Arguments.of("-", new ArrayList<Token>() {{ add(MINUS_TOKEN); }}),
 				Arguments.of("+++", new ArrayList<Token>() {{ add(PLUS_TOKEN); add(PLUS_TOKEN); add(PLUS_TOKEN); }}),
 				Arguments.of("++", new ArrayList<Token>() {{ add(PLUS_TOKEN); add(PLUS_TOKEN); }}),
-				Arguments.of("+", new ArrayList<Token>() {{ add(PLUS_TOKEN); }}));
+				Arguments.of("+", new ArrayList<Token>() {{ add(PLUS_TOKEN); }}),
+				Arguments.of("	 ", new ArrayList<Token>()));
 	}
 
 
