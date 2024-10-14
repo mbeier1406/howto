@@ -11,6 +11,7 @@ import java.util.Optional;
  */
 public interface TokenInterface {
 
+	/** Das Ergebnis des Einlesens eines Tokens: der Toen selber und seine textuelle Länge */
 	public static record Value(TokenInterface token, int length) {
 		public Value(TokenInterface token, int length) {
 			this.token = requireNonNull(token, "token");
@@ -19,6 +20,7 @@ public interface TokenInterface {
 		}
 	}
 
+	/** Liest einen Token ein */
 	public Value read(String text);
 
 	/**

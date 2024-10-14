@@ -54,7 +54,7 @@ public class GanzzahlTokenTest {
 		assertThrows(IllegalArgumentException.class, () -> new GanzzahlToken().read("abc") );
 	}
 
-	/** Text darf nicht leer sein */
+/** Text darf nicht leer sein */
 	@Test
 	public void testeLeererTextl() {
 		assertThrows(IllegalArgumentException.class, () -> new GanzzahlToken().read("") );

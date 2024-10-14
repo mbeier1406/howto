@@ -5,13 +5,13 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import com.github.mbeier1406.howto.ausbildung.rechner.TokenReader;
+import com.github.mbeier1406.howto.ausbildung.rechner.TokenInterface;
 
 /**
  * Klassen, die mit dieser Annotation ausgezeichnet sind,
  * werden zur Laufzeit als Token (Zahl, arithmetisch eOperation usw.)
  * der auszuwertenden mathematischen Formel erkannt.
- * @see TokenReader
+ * @see TokenInterface
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
