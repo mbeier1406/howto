@@ -1,14 +1,18 @@
 package com.github.mbeier1406.howto.ausbildung.rechner;
 
-import static com.github.mbeier1406.howto.ausbildung.rechner.Lexer.TokenTyp.GANZZAHL;
+import static java.util.Objects.requireNonNull;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
+import java.util.Map;
 
 import org.apache.logging.log4j.CloseableThreadContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import com.github.mbeier1406.howto.ausbildung.rechner.token.GanzzahlToken;
+import com.github.mbeier1406.howto.ausbildung.rechner.token.MinusToken;
+import com.github.mbeier1406.howto.ausbildung.rechner.token.PlusToken;
 
 
 /**
@@ -16,62 +20,58 @@ import org.apache.logging.log4j.Logger;
  */
 public class LexerImpl implements Lexer {
 
-	public static Logger LOGGER = LogManager.getLogger(LexerImpl.class);
+	public static final Logger LOGGER = LogManager.getLogger(LexerImpl.class);
 
+	/** Alle bekannten Token laden */
+	private Map<Character, TokenInterface> tokens = TokenFactory.getTokens();
+
+	
 	/** {@inheritDoc} */
 	@Override
-	public List<Token> getTokens(String text) throws LexerException {
-		final List<Token> listOfTokens = new ArrayList<>();
+	public List<TokenInterface> getTokens(String text) throws LexerException {
+		final List<TokenInterface> listOfTokens = new ArrayList<>();
+		/*
+		 * Damit aus den Token '+' gefolgt '123' die Zahl 123 bzw. aus '-' gefolgt von '123'
+		 * die Zahl -123 wird, muss bei einem eingelehsenen Ganzzahltoken geprüft werden,
+		 * ob ein Plsu-/Minustoken ohne Leerzeichen dazwischen das vorhergende Token war.
+		 * Entsprechend hier merken, ob Leerzeichen gelesen wurden.
+		 */
+		boolean leerZeichenGelesen = false;
 		try ( CloseableThreadContext.Instance ctx = CloseableThreadContext.put("text", text) ) {
-			for ( int i=0; i < Objects.requireNonNull(text, "Text fehlt!").length(); i++ ) {
+			for ( int i=0; i < requireNonNull(text, "text").length(); ) {
 				char ch = text.charAt(i);
-				LOGGER.trace("i={}; v={}", i, ch);
-				if ( LIST_OF_BLANKS.contains(ch) ) continue;
-				switch ( ch ) {
-					case PLUS_SIGN -> i = getOperandOrNumber(text, i, listOfTokens, PLUS_TOKEN, 1);
-					case MINUS_SIGN -> i = getOperandOrNumber(text, i, listOfTokens, MINUS_TOKEN, -1);
-					default -> throw new LexerException("Ungültiges Zeichen '"+ch+"' an Position "+i+"!");
+				LOGGER.trace("i={}; v='{}'", i, ch);
+				if ( LIST_OF_BLANKS.contains(ch) ) {
+					// Falls als nächstes eine Ganzzahl gelesen wird, ggf. vorher gelesenen +/- ignorieren
+					leerZeichenGelesen = true;
+					i++; // nächstes Symbol einlesen
+					continue;
 				}
+				final var token = requireNonNull(tokens.get(ch), "Unbekanntes Symbol '"+ch+"'; index="+i);
+				LOGGER.trace("token={}", token);
+				final var value = token.read(text.substring(i));
+				LOGGER.trace("value={}", value);
+				i += value.length(); // Stelle nach dem Token, ab der weiter gelesen werden muss
+				var neuesToken = value.token(); // wir gehen davon aus, dass das gelesen Token nicht korrigiert werden muss
+				if ( value.token() instanceof GanzzahlToken && !leerZeichenGelesen && listOfTokens.size() > 0 ) {
+					var lastToken = listOfTokens.get(listOfTokens.size()-1); // prüfen, ob das vorhergehende Token ein + oder - war
+					Integer vorzeichen = null; // wenn != null, dann Vorzeichen auf +/1 setzen
+					if ( lastToken instanceof MinusToken ) vorzeichen = -1;
+					else if ( lastToken instanceof PlusToken ) vorzeichen = 1;
+					if ( vorzeichen != null ) {
+						// letztes Token löschen (gehört zur aktuellen Ganzzahl) und Wert der Ganzzahl neu berechnen
+						listOfTokens.remove(listOfTokens.size()-1);
+						neuesToken = new GanzzahlToken(((Integer) value.token().getValue().get()) * vorzeichen);
+					}
+				}
+				listOfTokens.add(neuesToken);
+				leerZeichenGelesen = false; // da ein Token hinzugefügt wurde
 			}
 		}
 		catch ( Exception e ) {
-			throw new LexerException("text="+text+": "+e.getMessage(), e);
+			throw new LexerException("text='"+text+"': "+e.getMessage(), e);
 		}
 		return listOfTokens;
-	}
-
-	/**
-	 * Fügt zur Liste der bereits eingelesenen {@linkplain Token} zu einem vorhandenen {@value Lexer#PLUS_SIGN}
-	 * oder {@value Lexer#MINUS_SIGN} hinzu, entweder:
-	 * <ul>
-	 * <li>Das {@linkplain Lexer#PLUS_TOKEN} oder {@linkplain Lexer#MINUS_TOKEN} falls nicht direkt eine Ziffer folgt</li>
-	 * <li>Ein Token {@linkplain Lexer.TokenTyp#GANZZAHL} mit positivem oder negativem Wert</li>
-	 * </ul>
-	 * Liefert 
-	 * @param text die Eingabeformel
-	 * @param i der Index innerhalb der Formel, an dem der Operand für die Addition/Sbtraktion gerade gefunden worde
-	 * @param listOfTokens die Liste der bereits eingelesenen Token, an die das neue angefügt wird
-	 * @param t das einzufüende {@linkplain Lexer#PLUS_TOKEN} oder {@linkplain Lexer#MINUS_TOKEN}, falls keine Ziffer folgt
-	 * @param multiplikator falls eine Ganzzahl gefunden wurde, der Faktor für die Berechnung des Gazzahlwerts (positiv/negativ)
-	 * @return den Index vor dem Zeichen, an dem die Verarbeitung in {@linkplain #getTokens(String)} fortgesetzt werden muss
-	 */
-	public int getOperandOrNumber(String text, int i, final List<Token> listOfTokens, final Token t, int multiplikator) {
-		if ( isDigitFollowing(text, i) ) { // nach + bzw. - folgt eine Ziffer -> Token ist Ganzzahl, kein Operand
-			StringBuilder sb = new StringBuilder();
-			while ( isDigitFollowing(text, ++i) )
-				sb.append(text.charAt(i));
-			sb.append(text.charAt(i));
-			Integer z = Integer.parseInt(sb.toString());
-			listOfTokens.add(new Token(GANZZAHL, z*multiplikator));
-		}
-		else
-			listOfTokens.add(t); // Token ist + oder -
-		return i;
-	}
-
-	/** Prüft, ob nach dem gerade verarbeiteten Zeichen noch eine Ziffer folgt */
-	private boolean isDigitFollowing(String text, int i) {
-		return i < text.length()-1 && text.charAt(++i) >= '0' && text.charAt(i) <= '9';
 	}
 
 }

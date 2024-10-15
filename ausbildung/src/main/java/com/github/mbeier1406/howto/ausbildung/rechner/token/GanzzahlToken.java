@@ -3,6 +3,7 @@ package com.github.mbeier1406.howto.ausbildung.rechner.token;
 import static java.util.Objects.requireNonNull;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import com.github.mbeier1406.howto.ausbildung.rechner.TokenInterface;
@@ -24,7 +25,7 @@ public class GanzzahlToken implements TokenInterface {
 	}
 
 	/** Wert des Tokens */
-	private final Integer value;
+	private Integer value;
 
 	/** {@inheritDoc} */
 	@Override
@@ -53,13 +54,30 @@ public class GanzzahlToken implements TokenInterface {
 	public GanzzahlToken() { this.value = null; }
 
 	/** Konstruktor zur Erzeugung eines Tokens */
-	private GanzzahlToken(int value) {
+	public GanzzahlToken(int value) {
 		this.value = value;
 	}
 
 	@Override
 	public String toString() {
 		return "GanzzahlToken [value=" + value + "]";
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(value);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		GanzzahlToken other = (GanzzahlToken) obj;
+		return Objects.equals(value, other.value);
 	}
 
 }

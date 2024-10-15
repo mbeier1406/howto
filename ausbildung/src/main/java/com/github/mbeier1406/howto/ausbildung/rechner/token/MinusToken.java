@@ -12,7 +12,7 @@ import com.github.mbeier1406.howto.ausbildung.rechner.TokenInterface;
 @Token
 public class MinusToken implements TokenInterface {
 
-	private static final char[] SYMBOL_LIST = new char[] { '+' };
+	private static final char[] SYMBOL_LIST = new char[] { '-' };
 
 	/** {@inheritDoc} */
 	@Override
@@ -37,6 +37,22 @@ public class MinusToken implements TokenInterface {
 	@Override
 	public String toString() {
 		return "MinusToken '-'";
+	}
+
+	@Override
+	public int hashCode() {
+		return 1; // gibt nur ein -
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass()) // gleich Klasse, gleiches Objekt
+			return false;
+		return true;
 	}
 
 }

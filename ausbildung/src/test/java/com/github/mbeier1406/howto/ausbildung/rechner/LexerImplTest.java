@@ -1,15 +1,13 @@
 package com.github.mbeier1406.howto.ausbildung.rechner;
 
-import static com.github.mbeier1406.howto.ausbildung.rechner.Lexer.PLUS_TOKEN;
-import static com.github.mbeier1406.howto.ausbildung.rechner.Lexer.TokenTyp.GANZZAHL;
 import static com.github.mbeier1406.howto.ausbildung.rechner.Lexer.LIST_OF_BLANKS;
-import static com.github.mbeier1406.howto.ausbildung.rechner.Lexer.MINUS_TOKEN;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.logging.log4j.LogManager;
@@ -20,7 +18,10 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import com.github.mbeier1406.howto.ausbildung.rechner.Lexer.LexerException;
-import com.github.mbeier1406.howto.ausbildung.rechner.Lexer.Token;
+import com.github.mbeier1406.howto.ausbildung.rechner.token.GanzzahlToken;
+import com.github.mbeier1406.howto.ausbildung.rechner.token.MinusToken;
+import com.github.mbeier1406.howto.ausbildung.rechner.token.PlusToken;
+import com.github.mbeier1406.howto.ausbildung.rechner.token.Token;
 
 /**
  * Tests für die Klasse {@linkplain LexerImpl}.
@@ -28,6 +29,13 @@ import com.github.mbeier1406.howto.ausbildung.rechner.Lexer.Token;
 public class LexerImplTest {
 
 	public static Logger LOGGER = LogManager.getLogger(LexerImplTest.class);
+
+	/** Token für + */
+	public static final TokenInterface PLUS_TOKEN = new PlusToken();
+
+	/** Token für - */
+	public static final TokenInterface MINUS_TOKEN = new MinusToken();
+
 
 	/** Das zu testende Objekt */
 	public Lexer lexer = new LexerImpl();
@@ -45,6 +53,18 @@ public class LexerImplTest {
 		assertThat(lexer.getTokens(""), equalTo(new ArrayList<>()));
 	}
 
+	/** Stellt sicher, dass bei einem Text aus Leerstellen eine leere Liste als Ergebnis */
+	@Test
+	public void testeLeerzeichenText() throws LexerException {
+		assertThat(
+				lexer.getTokens(Lexer
+						.LIST_OF_BLANKS
+						.stream()
+						.map(String::valueOf)
+						.collect(Collectors.joining())),
+				equalTo(new ArrayList<>()));
+	}
+
 
 	/**
 	 * Prüft für <b>korrekte</b> gegebene Zeichenketten, ob die korrekte Liste der {@linkplain Token} geliefert wird.
@@ -52,7 +72,7 @@ public class LexerImplTest {
 	 */
 	@ParameterizedTest
 	@MethodSource("getKorrekteTestdaten")
-	public void testeKorrekteDaten(String input, List<Token> expected) throws LexerException {
+	public void testeKorrekteDaten(String input, List<TokenInterface> expected) throws LexerException {
 		assertThat(lexer.getTokens(input), equalTo(expected));
 	}
 
@@ -60,15 +80,22 @@ public class LexerImplTest {
 	@SuppressWarnings("serial")
 	public static Stream<Arguments> getKorrekteTestdaten() {
 		return Stream.of(
-				Arguments.of("+"+LIST_OF_BLANKS.get(0)+"--", new ArrayList<Token>() {{ add(PLUS_TOKEN); add(MINUS_TOKEN); add(MINUS_TOKEN); }}),
-				Arguments.of("+-+"+LIST_OF_BLANKS.get(1), new ArrayList<Token>() {{ add(PLUS_TOKEN); add(MINUS_TOKEN); add(PLUS_TOKEN); }}),
-				Arguments.of(LIST_OF_BLANKS.get(1)+"-+-", new ArrayList<Token>() {{ add(MINUS_TOKEN); add(PLUS_TOKEN); add(MINUS_TOKEN); }}),
-				Arguments.of("--", new ArrayList<Token>() {{ add(MINUS_TOKEN); add(MINUS_TOKEN); }}),
-				Arguments.of("-", new ArrayList<Token>() {{ add(MINUS_TOKEN); }}),
-				Arguments.of("+++", new ArrayList<Token>() {{ add(PLUS_TOKEN); add(PLUS_TOKEN); add(PLUS_TOKEN); }}),
-				Arguments.of("++", new ArrayList<Token>() {{ add(PLUS_TOKEN); add(PLUS_TOKEN); }}),
-				Arguments.of("+", new ArrayList<Token>() {{ add(PLUS_TOKEN); }}),
-				Arguments.of("	 ", new ArrayList<Token>()));
+				Arguments.of("++123", new ArrayList<TokenInterface>() {{ add(PLUS_TOKEN);  add(new GanzzahlToken(123)); }}),
+				Arguments.of("+ +123", new ArrayList<TokenInterface>() {{ add(PLUS_TOKEN);  add(new GanzzahlToken(123)); }}),
+				Arguments.of("- 123", new ArrayList<TokenInterface>() {{ add(MINUS_TOKEN); add(new GanzzahlToken(123)); }}),
+				Arguments.of("+ 123", new ArrayList<TokenInterface>() {{ add(PLUS_TOKEN);  add(new GanzzahlToken(123)); }}),
+				Arguments.of("-123", new ArrayList<TokenInterface>() {{ add(new GanzzahlToken(-123)); }}),
+				Arguments.of("+123", new ArrayList<TokenInterface>() {{ add(new GanzzahlToken(123)); }}),
+				Arguments.of("123", new ArrayList<TokenInterface>() {{ add(new GanzzahlToken(123)); }}),
+				Arguments.of("+"+LIST_OF_BLANKS.get(0)+"--", new ArrayList<TokenInterface>() {{ add(PLUS_TOKEN); add(MINUS_TOKEN); add(MINUS_TOKEN); }}),
+				Arguments.of("+-+"+LIST_OF_BLANKS.get(1), new ArrayList<TokenInterface>() {{ add(PLUS_TOKEN); add(MINUS_TOKEN); add(PLUS_TOKEN); }}),
+				Arguments.of(LIST_OF_BLANKS.get(1)+"-+-", new ArrayList<TokenInterface>() {{ add(MINUS_TOKEN); add(PLUS_TOKEN); add(MINUS_TOKEN); }}),
+				Arguments.of("--", new ArrayList<TokenInterface>() {{ add(MINUS_TOKEN); add(MINUS_TOKEN); }}),
+				Arguments.of("-", new ArrayList<TokenInterface>() {{ add(MINUS_TOKEN); }}),
+				Arguments.of("+++", new ArrayList<TokenInterface>() {{ add(PLUS_TOKEN); add(PLUS_TOKEN); add(PLUS_TOKEN); }}),
+				Arguments.of("++", new ArrayList<TokenInterface>() {{ add(PLUS_TOKEN); add(PLUS_TOKEN); }}),
+				Arguments.of("+", new ArrayList<TokenInterface>() {{ add(PLUS_TOKEN); }}),
+				Arguments.of("	 ", new ArrayList<TokenInterface>()));
 	}
 
 
@@ -86,35 +113,9 @@ public class LexerImplTest {
 	/** Liefert die Testdaten für den parametrisierten Test {@linkplain #testeFehlerhafteDaten(String, String)} */
 	public static Stream<Arguments> getFehlerhafteTestdaten() {
 		return Stream.of(
-				Arguments.of("+a", "text=+a: Ungültiges Zeichen 'a' an Position 1!"),
-				Arguments.of("a", "text=a: Ungültiges Zeichen 'a' an Position 0!"));
+				Arguments.of("+a", "text='+a': Unbekanntes Symbol 'a'; index=1"),
+				Arguments.of("a", "text='a': Unbekanntes Symbol 'a'; index=0"));
 	}
 
-
-	/** Prüfungen der Methode {@linkplain LexerImpl#getOperandOrNumber(String, int, List, Token, int)} */
-	@Test
-	public void testGetOperandOrNumber() {
-		var l = new LexerImpl();
-		String text = "++123--456";
-		int i = 0;
-		final List<Token> listOfTokens = new ArrayList<>();
-		i = l.getOperandOrNumber(text, i, listOfTokens, PLUS_TOKEN, 1); // Token '+' einlesen
-		validateGetOperandOrNumber(listOfTokens, 1, PLUS_TOKEN, i, 0);
-		i = l.getOperandOrNumber(text, ++i, listOfTokens, PLUS_TOKEN, 1); // Token '+123' einlesen
-		validateGetOperandOrNumber(listOfTokens, 2, new Token(GANZZAHL, 123), i, 4);
-		i = l.getOperandOrNumber(text, ++i, listOfTokens, MINUS_TOKEN, -1); // Token '-' einlesen
-		validateGetOperandOrNumber(listOfTokens, 3, MINUS_TOKEN, i, 5);
-		i = l.getOperandOrNumber(text, ++i, listOfTokens, MINUS_TOKEN, -1); // Token '-456' einlesen
-		validateGetOperandOrNumber(listOfTokens, 4, new Token(GANZZAHL, -456), i, 9);
-		i = l.getOperandOrNumber(text+"+", ++i, listOfTokens, PLUS_TOKEN, 1); // Token '+' am Ende der Formel einlesen
-		validateGetOperandOrNumber(listOfTokens, 5, PLUS_TOKEN, i, 10);
-	}
-
-	/** Prüfung für das Auslesen in {@linkplain #testGetOperandOrNumber()} */
-	public void validateGetOperandOrNumber(final List<Token> listOfTokens, int anzahlTokenErwartet, final Token tokenErwartet, int neuerIndex, int indexErwartet) {
-		assertThat(neuerIndex, equalTo(indexErwartet)); // Index, an der die Verarbeitung forgesetzt werdne musss, prüfen
-		assertThat(listOfTokens.size(), equalTo(anzahlTokenErwartet)); // Anzahl Tokens prüfen
-		assertThat(listOfTokens.get(listOfTokens.size()-1), equalTo(tokenErwartet)); // zuletzt hinzugefügten Token prüfen
-	}
 
 }
