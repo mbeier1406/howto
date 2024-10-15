@@ -24,7 +24,7 @@ public class PlusToken implements TokenInterface {
 
 	/** {@inheritDoc} */
 	@Override
-	public char[] getSymbol() {
+	public char[] getSymbols() {
 		return SYMBOL_LIST;
 	}
 
@@ -36,7 +36,7 @@ public class PlusToken implements TokenInterface {
 
 	@Override
 	public String toString() {
-		return "MinusToken '-'";
+		return "PlusToken '+'";
 	}
 
 }

@@ -5,6 +5,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import com.github.mbeier1406.howto.ausbildung.rechner.TokenFactory;
 import com.github.mbeier1406.howto.ausbildung.rechner.TokenInterface;
 
 /**
@@ -12,6 +13,7 @@ import com.github.mbeier1406.howto.ausbildung.rechner.TokenInterface;
  * werden zur Laufzeit als Token (Zahl, arithmetisch eOperation usw.)
  * der auszuwertenden mathematischen Formel erkannt.
  * @see TokenInterface
+ * @see TokenFactory
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)

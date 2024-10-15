@@ -29,7 +29,7 @@ public interface TokenInterface {
 	 * erkannt wird. Zum Beispiel '+' für die Addition, oder [0-9] für eine Zahl.
 	 * @return Liste der Zeichen, darf nicht <b>null</b> oder leer sein!
 	 */
-	public char[] getSymbol();
+	public char[] getSymbols();
 
 	/**
 	 * Der Wert des Tokens, sofern es sich um eine Zahlenwert handelt. Darf nicht <b>null</b> liefern!

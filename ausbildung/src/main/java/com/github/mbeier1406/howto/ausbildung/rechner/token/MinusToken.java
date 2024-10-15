@@ -24,7 +24,7 @@ public class MinusToken implements TokenInterface {
 
 	/** {@inheritDoc} */
 	@Override
-	public char[] getSymbol() {
+	public char[] getSymbols() {
 		return SYMBOL_LIST;
 	}
 
