@@ -75,6 +75,7 @@ public class ParserImplTest {
 	@SuppressWarnings("serial")
 	public static Stream<Arguments> getFehlerhafteTestdaten() {
 		return Stream.of(
+			Arguments.of(new ArrayList<TokenInterface>() {{ add(EINS); add(MINUS_ZWEI); }}, new ParserException("'GanzzahlToken [value=-2]' an Index 2")),
 			Arguments.of(new ArrayList<TokenInterface>() {{ add(EINS); add(PLUS); add(MINUS); }}, new ParserException("'MinusToken '-'' an Index 3")),
 			Arguments.of(new ArrayList<TokenInterface>() {{ add(PLUS); }}, new ParserException("'PlusToken '+'' an Index 1")));
 	}

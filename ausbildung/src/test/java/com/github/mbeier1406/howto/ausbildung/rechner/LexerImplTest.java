@@ -30,11 +30,9 @@ public class LexerImplTest {
 
 	public static Logger LOGGER = LogManager.getLogger(LexerImplTest.class);
 
-	/** Token für + */
 	public static final TokenInterface PLUS_TOKEN = new PlusToken();
-
-	/** Token für - */
 	public static final TokenInterface MINUS_TOKEN = new MinusToken();
+	public static final TokenInterface Z123 = new GanzzahlToken(123);
 
 
 	/** Das zu testende Objekt */
@@ -80,13 +78,17 @@ public class LexerImplTest {
 	@SuppressWarnings("serial")
 	public static Stream<Arguments> getKorrekteTestdaten() {
 		return Stream.of(
-				Arguments.of("++123", new ArrayList<TokenInterface>() {{ add(PLUS_TOKEN);  add(new GanzzahlToken(123)); }}),
-				Arguments.of("+ +123", new ArrayList<TokenInterface>() {{ add(PLUS_TOKEN);  add(new GanzzahlToken(123)); }}),
-				Arguments.of("- 123", new ArrayList<TokenInterface>() {{ add(MINUS_TOKEN); add(new GanzzahlToken(123)); }}),
-				Arguments.of("+ 123", new ArrayList<TokenInterface>() {{ add(PLUS_TOKEN);  add(new GanzzahlToken(123)); }}),
+				Arguments.of("123 +123", new ArrayList<TokenInterface>() {{ add(Z123); add(Z123); }}),
+				Arguments.of("123+ 123", new ArrayList<TokenInterface>() {{ add(Z123); add(PLUS_TOKEN); add(Z123); }}),
+				Arguments.of("123 + 123", new ArrayList<TokenInterface>() {{ add(Z123); add(PLUS_TOKEN); add(Z123); }}),
+				Arguments.of("123+123", new ArrayList<TokenInterface>() {{ add(Z123); add(PLUS_TOKEN); add(Z123); }}),
+				Arguments.of("++123", new ArrayList<TokenInterface>() {{ add(PLUS_TOKEN); add(Z123); }}),
+				Arguments.of("+ +123", new ArrayList<TokenInterface>() {{ add(PLUS_TOKEN); add(Z123); }}),
+				Arguments.of("- 123", new ArrayList<TokenInterface>() {{ add(MINUS_TOKEN); add(Z123); }}),
+				Arguments.of("+ 123", new ArrayList<TokenInterface>() {{ add(PLUS_TOKEN); add(Z123); }}),
 				Arguments.of("-123", new ArrayList<TokenInterface>() {{ add(new GanzzahlToken(-123)); }}),
-				Arguments.of("+123", new ArrayList<TokenInterface>() {{ add(new GanzzahlToken(123)); }}),
-				Arguments.of("123", new ArrayList<TokenInterface>() {{ add(new GanzzahlToken(123)); }}),
+				Arguments.of("+123", new ArrayList<TokenInterface>() {{ add(Z123); }}),
+				Arguments.of("123", new ArrayList<TokenInterface>() {{ add(Z123); }}),
 				Arguments.of("+"+LIST_OF_BLANKS.get(0)+"--", new ArrayList<TokenInterface>() {{ add(PLUS_TOKEN); add(MINUS_TOKEN); add(MINUS_TOKEN); }}),
 				Arguments.of("+-+"+LIST_OF_BLANKS.get(1), new ArrayList<TokenInterface>() {{ add(PLUS_TOKEN); add(MINUS_TOKEN); add(PLUS_TOKEN); }}),
 				Arguments.of(LIST_OF_BLANKS.get(1)+"-+-", new ArrayList<TokenInterface>() {{ add(MINUS_TOKEN); add(PLUS_TOKEN); add(MINUS_TOKEN); }}),

@@ -39,6 +39,8 @@ public class ParserImpl implements Parser {
 				ergebnis += parseTerminal();
 			else if ( token instanceof MinusToken )
 				ergebnis -= parseTerminal();
+			else
+				throw new ParserException("Unerwartetes Token '"+token+"' an Index "+this.index+": Addiion/Subtraktion erwartet!");
 		}
 		return ergebnis;
 	}
