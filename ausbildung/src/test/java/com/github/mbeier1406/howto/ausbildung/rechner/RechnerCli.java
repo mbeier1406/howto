@@ -10,21 +10,29 @@ import com.github.mbeier1406.howto.ausbildung.rechner.Parser.ParserException;
 
 /**
  * Bietet eine eingeschränkte Taschenrechnerfunktion über eine Texteingabe.
+ * Beispiel:
+ * <pre><code>
+ * > 1 + 1
+ * 2.0
+ * </code></pre><p/>
+ * Das Erebnis der Formal wird immer als unformartierte Fließkommazahl ausgegeben.
  * @see Lexer
  * @see Parser
  */
 public class RechnerCli {
 
+	/** Liest solange mathematische Formeln ein und wertet sie aus, bis eine Zeile mit 'e' eingegeben wird */
 	public static void main(String[] args) {
 		Configurator.setLevel("com.github.mbeier1406.howto.ausbildung.rechner", Level.ERROR);
 		Lexer lexer = new LexerImpl();
 		Parser parser = new ParserImpl();
 		try ( final var scanner = new Scanner(System.in) ) {
-			System.out.println("Taschenrechner, bitte Formel eingeben.");
+			System.out.println("Taschenrechner, bitte Formel eingeben ('e' für \"Ende\").");
 			while ( true ) {
 				System.out.print("> ");
 				String formel = scanner.nextLine();
-				if ( formel.length() == 0 ) break;
+				if ( formel.length() == 0 ) continue;
+				if ( formel.equalsIgnoreCase("e") ) break;
 				try {
 					System.out.println(parser.evaluate(lexer.getTokens(formel)));
 				} catch (ParserException | LexerException e) {

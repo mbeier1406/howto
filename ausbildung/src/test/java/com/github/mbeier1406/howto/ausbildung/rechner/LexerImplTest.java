@@ -18,8 +18,10 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import com.github.mbeier1406.howto.ausbildung.rechner.Lexer.LexerException;
+import com.github.mbeier1406.howto.ausbildung.rechner.token.DivisionToken;
 import com.github.mbeier1406.howto.ausbildung.rechner.token.GanzzahlToken;
 import com.github.mbeier1406.howto.ausbildung.rechner.token.MinusToken;
+import com.github.mbeier1406.howto.ausbildung.rechner.token.PeriodToken;
 import com.github.mbeier1406.howto.ausbildung.rechner.token.PlusToken;
 import com.github.mbeier1406.howto.ausbildung.rechner.token.Token;
 
@@ -32,6 +34,8 @@ public class LexerImplTest {
 
 	public static final TokenInterface PLUS_TOKEN = new PlusToken();
 	public static final TokenInterface MINUS_TOKEN = new MinusToken();
+	public static final TokenInterface PERIOD_TOKEN = new PeriodToken();
+	public static final TokenInterface DIVISION_TOKEN = new DivisionToken();
 	public static final TokenInterface Z123 = new GanzzahlToken(123);
 
 
@@ -78,6 +82,8 @@ public class LexerImplTest {
 	@SuppressWarnings("serial")
 	public static Stream<Arguments> getKorrekteTestdaten() {
 		return Stream.of(
+				Arguments.of("/", new ArrayList<TokenInterface>() {{ add(DIVISION_TOKEN); }}),
+				Arguments.of("*", new ArrayList<TokenInterface>() {{ add(PERIOD_TOKEN); }}),
 				Arguments.of("123 +123", new ArrayList<TokenInterface>() {{ add(Z123); add(Z123); }}),
 				Arguments.of("123+ 123", new ArrayList<TokenInterface>() {{ add(Z123); add(PLUS_TOKEN); add(Z123); }}),
 				Arguments.of("123 + 123", new ArrayList<TokenInterface>() {{ add(Z123); add(PLUS_TOKEN); add(Z123); }}),

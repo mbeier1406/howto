@@ -11,6 +11,14 @@ public interface Lexer {
 	/** Liste der Leerzeichen, die in der lexikalischen Analyse übersprungen werden */
 	public static final List<Character> LIST_OF_BLANKS = Arrays.asList(' ', '\t');
 
+	/** Damit Token ohne eigenen Wert mittels {@code equals()} verglichen/untersc hieden werdne können */
+	public static enum STD_TOKEN_HASHCODES {
+		PLUS_TOKEN_HASHCODE,
+		MINUS_TOKEN_HASHCODE,
+		PERIOD_TOKEN_HASHCODE,
+		DIVISION_TOKEN_HASHCODE
+	};
+
 	/** Eine solche Exception wird geworfen, wenn in der Eingabeformel ungültige Token verwendet werden */
 	public static class LexerException extends Exception {
 		private static final long serialVersionUID = -5793180396296325508L;

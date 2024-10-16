@@ -1,5 +1,6 @@
 package com.github.mbeier1406.howto.ausbildung.rechner.token;
 
+import static com.github.mbeier1406.howto.ausbildung.rechner.Lexer.STD_TOKEN_HASHCODES.MINUS_TOKEN_HASHCODE;
 import static java.util.Objects.requireNonNull;
 
 import java.util.Optional;
@@ -41,7 +42,7 @@ public class MinusToken implements TokenInterface {
 
 	@Override
 	public int hashCode() {
-		return 1; // gibt nur ein -
+		return MINUS_TOKEN_HASHCODE.ordinal(); // gibt nur ein -
 	}
 
 	@Override

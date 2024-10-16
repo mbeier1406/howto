@@ -3,6 +3,7 @@ package com.github.mbeier1406.howto.ausbildung.rechner.token;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.not;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.stream.Stream;
@@ -44,6 +45,15 @@ public class PlusTokenTest {
 	public void testeNullTextl() {
 		final NullPointerException ex = assertThrows(NullPointerException.class, () -> new PlusToken().read(null) );
 		assertThat(ex.getMessage(), containsString("text"));
+	}
+
+	/** Stell sicher, dass die Token für die Operanden auseinander gehalten werdne können */
+	@Test
+	public void testeEquals() {
+		assertThat(new PlusToken(), equalTo(new PlusToken()));
+		assertThat(new PlusToken(), not(equalTo(new MinusToken())));
+		assertThat(new PlusToken(), not(equalTo(new PeriodToken())));
+		assertThat(new PlusToken(), not(equalTo(new DivisionToken())));
 	}
 
 }

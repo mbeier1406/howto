@@ -2,8 +2,10 @@ package com.github.mbeier1406.howto.ausbildung.rechner;
 
 import java.util.List;
 
+import com.github.mbeier1406.howto.ausbildung.rechner.token.DivisionToken;
 import com.github.mbeier1406.howto.ausbildung.rechner.token.GanzzahlToken;
 import com.github.mbeier1406.howto.ausbildung.rechner.token.MinusToken;
+import com.github.mbeier1406.howto.ausbildung.rechner.token.PeriodToken;
 import com.github.mbeier1406.howto.ausbildung.rechner.token.PlusToken;
 
 /**
@@ -32,21 +34,40 @@ public class ParserImpl implements Parser {
 
 	/** Liest einen mathematischen Ausdruck, d. h. eine Addition/Subtraktion von Faktoren ein */
 	private double parseExpression() throws ParserException {
-		double ergebnis = parseTerminal();
+		double ergebnis = parseTerm();
 		while ( this.index < this.listOfTokens.size() ) {
 			var token = this.listOfTokens.get(this.index++);
 			if ( token instanceof PlusToken )
-				ergebnis += parseTerminal();
+				ergebnis += parseTerm();
 			else if ( token instanceof MinusToken )
-				ergebnis -= parseTerminal();
-			else
-				throw new ParserException("Unerwartetes Token '"+token+"' an Index "+this.index+": Addiion/Subtraktion erwartet!");
+				ergebnis -= parseTerm();
+			else {
+				this.index--; // Zeiger in der Tokenliste zurücksetzen
+				return ergebnis;
+			}
 		}
 		return ergebnis;
 	}
 
-	/** Liest ein Terminal des Ausdrucks (Zah, Klammer) ein */
-	private double parseTerminal() throws ParserException {
+	/** Liest einen mathematischen Term, d. h. eine Multiplikation/Division von Faktoren ein */
+	private double parseTerm() throws ParserException {
+		double ergebnis = parseFactor();
+		while ( this.index < this.listOfTokens.size() ) {
+			var token = this.listOfTokens.get(this.index++);
+			if ( token instanceof PeriodToken )
+				ergebnis *= parseFactor();
+			else if ( token instanceof DivisionToken )
+				ergebnis /= parseFactor();
+			else {
+				this.index--; // Zeiger in der Tokenliste zurücksetzen
+				return ergebnis;
+			}
+		}
+		return ergebnis;
+	}
+
+	/** Liest ein Terminal/Faktor des Ausdrucks (Zahl, Klammer) ein */
+	private double parseFactor() throws ParserException {
 		var token = this.listOfTokens.get(this.index++);
 		if ( token instanceof GanzzahlToken )
 			return (int) token.getValue().get();

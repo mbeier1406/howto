@@ -1,6 +1,6 @@
 package com.github.mbeier1406.howto.ausbildung.rechner.token;
 
-import static com.github.mbeier1406.howto.ausbildung.rechner.Lexer.STD_TOKEN_HASHCODES.PLUS_TOKEN_HASHCODE;
+import static com.github.mbeier1406.howto.ausbildung.rechner.Lexer.STD_TOKEN_HASHCODES.PERIOD_TOKEN_HASHCODE;
 import static java.util.Objects.requireNonNull;
 
 import java.util.Optional;
@@ -8,19 +8,20 @@ import java.util.Optional;
 import com.github.mbeier1406.howto.ausbildung.rechner.TokenInterface;
 
 /**
- * Das Token für die Addition.
+ * Das Token für die Multiplikation.
  */
 @Token
-public class PlusToken implements TokenInterface {
+public class PeriodToken implements TokenInterface {
 
-	private static final char[] SYMBOL_LIST = new char[] { '+' };
+	private static final char SYMBOL = '*';
+	private static final char[] SYMBOL_LIST = new char[] { SYMBOL };
 
 	/** {@inheritDoc} */
 	@Override
 	public Value read(String text) {
-		if ( requireNonNull(text, "text").length() < 1 || text.charAt(0) != '+' )
+		if ( requireNonNull(text, "text").length() < 1 || text.charAt(0) != SYMBOL )
 			throw new IllegalArgumentException("'+' erwartet: '"+text+"'");
-		return new Value(this, 1); // '+'-Token der Länge 1
+		return new Value(this, 1); // '*'-Token der Länge 1
 	}
 
 	/** {@inheritDoc} */
@@ -37,12 +38,12 @@ public class PlusToken implements TokenInterface {
 
 	@Override
 	public String toString() {
-		return "PlusToken '+'";
+		return "PeriodToken '"+SYMBOL+"'";
 	}
 
 	@Override
 	public int hashCode() {
-		return PLUS_TOKEN_HASHCODE.ordinal(); // gibt nur ein +
+		return PERIOD_TOKEN_HASHCODE.ordinal(); // gibt nur ein *
 	}
 
 	@Override
