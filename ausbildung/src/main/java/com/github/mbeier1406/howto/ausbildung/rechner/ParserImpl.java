@@ -28,7 +28,7 @@ public class ParserImpl implements Parser {
 		this.index = 0;
 		double result = parseExpression();
 		if ( this.index != listOfTokens.size() )
-			throw new ParserException();
+			throw new ParserException("Unerwartetes Token an Index "+this.index+": "+this.listOfTokens.get(this.index));
 		return result;
 	}
 
@@ -43,7 +43,7 @@ public class ParserImpl implements Parser {
 				ergebnis -= parseTerm();
 			else {
 				this.index--; // Zeiger in der Tokenliste zurücksetzen
-				return ergebnis;
+				break;
 			}
 		}
 		return ergebnis;
@@ -60,7 +60,7 @@ public class ParserImpl implements Parser {
 				ergebnis /= parseFactor();
 			else {
 				this.index--; // Zeiger in der Tokenliste zurücksetzen
-				return ergebnis;
+				break;
 			}
 		}
 		return ergebnis;

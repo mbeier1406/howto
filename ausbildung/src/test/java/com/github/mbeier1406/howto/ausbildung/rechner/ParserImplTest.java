@@ -1,7 +1,8 @@
 package com.github.mbeier1406.howto.ausbildung.rechner;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThrows;
 
 import java.util.ArrayList;
@@ -15,8 +16,10 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import com.github.mbeier1406.howto.ausbildung.rechner.Parser.ParserException;
+import com.github.mbeier1406.howto.ausbildung.rechner.token.DivisionToken;
 import com.github.mbeier1406.howto.ausbildung.rechner.token.GanzzahlToken;
 import com.github.mbeier1406.howto.ausbildung.rechner.token.MinusToken;
+import com.github.mbeier1406.howto.ausbildung.rechner.token.PeriodToken;
 import com.github.mbeier1406.howto.ausbildung.rechner.token.PlusToken;
 
 /**
@@ -28,8 +31,11 @@ public class ParserImplTest {
 
 	public static final TokenInterface PLUS = new PlusToken();
 	public static final TokenInterface MINUS = new MinusToken();
+	public static final TokenInterface PERIOD = new PeriodToken();
+	public static final TokenInterface DIVISION = new DivisionToken();
 	public static final TokenInterface  EINS = new GanzzahlToken(1);
 	public static final TokenInterface  DREI = new GanzzahlToken(3);
+	public static final TokenInterface  SECHS = new GanzzahlToken(6);
 	public static final TokenInterface  MINUS_ZWEI = new GanzzahlToken(-2);
 
 	/** Das zu testende Objekt */
@@ -54,6 +60,8 @@ public class ParserImplTest {
 	@SuppressWarnings("serial")
 	public static Stream<Arguments> getKorrekteTestdaten() {
 		return Stream.of(
+				Arguments.of(new ArrayList<TokenInterface>() {{ add(SECHS); add(DIVISION); add(DREI); }}, (double) 2),
+				Arguments.of(new ArrayList<TokenInterface>() {{ add(EINS); add(PLUS); add(EINS); add(PERIOD); add(MINUS_ZWEI); }}, (double) -1),
 				Arguments.of(new ArrayList<TokenInterface>() {{ add(EINS); add(PLUS); add(EINS); add(MINUS); add(MINUS_ZWEI); }}, (double) 4),
 				Arguments.of(new ArrayList<TokenInterface>() {{ add(EINS); add(PLUS); add(EINS); add(MINUS); add(DREI); }}, (double) -1),
 				Arguments.of(new ArrayList<TokenInterface>() {{ add(EINS); add(PLUS); add(MINUS_ZWEI); }}, (double) -1),
@@ -75,7 +83,7 @@ public class ParserImplTest {
 	@SuppressWarnings("serial")
 	public static Stream<Arguments> getFehlerhafteTestdaten() {
 		return Stream.of(
-			Arguments.of(new ArrayList<TokenInterface>() {{ add(EINS); add(MINUS_ZWEI); }}, new ParserException("'GanzzahlToken [value=-2]' an Index 2")),
+			Arguments.of(new ArrayList<TokenInterface>() {{ add(EINS); add(MINUS_ZWEI); }}, new ParserException("Unerwartetes Token an Index 1: GanzzahlToken [value=-2]")),
 			Arguments.of(new ArrayList<TokenInterface>() {{ add(EINS); add(PLUS); add(MINUS); }}, new ParserException("'MinusToken '-'' an Index 3")),
 			Arguments.of(new ArrayList<TokenInterface>() {{ add(PLUS); }}, new ParserException("'PlusToken '+'' an Index 1")));
 	}
