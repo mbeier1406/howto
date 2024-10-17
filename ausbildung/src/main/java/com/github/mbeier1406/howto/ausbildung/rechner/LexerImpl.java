@@ -10,6 +10,8 @@ import org.apache.logging.log4j.CloseableThreadContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.github.mbeier1406.howto.ausbildung.rechner.token.CommaToken;
+import com.github.mbeier1406.howto.ausbildung.rechner.token.DezimalToken;
 import com.github.mbeier1406.howto.ausbildung.rechner.token.GanzzahlToken;
 import com.github.mbeier1406.howto.ausbildung.rechner.token.MinusToken;
 import com.github.mbeier1406.howto.ausbildung.rechner.token.PlusToken;
@@ -38,6 +40,12 @@ public class LexerImpl implements Lexer {
 		 */
 		boolean leerZeichenGelesen = false;
 		boolean kannVorzeichenSein = false;
+		/*
+		 * Wenn ein Komma (",") gelesen wurde (und geprüft wurde, dass sich direkt davor eine Ganzzahl
+		 * befand, dann muss danach auch eine Ganzzahl (der Dezimalanteil) folgen. Die drei Token
+		 * werden dann durch ein DezimalToken ersetzt. Das wird sich hier gemerkt.
+		 */
+		boolean parseDezimalZahl = false;
 		try ( CloseableThreadContext.Instance ctx = CloseableThreadContext.put("text", text) ) {
 			for ( int i=0; i < requireNonNull(text, "text").length(); ) {
 				char ch = text.charAt(i);
@@ -54,7 +62,27 @@ public class LexerImpl implements Lexer {
 				LOGGER.trace("value={}", value);
 				i += value.length(); // Stelle nach dem Token, ab der weiter gelesen werden muss
 				var neuesToken = value.token(); // wir gehen davon aus, dass das gelesen Token nicht korrigiert werden muss
-				if ( value.token() instanceof GanzzahlToken && !leerZeichenGelesen && listOfTokens.size() > 0 && kannVorzeichenSein ) {
+				if ( parseDezimalZahl && !(value.token() instanceof GanzzahlToken) )
+					/* Wir haben zuvor ein Komma (',') gelesen, also wird jetzt der Dezimalanteil 0-9... erwartet */
+					throw new LexerException("Nach dem Komma wird der Dezimalanteil erwartet!");
+				else if ( parseDezimalZahl && value.token() instanceof GanzzahlToken ) {
+					/*
+					 * Die Dezimalzahl wurde an dieser Stelle erfolgreich eingelesen. Sie besteht hier jetzt aus
+					 * drei Token: Ganzzahl, Komma, Ganzzahl. Die beiden ersten wurden bereits eingelesen und
+					 * befinden sich daher schon in der Liste. Also:
+					 * 1. Markierung für das Einlesen einer Dezimalzahl löschen
+					 * 2. Die lezten beiden Token in der Liste (Ganzzahl und Komma) löschen
+					 * 3. Neues Dezimaltoken erzeugen und einfügen
+					 */
+					parseDezimalZahl = false;
+					double wert = Double.parseDouble(
+							String.valueOf(listOfTokens.get(listOfTokens.size()-2).getValue().get())+"."+
+							String.valueOf(value.token().getValue().get()));
+					listOfTokens.remove(listOfTokens.size()-1);
+					listOfTokens.remove(listOfTokens.size()-1);
+					neuesToken = new DezimalToken(wert);
+				}
+				else if ( value.token() instanceof GanzzahlToken && !leerZeichenGelesen && listOfTokens.size() > 0 && kannVorzeichenSein ) {
 					/*
 					 * Wir haben eine Zahl der keine Leerstelle aber mindestens ein Token (welches ein + oder - sein kann)
 					 * vorangestellt ist, und vor diesem Token befand sich mindestens eine Leerstelle.
@@ -97,6 +125,13 @@ public class LexerImpl implements Lexer {
 						 * einer Zahl handeln, das also merken falls gleich danach eine Zahl eingelesen wird
 						 */
 						kannVorzeichenSein = leerZeichenGelesen;
+				}
+				else if ( value.token() instanceof CommaToken ) {
+					if ( leerZeichenGelesen )
+						throw new LexerException("Leerstellen vor dem Komma nicht erlaubt!");
+					if ( !(listOfTokens.size() > 0 && listOfTokens.get(listOfTokens.size()-1) instanceof GanzzahlToken) )
+						throw new LexerException("Dem Komma muss eine Ganzzahl vorangehen!");
+					parseDezimalZahl = true;
 				}
 				listOfTokens.add(neuesToken);
 				leerZeichenGelesen = false; // da ein Token hinzugefügt wurde

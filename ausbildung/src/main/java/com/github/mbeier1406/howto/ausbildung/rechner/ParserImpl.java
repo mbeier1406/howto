@@ -2,6 +2,7 @@ package com.github.mbeier1406.howto.ausbildung.rechner;
 
 import java.util.List;
 
+import com.github.mbeier1406.howto.ausbildung.rechner.token.DezimalToken;
 import com.github.mbeier1406.howto.ausbildung.rechner.token.DivisionToken;
 import com.github.mbeier1406.howto.ausbildung.rechner.token.GanzzahlToken;
 import com.github.mbeier1406.howto.ausbildung.rechner.token.MinusToken;
@@ -69,8 +70,10 @@ public class ParserImpl implements Parser {
 	/** Liest ein Terminal/Faktor des Ausdrucks (Zahl, Klammer) ein */
 	private double parseFactor() throws ParserException {
 		var token = this.listOfTokens.get(this.index++);
-		if ( token instanceof GanzzahlToken )
+		if ( token instanceof GanzzahlToken  )
 			return (int) token.getValue().get();
+		else if ( token instanceof DezimalToken )
+			return (double) token.getValue().get();
 		else
 			throw new ParserException("Unerwartetes Token '"+token+"' an Index "+this.index+": Terminal (Ganzzahl) erwartet!");
 	}

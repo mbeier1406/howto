@@ -16,27 +16,14 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import com.github.mbeier1406.howto.ausbildung.rechner.Parser.ParserException;
-import com.github.mbeier1406.howto.ausbildung.rechner.token.DivisionToken;
 import com.github.mbeier1406.howto.ausbildung.rechner.token.GanzzahlToken;
-import com.github.mbeier1406.howto.ausbildung.rechner.token.MinusToken;
-import com.github.mbeier1406.howto.ausbildung.rechner.token.PeriodToken;
-import com.github.mbeier1406.howto.ausbildung.rechner.token.PlusToken;
 
 /**
  * Tests für die Klasse {@linkplain ParserImpl}.
  */
-public class ParserImplTest {
+public class ParserImplTest extends TestBasis {
 
 	public static final Logger LOGGER = LogManager.getLogger(ParserImplTest.class);
-
-	public static final TokenInterface PLUS = new PlusToken();
-	public static final TokenInterface MINUS = new MinusToken();
-	public static final TokenInterface PERIOD = new PeriodToken();
-	public static final TokenInterface DIVISION = new DivisionToken();
-	public static final TokenInterface  EINS = new GanzzahlToken(1);
-	public static final TokenInterface  DREI = new GanzzahlToken(3);
-	public static final TokenInterface  SECHS = new GanzzahlToken(6);
-	public static final TokenInterface  MINUS_ZWEI = new GanzzahlToken(-2);
 
 	/** Das zu testende Objekt */
 	public Parser parser = new ParserImpl();
@@ -60,6 +47,7 @@ public class ParserImplTest {
 	@SuppressWarnings("serial")
 	public static Stream<Arguments> getKorrekteTestdaten() {
 		return Stream.of(
+				Arguments.of(new ArrayList<TokenInterface>() {{ add(SECHS); add(PLUS); add(D0_123); }}, 6.123),
 				Arguments.of(new ArrayList<TokenInterface>() {{ add(SECHS); add(DIVISION); add(DREI); }}, (double) 2),
 				Arguments.of(new ArrayList<TokenInterface>() {{ add(EINS); add(PLUS); add(EINS); add(PERIOD); add(MINUS_ZWEI); }}, (double) -1),
 				Arguments.of(new ArrayList<TokenInterface>() {{ add(EINS); add(PLUS); add(EINS); add(MINUS); add(MINUS_ZWEI); }}, (double) 4),
