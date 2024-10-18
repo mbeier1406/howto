@@ -19,7 +19,8 @@ public interface Lexer {
 		DIVISION_TOKEN_HASHCODE,
 		COMMA_TOKEN_HASHCODE,
 		KLAMMERAUF_TOKEN_HASHCODE,
-		KLAMMERZU_TOKEN_HASHCODE
+		KLAMMERZU_TOKEN_HASHCODE,
+		SIN_TOKEN_HASHCODE
 	};
 
 	/** Eine solche Exception wird geworfen, wenn in der Eingabeformel ungültige Token verwendet werden */

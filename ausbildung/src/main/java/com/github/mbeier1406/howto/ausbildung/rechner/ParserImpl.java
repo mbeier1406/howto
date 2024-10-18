@@ -10,6 +10,7 @@ import com.github.mbeier1406.howto.ausbildung.rechner.token.KlammerzuToken;
 import com.github.mbeier1406.howto.ausbildung.rechner.token.MinusToken;
 import com.github.mbeier1406.howto.ausbildung.rechner.token.PeriodToken;
 import com.github.mbeier1406.howto.ausbildung.rechner.token.PlusToken;
+import com.github.mbeier1406.howto.ausbildung.rechner.token.SinusToken;
 
 /**
  * Standardimplementierung des Parsers mittels Einlesen von Terminals (z. B. Zahlen),
@@ -77,16 +78,32 @@ public class ParserImpl implements Parser {
 		else if ( token instanceof DezimalToken )
 			return (double) token.getValue().get();
 		else if ( token instanceof KlammeraufToken ) {
+			nextToken(false, "Ausdruck nach '(' erwartet");
 			double ergebnis = parseExpression();
-			if ( this.listOfTokens.size() <= this.index )
-				throw new ParserException("')' erwartet (Index "+(this.index+1)+")!");
-			token = this.listOfTokens.get(this.index++);
+			token = nextToken(true, "')' erwartet");
 			if ( !(token instanceof KlammerzuToken) )
 				throw new ParserException("')' erwartet (Index "+this.index+"), gefunden: '"+token+"'!");
 			return ergebnis;
 		}
+		else if ( token instanceof SinusToken ) {
+			token = nextToken(true, "'(' nach 'sin' erwartet");
+			if ( !(token instanceof KlammeraufToken) )
+				throw new ParserException("'(' nach 'sin' erwartet (Index "+this.index+"), gefunden: '"+token+"'!");
+			double ergebnis = parseExpression();
+			token = nextToken(true, "')' erwartet");
+			if ( !(token instanceof KlammerzuToken) )
+				throw new ParserException("')' erwartet nach 'sin' (Index "+this.index+"), gefunden: '"+token+"'!");
+			return Math.sin(Math.toRadians(ergebnis));
+		}
 		else
 			throw new ParserException("Unerwartetes Token '"+token+"' an Index "+this.index+": Terminal (Ganzzahl) erwartet!");
+	}
+
+	/** prüft, ob noch Token vorhanden sind und liefert ggf. den nächsten */
+	private TokenInterface nextToken(boolean einlesen, String fehlerText) throws ParserException {
+		if ( this.listOfTokens.size() <= this.index )
+			throw new ParserException(fehlerText+" (Index "+(this.index+1)+")!");
+		return einlesen ? this.listOfTokens.get(this.index++) : null;
 	}
 
 }

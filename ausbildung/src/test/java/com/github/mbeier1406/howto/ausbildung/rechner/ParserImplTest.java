@@ -47,6 +47,7 @@ public class ParserImplTest extends TestBasis {
 	@SuppressWarnings("serial")
 	public static Stream<Arguments> getKorrekteTestdaten() {
 		return Stream.of(
+				Arguments.of(new ArrayList<TokenInterface>() {{ add(SINUS); add(KLAMMERAUF); add(Z90); add(KLAMMERZU); add(PLUS); add(EINS); }}, 2),
 				Arguments.of(new ArrayList<TokenInterface>() {{ add(KLAMMERAUF); add(DREI); add(PLUS); add(EINS); add(KLAMMERZU); }}, 4),
 				Arguments.of(new ArrayList<TokenInterface>() {{ add(KLAMMERAUF); add(DREI); add(KLAMMERZU); }}, 3),
 				Arguments.of(new ArrayList<TokenInterface>() {{ add(SECHS); add(PLUS); add(D0_123); }}, 6.123),
@@ -73,6 +74,7 @@ public class ParserImplTest extends TestBasis {
 	@SuppressWarnings("serial")
 	public static Stream<Arguments> getFehlerhafteTestdaten() {
 		return Stream.of(
+			Arguments.of(new ArrayList<TokenInterface>() {{ add(KLAMMERAUF); }}, new ParserException("Ausdruck nach '(' erwartet (Index 2)")),
 			Arguments.of(new ArrayList<TokenInterface>() {{ add(KLAMMERAUF); add(DREI); add(DREI); }}, new ParserException("')' erwartet (Index 3)")),
 			Arguments.of(new ArrayList<TokenInterface>() {{ add(KLAMMERAUF); add(DREI); }}, new ParserException("')' erwartet (Index 3)")),
 			Arguments.of(new ArrayList<TokenInterface>() {{ add(EINS); add(MINUS_ZWEI); }}, new ParserException("Unerwartetes Token an Index 1: GanzzahlToken [value=-2]")),

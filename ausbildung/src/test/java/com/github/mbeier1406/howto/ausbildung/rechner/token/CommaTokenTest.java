@@ -67,13 +67,13 @@ public class CommaTokenTest {
 		assertThat(COMMA.getClass().getAnnotation(Token.class), notNullValue()); 
 	}
 
-	/** {@linkplain PlusToken#toString()} soll den Klassennamen enthalten */
+	/** {@linkplain CommaToken#toString()} soll den Klassennamen enthalten */
 	@Test
 	public void testeToString() {
 		assertThat(COMMA.toString(), containsString(COMMA.getClass().getSimpleName()));
 	}
 
-	/** {@linkplain PlusToken#getValue()} soll nichts liefern */
+	/** {@linkplain CommaToken#getValue()} soll nichts liefern */
 	@Test
 	public void testeGetValue() {
 		assertThat(COMMA.getValue(), equalTo(Optional.empty()));

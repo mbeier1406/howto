@@ -38,7 +38,7 @@ public class CommaToken implements TokenInterface {
 
 	@Override
 	public String toString() {
-		return "CommaToken '"+SYMBOL+"'";
+		return getClass().getSimpleName()+"'"+SYMBOL+"'";
 	}
 
 	@Override
