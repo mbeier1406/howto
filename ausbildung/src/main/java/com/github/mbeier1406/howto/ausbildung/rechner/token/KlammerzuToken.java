@@ -1,6 +1,6 @@
 package com.github.mbeier1406.howto.ausbildung.rechner.token;
 
-import static com.github.mbeier1406.howto.ausbildung.rechner.Lexer.STD_TOKEN_HASHCODES.COMMA_TOKEN_HASHCODE;
+import static com.github.mbeier1406.howto.ausbildung.rechner.Lexer.STD_TOKEN_HASHCODES.KLAMMERZU_TOKEN_HASHCODE;
 import static java.util.Objects.requireNonNull;
 
 import java.util.Optional;
@@ -8,12 +8,12 @@ import java.util.Optional;
 import com.github.mbeier1406.howto.ausbildung.rechner.TokenInterface;
 
 /**
- * Das Token für die Kommata.
+ * Das Token für die schließende Klammer.
  */
 @Token
-public class CommaToken implements TokenInterface {
+public class KlammerzuToken implements TokenInterface {
 
-	private static final char SYMBOL = ',';
+	private static final char SYMBOL = ')';
 	private static final char[] SYMBOL_LIST = new char[] { SYMBOL };
 
 	/** {@inheritDoc} */
@@ -21,7 +21,7 @@ public class CommaToken implements TokenInterface {
 	public Value read(String text) {
 		if ( requireNonNull(text, "text").length() < 1 || text.charAt(0) != SYMBOL )
 			throw new IllegalArgumentException("'"+SYMBOL+"' erwartet: '"+text+"'");
-		return new Value(this, 1); // ','-Token der Länge 1
+		return new Value(this, 1); // ')'-Token der Länge 1
 	}
 
 	/** {@inheritDoc} */
@@ -38,12 +38,12 @@ public class CommaToken implements TokenInterface {
 
 	@Override
 	public String toString() {
-		return "CommaToken '"+SYMBOL+"'";
+		return getClass().getSimpleName()+" '"+SYMBOL+"'";
 	}
 
 	@Override
 	public int hashCode() {
-		return COMMA_TOKEN_HASHCODE.ordinal(); // gibt nur ein ,
+		return KLAMMERZU_TOKEN_HASHCODE.ordinal(); // gibt nur ein (
 	}
 
 	@Override

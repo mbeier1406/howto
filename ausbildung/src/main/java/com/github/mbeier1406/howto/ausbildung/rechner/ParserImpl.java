@@ -5,6 +5,8 @@ import java.util.List;
 import com.github.mbeier1406.howto.ausbildung.rechner.token.DezimalToken;
 import com.github.mbeier1406.howto.ausbildung.rechner.token.DivisionToken;
 import com.github.mbeier1406.howto.ausbildung.rechner.token.GanzzahlToken;
+import com.github.mbeier1406.howto.ausbildung.rechner.token.KlammeraufToken;
+import com.github.mbeier1406.howto.ausbildung.rechner.token.KlammerzuToken;
 import com.github.mbeier1406.howto.ausbildung.rechner.token.MinusToken;
 import com.github.mbeier1406.howto.ausbildung.rechner.token.PeriodToken;
 import com.github.mbeier1406.howto.ausbildung.rechner.token.PlusToken;
@@ -74,6 +76,15 @@ public class ParserImpl implements Parser {
 			return (int) token.getValue().get();
 		else if ( token instanceof DezimalToken )
 			return (double) token.getValue().get();
+		else if ( token instanceof KlammeraufToken ) {
+			double ergebnis = parseExpression();
+			if ( this.listOfTokens.size() <= this.index )
+				throw new ParserException("')' erwartet (Index "+(this.index+1)+")!");
+			token = this.listOfTokens.get(this.index++);
+			if ( !(token instanceof KlammerzuToken) )
+				throw new ParserException("')' erwartet (Index "+this.index+"), gefunden: '"+token+"'!");
+			return ergebnis;
+		}
 		else
 			throw new ParserException("Unerwartetes Token '"+token+"' an Index "+this.index+": Terminal (Ganzzahl) erwartet!");
 	}

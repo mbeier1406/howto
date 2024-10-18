@@ -4,6 +4,8 @@ import com.github.mbeier1406.howto.ausbildung.rechner.token.CommaToken;
 import com.github.mbeier1406.howto.ausbildung.rechner.token.DezimalToken;
 import com.github.mbeier1406.howto.ausbildung.rechner.token.DivisionToken;
 import com.github.mbeier1406.howto.ausbildung.rechner.token.GanzzahlToken;
+import com.github.mbeier1406.howto.ausbildung.rechner.token.KlammeraufToken;
+import com.github.mbeier1406.howto.ausbildung.rechner.token.KlammerzuToken;
 import com.github.mbeier1406.howto.ausbildung.rechner.token.MinusToken;
 import com.github.mbeier1406.howto.ausbildung.rechner.token.PeriodToken;
 import com.github.mbeier1406.howto.ausbildung.rechner.token.PlusToken;
@@ -16,6 +18,8 @@ public abstract class TestBasis {
 	protected static final TokenInterface PERIOD = new PeriodToken();
 	protected static final TokenInterface DIVISION = new DivisionToken();
 	protected static final TokenInterface COMMA = new CommaToken();
+	protected static final TokenInterface KLAMMERAUF = new KlammeraufToken();
+	protected static final TokenInterface KLAMMERZU = new KlammerzuToken();
 	protected static final TokenInterface NULL = new GanzzahlToken(0);
 	protected static final TokenInterface EINS = new GanzzahlToken(1);
 	protected static final TokenInterface DREI = new GanzzahlToken(3);

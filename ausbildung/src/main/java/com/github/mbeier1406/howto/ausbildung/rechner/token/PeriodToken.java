@@ -38,7 +38,7 @@ public class PeriodToken implements TokenInterface {
 
 	@Override
 	public String toString() {
-		return "PeriodToken '"+SYMBOL+"'";
+		return getClass().getSimpleName()+" '"+SYMBOL+"'";
 	}
 
 	@Override

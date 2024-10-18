@@ -17,78 +17,80 @@ import com.github.mbeier1406.howto.ausbildung.rechner.TokenInterface;
 import com.github.mbeier1406.howto.ausbildung.rechner.TokenInterface.Value;
 
 /**
- * Test für die Klasse {@linkplain CommaToken}
+ * Test für die Klasse {@linkplain KlammerzuToken}
  */
-public class CommaTokenTest {
+public class KlammerzuTokenTest {
 
 	/** Das zu testende Objekt */
-	public static final TokenInterface COMMA = new CommaToken();
+	public static final TokenInterface KLAMMERZU = new KlammerzuToken();
 
 	/** Testet das ','-Symbol in einer Dezimalzahl */
 	@Test
 	public void testeEinlesen() {
-		Stream.of(",123", ", ", ",abc")
+		Stream.of(")123", ") ", ")abc")
 			.forEach(text -> {
-				Value value = COMMA.read(text);
-				assertThat(value.token().getClass(), equalTo(CommaToken.class));
+				Value value = KLAMMERZU.read(text);
+				assertThat(value.token().getClass(), equalTo(KlammerzuToken.class));
 				assertThat(value.length(), equalTo(1));
 			});
 	}
 
-	/** Text muss mit dem ','-Symbol beginnen */
+	/** Text muss mit dem ')'-Symbol beginnen */
 	@Test
 	public void testeFalschesSymbol() {
-		assertThrows(IllegalArgumentException.class, () -> COMMA.read("abc") );
+		assertThrows(IllegalArgumentException.class, () -> KLAMMERZU.read("abc") );
 	}
 
 	/** Text darf nicht leer sein */
 	@Test
 	public void testeLeererTextl() {
-		assertThrows(IllegalArgumentException.class, () -> COMMA.read("") );
+		assertThrows(IllegalArgumentException.class, () -> KLAMMERZU.read("") );
 	}
 
 	/** Text darf nicht <b>null</b> sein */
 	@Test
 	public void testeNullTextl() {
-		final NullPointerException ex = assertThrows(NullPointerException.class, () -> COMMA.read(null) );
+		final NullPointerException ex = assertThrows(NullPointerException.class, () -> KLAMMERZU.read(null) );
 		assertThat(ex.getMessage(), containsString("text"));
 	}
 
 	/** Da es sich um ein Einlesetoken handelt, müssen auch Erkennungssymbole definiert sein */
 	@Test
 	public void testeSymbolListe() {
-		assertThat(COMMA.getSymbols(), not(equalTo(null)));
-		assertThat(COMMA.getSymbols().length, greaterThan(0));
+		assertThat(KLAMMERZU.getSymbols(), not(equalTo(null)));
+		assertThat(KLAMMERZU.getSymbols().length, greaterThan(0));
 	}
 
 	/** Da es sich um ein Einlese-Token handelt, muss es entsprechend annotiert sein */
 	@Test
 	public void testeAnnotation() {
-		assertThat(COMMA.getClass().getAnnotation(Token.class), notNullValue()); 
+		assertThat(KLAMMERZU.getClass().getAnnotation(Token.class), notNullValue()); 
 	}
 
 	/** {@linkplain PlusToken#toString()} soll den Klassennamen enthalten */
 	@Test
 	public void testeToString() {
-		assertThat(COMMA.toString(), containsString(COMMA.getClass().getSimpleName()));
+		assertThat(KLAMMERZU.toString(), containsString(KLAMMERZU.getClass().getSimpleName()));
 	}
 
 	/** {@linkplain PlusToken#getValue()} soll nichts liefern */
 	@Test
 	public void testeGetValue() {
-		assertThat(COMMA.getValue(), equalTo(Optional.empty()));
+		assertThat(KLAMMERZU.getValue(), equalTo(Optional.empty()));
 	}
 
 	/** Stellt sicher, dass die Token für die Operanden auseinander gehalten werden können */
 	@Test
 	public void testeEquals() {
-		assertThat(COMMA, equalTo(new CommaToken()));
-		assertThat(COMMA, not(equalTo(new PlusToken())));
-		assertThat(COMMA, not(equalTo(new MinusToken())));
-		assertThat(COMMA, not(equalTo(new PeriodToken())));
-		assertThat(COMMA, not(equalTo(new DivisionToken())));
-		assertThat(COMMA, not(equalTo(new GanzzahlToken())));
-		assertThat(COMMA, not(equalTo(new DezimalToken(0))));
+		assertThat(KLAMMERZU, equalTo(new KlammerzuToken()));
+		assertThat(KLAMMERZU, not(equalTo(new PlusToken())));
+		assertThat(KLAMMERZU, not(equalTo(new MinusToken())));
+		assertThat(KLAMMERZU, not(equalTo(new PeriodToken())));
+		assertThat(KLAMMERZU, not(equalTo(new DivisionToken())));
+		assertThat(KLAMMERZU, not(equalTo(new GanzzahlToken())));
+		assertThat(KLAMMERZU, not(equalTo(new DezimalToken(0))));
+		assertThat(KLAMMERZU, not(equalTo(new CommaToken())));
+		assertThat(KLAMMERZU, not(equalTo(new KlammeraufToken())));
 	}
 
 }

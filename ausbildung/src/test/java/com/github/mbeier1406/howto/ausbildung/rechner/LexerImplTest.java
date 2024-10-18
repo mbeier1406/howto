@@ -71,6 +71,7 @@ public class LexerImplTest extends TestBasis {
 	@SuppressWarnings("serial")
 	public static Stream<Arguments> getKorrekteTestdaten() {
 		return Stream.of(
+				Arguments.of("(123)", new ArrayList<TokenInterface>() {{ add(KLAMMERAUF); add(Z123); add(KLAMMERZU); }}),
 				Arguments.of("123 + 0,123", new ArrayList<TokenInterface>() {{ add(Z123); add(PLUS); add(D0_123); }}),
 				Arguments.of("0,123", new ArrayList<TokenInterface>() {{ add(D0_123); }}),
 				Arguments.of("/", new ArrayList<TokenInterface>() {{ add(DIVISION); }}),

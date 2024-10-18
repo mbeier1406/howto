@@ -38,7 +38,7 @@ public class DivisionToken implements TokenInterface {
 
 	@Override
 	public String toString() {
-		return "DivisionToken '"+SYMBOL+"'";
+		return getClass().getSimpleName()+" '"+SYMBOL+"'";
 	}
 
 	@Override

@@ -38,7 +38,7 @@ public class PlusToken implements TokenInterface {
 
 	@Override
 	public String toString() {
-		return "PlusToken '"+SYMBOL+"'";
+		return getClass().getSimpleName()+" '"+SYMBOL+"'";
 	}
 
 	@Override

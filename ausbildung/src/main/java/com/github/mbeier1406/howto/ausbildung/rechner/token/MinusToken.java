@@ -38,7 +38,7 @@ public class MinusToken implements TokenInterface {
 
 	@Override
 	public String toString() {
-		return "MinusToken '"+SYMBOL+"'";
+		return getClass().getSimpleName()+" '"+SYMBOL+"'";
 	}
 
 	@Override

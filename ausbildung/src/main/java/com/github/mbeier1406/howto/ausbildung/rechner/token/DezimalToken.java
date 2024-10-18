@@ -44,7 +44,7 @@ public class DezimalToken implements TokenInterface {
 
 	@Override
 	public String toString() {
-		return "DezimalToken [value=" + value + "]";
+		return getClass().getSimpleName()+" [value=" + value + "]";
 	}
 
 	@Override

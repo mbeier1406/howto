@@ -60,7 +60,7 @@ public class GanzzahlToken implements TokenInterface {
 
 	@Override
 	public String toString() {
-		return "GanzzahlToken [value=" + value + "]";
+		return getClass().getSimpleName()+" [value=" + value + "]";
 	}
 
 	@Override
