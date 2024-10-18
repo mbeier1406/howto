@@ -22,13 +22,13 @@ public class DezimalToken implements TokenInterface {
 	/** {@inheritDoc} */
 	@Override
 	public Value read(String text) {
-		throw new IllegalAccessError("Dezimaltoken werdne über den Konstruktor erzeugt.");
+		throw new IllegalAccessError("Dezimaltoken werden über den Konstruktor erzeugt.");
 	}
 
 	/** {@inheritDoc} */
 	@Override
 	public char[] getSymbols() {
-		throw new IllegalAccessError("Dezimaltoken werdne über den Konstruktor erzeugt.");
+		throw new IllegalAccessError("Dezimaltoken werden über den Konstruktor erzeugt.");
 	}
 
 	/** {@inheritDoc} */

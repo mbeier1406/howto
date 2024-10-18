@@ -13,13 +13,14 @@ import com.github.mbeier1406.howto.ausbildung.rechner.TokenInterface;
 @Token
 public class PlusToken implements TokenInterface {
 
-	private static final char[] SYMBOL_LIST = new char[] { '+' };
+	private static final char SYMBOL = '+';
+	private static final char[] SYMBOL_LIST = new char[] { SYMBOL };
 
 	/** {@inheritDoc} */
 	@Override
 	public Value read(String text) {
-		if ( requireNonNull(text, "text").length() < 1 || text.charAt(0) != '+' )
-			throw new IllegalArgumentException("'+' erwartet: '"+text+"'");
+		if ( requireNonNull(text, "text").length() < 1 || text.charAt(0) != SYMBOL )
+			throw new IllegalArgumentException("'"+SYMBOL+"' erwartet: '"+text+"'");
 		return new Value(this, 1); // '+'-Token der Länge 1
 	}
 
@@ -37,7 +38,7 @@ public class PlusToken implements TokenInterface {
 
 	@Override
 	public String toString() {
-		return "PlusToken '+'";
+		return "PlusToken '"+SYMBOL+"'";
 	}
 
 	@Override

@@ -17,20 +17,20 @@ import com.github.mbeier1406.howto.ausbildung.rechner.TokenInterface;
 import com.github.mbeier1406.howto.ausbildung.rechner.TokenInterface.Value;
 
 /**
- * Test für die Klasse {@linkplain PlusToken}
+ * Test für die Klasse {@linkplain DivisionToken}
  */
-public class PlusTokenTest {
+public class DivisionTokenTest {
 
 	/** Das zu testende Objekt */
-	public static final TokenInterface PLUS = new PlusToken();
+	public static final TokenInterface DIVISION = new DivisionToken();
 
 	/** Testet das '+'-Symbol alleine und mit folgenden Zeichen, muss immer das korrekte Token mit Länge 1 ergeben */
 	@Test
 	public void testeEinlesen() {
-		Stream.of("+", "++", "+abc", "+ abc", "+123")
+		Stream.of("/", "//", "/abc", "/ abc", "/123")
 			.forEach(text -> {
-				Value value = PLUS.read(text);
-				assertThat(value.token().getClass(), equalTo(PlusToken.class));
+				Value value = DIVISION.read(text);
+				assertThat(value.token().getClass(), equalTo(DivisionToken.class));
 				assertThat(value.length(), equalTo(1));
 			});
 	}
@@ -38,57 +38,57 @@ public class PlusTokenTest {
 	/** Text muss mit dem '+'-Symbol beginnen */
 	@Test
 	public void testeFalschesSymbol() {
-		assertThrows(IllegalArgumentException.class, () -> PLUS.read("abc") );
+		assertThrows(IllegalArgumentException.class, () -> DIVISION.read("abc") );
 	}
 
 	/** Text darf nicht leer sein */
 	@Test
 	public void testeLeererTextl() {
-		assertThrows(IllegalArgumentException.class, () -> PLUS.read("") );
+		assertThrows(IllegalArgumentException.class, () -> DIVISION.read("") );
 	}
 
 	/** Text darf nicht <b>null</b> sein */
 	@Test
 	public void testeNullTextl() {
-		final NullPointerException ex = assertThrows(NullPointerException.class, () -> PLUS.read(null) );
+		final NullPointerException ex = assertThrows(NullPointerException.class, () -> DIVISION.read(null) );
 		assertThat(ex.getMessage(), containsString("text"));
 	}
 
 	/** Da es sich um ein Einlesetoken handelt, müssen auch Erkennungssymbole definiert sein */
 	@Test
 	public void testeSymbolListe() {
-		assertThat(PLUS.getSymbols(), not(equalTo(null)));
-		assertThat(PLUS.getSymbols().length, greaterThan(0));
+		assertThat(DIVISION.getSymbols(), not(equalTo(null)));
+		assertThat(DIVISION.getSymbols().length, greaterThan(0));
 	}
 
 	/** Da es sich um ein Einlese-Token handelt, muss es entsprechend annotiert sein */
 	@Test
 	public void testeAnnotation() {
-		assertThat(PLUS.getClass().getAnnotation(Token.class), notNullValue()); 
+		assertThat(DIVISION.getClass().getAnnotation(Token.class), notNullValue()); 
 	}
 
 	/** {@linkplain PlusToken#toString()} soll den Klassennamen enthalten */
 	@Test
 	public void testeToString() {
-		assertThat(PLUS.toString(), containsString(PLUS.getClass().getSimpleName()));
+		assertThat(DIVISION.toString(), containsString(DIVISION.getClass().getSimpleName()));
 	}
 
 	/** {@linkplain PlusToken#getValue()} soll nichts liefern */
 	@Test
 	public void testeGetValue() {
-		assertThat(PLUS.getValue(), equalTo(Optional.empty()));
+		assertThat(DIVISION.getValue(), equalTo(Optional.empty()));
 	}
 
 	/** Stellt sicher, dass die Token für die Operanden auseinander gehalten werden können */
 	@Test
 	public void testeEquals() {
-		assertThat(PLUS, equalTo(new PlusToken()));
-		assertThat(PLUS, not(equalTo(new MinusToken())));
-		assertThat(PLUS, not(equalTo(new PeriodToken())));
-		assertThat(PLUS, not(equalTo(new DivisionToken())));
-		assertThat(PLUS, not(equalTo(new GanzzahlToken())));
-		assertThat(PLUS, not(equalTo(new DezimalToken(0))));
-		assertThat(PLUS, not(equalTo(new CommaToken())));
+		assertThat(DIVISION, equalTo(new DivisionToken()));
+		assertThat(DIVISION, not(equalTo(new PlusToken())));
+		assertThat(DIVISION, not(equalTo(new MinusToken())));
+		assertThat(DIVISION, not(equalTo(new PeriodToken())));
+		assertThat(DIVISION, not(equalTo(new GanzzahlToken())));
+		assertThat(DIVISION, not(equalTo(new DezimalToken(0))));
+		assertThat(DIVISION, not(equalTo(new CommaToken())));
 	}
 
 }

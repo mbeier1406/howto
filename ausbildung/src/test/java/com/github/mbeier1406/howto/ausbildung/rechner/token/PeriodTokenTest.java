@@ -17,78 +17,78 @@ import com.github.mbeier1406.howto.ausbildung.rechner.TokenInterface;
 import com.github.mbeier1406.howto.ausbildung.rechner.TokenInterface.Value;
 
 /**
- * Test für die Klasse {@linkplain PlusToken}
+ * Test für die Klasse {@linkplain PeriodToken}
  */
-public class PlusTokenTest {
+public class PeriodTokenTest {
 
 	/** Das zu testende Objekt */
-	public static final TokenInterface PLUS = new PlusToken();
+	public static final TokenInterface PERIOD = new PeriodToken();
 
-	/** Testet das '+'-Symbol alleine und mit folgenden Zeichen, muss immer das korrekte Token mit Länge 1 ergeben */
+	/** Testet das '*'-Symbol alleine und mit folgenden Zeichen, muss immer das korrekte Token mit Länge 1 ergeben */
 	@Test
 	public void testeEinlesen() {
-		Stream.of("+", "++", "+abc", "+ abc", "+123")
+		Stream.of("*", "**", "*abc", "* abc", "*123")
 			.forEach(text -> {
-				Value value = PLUS.read(text);
-				assertThat(value.token().getClass(), equalTo(PlusToken.class));
+				Value value = PERIOD.read(text);
+				assertThat(value.token().getClass(), equalTo(PeriodToken.class));
 				assertThat(value.length(), equalTo(1));
 			});
 	}
 
-	/** Text muss mit dem '+'-Symbol beginnen */
+	/** Text muss mit dem '-'-Symbol beginnen */
 	@Test
 	public void testeFalschesSymbol() {
-		assertThrows(IllegalArgumentException.class, () -> PLUS.read("abc") );
+		assertThrows(IllegalArgumentException.class, () -> PERIOD.read("abc") );
 	}
 
 	/** Text darf nicht leer sein */
 	@Test
 	public void testeLeererTextl() {
-		assertThrows(IllegalArgumentException.class, () -> PLUS.read("") );
+		assertThrows(IllegalArgumentException.class, () -> PERIOD.read("") );
 	}
 
 	/** Text darf nicht <b>null</b> sein */
 	@Test
 	public void testeNullTextl() {
-		final NullPointerException ex = assertThrows(NullPointerException.class, () -> PLUS.read(null) );
+		final NullPointerException ex = assertThrows(NullPointerException.class, () -> PERIOD.read(null) );
 		assertThat(ex.getMessage(), containsString("text"));
 	}
 
 	/** Da es sich um ein Einlesetoken handelt, müssen auch Erkennungssymbole definiert sein */
 	@Test
 	public void testeSymbolListe() {
-		assertThat(PLUS.getSymbols(), not(equalTo(null)));
-		assertThat(PLUS.getSymbols().length, greaterThan(0));
+		assertThat(PERIOD.getSymbols(), not(equalTo(null)));
+		assertThat(PERIOD.getSymbols().length, greaterThan(0));
 	}
 
 	/** Da es sich um ein Einlese-Token handelt, muss es entsprechend annotiert sein */
 	@Test
 	public void testeAnnotation() {
-		assertThat(PLUS.getClass().getAnnotation(Token.class), notNullValue()); 
+		assertThat(PERIOD.getClass().getAnnotation(Token.class), notNullValue()); 
 	}
 
-	/** {@linkplain PlusToken#toString()} soll den Klassennamen enthalten */
+	/** {@linkplain MinusToken#toString()} soll den Klassennamen enthalten */
 	@Test
 	public void testeToString() {
-		assertThat(PLUS.toString(), containsString(PLUS.getClass().getSimpleName()));
+		assertThat(PERIOD.toString(), containsString(PERIOD.getClass().getSimpleName()));
 	}
 
-	/** {@linkplain PlusToken#getValue()} soll nichts liefern */
+	/** {@linkplain MinusToken#getValue()} soll nichts liefern */
 	@Test
 	public void testeGetValue() {
-		assertThat(PLUS.getValue(), equalTo(Optional.empty()));
+		assertThat(PERIOD.getValue(), equalTo(Optional.empty()));
 	}
 
 	/** Stellt sicher, dass die Token für die Operanden auseinander gehalten werden können */
 	@Test
 	public void testeEquals() {
-		assertThat(PLUS, equalTo(new PlusToken()));
-		assertThat(PLUS, not(equalTo(new MinusToken())));
-		assertThat(PLUS, not(equalTo(new PeriodToken())));
-		assertThat(PLUS, not(equalTo(new DivisionToken())));
-		assertThat(PLUS, not(equalTo(new GanzzahlToken())));
-		assertThat(PLUS, not(equalTo(new DezimalToken(0))));
-		assertThat(PLUS, not(equalTo(new CommaToken())));
+		assertThat(PERIOD, equalTo(new PeriodToken()));
+		assertThat(PERIOD, not(equalTo(new PlusToken())));
+		assertThat(PERIOD, not(equalTo(new MinusToken())));
+		assertThat(PERIOD, not(equalTo(new DivisionToken())));
+		assertThat(PERIOD, not(equalTo(new GanzzahlToken())));
+		assertThat(PERIOD, not(equalTo(new DezimalToken(0))));
+		assertThat(PERIOD, not(equalTo(new CommaToken())));
 	}
 
 }

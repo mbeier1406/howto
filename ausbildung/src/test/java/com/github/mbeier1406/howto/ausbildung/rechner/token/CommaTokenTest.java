@@ -17,20 +17,20 @@ import com.github.mbeier1406.howto.ausbildung.rechner.TokenInterface;
 import com.github.mbeier1406.howto.ausbildung.rechner.TokenInterface.Value;
 
 /**
- * Test für die Klasse {@linkplain PlusToken}
+ * Test für die Klasse {@linkplain CommaToken}
  */
-public class PlusTokenTest {
+public class CommaTokenTest {
 
 	/** Das zu testende Objekt */
-	public static final TokenInterface PLUS = new PlusToken();
+	public static final TokenInterface COMMA = new CommaToken();
 
-	/** Testet das '+'-Symbol alleine und mit folgenden Zeichen, muss immer das korrekte Token mit Länge 1 ergeben */
+	/** Testet das ','-Symbol in einer Dezimalzahl */
 	@Test
 	public void testeEinlesen() {
-		Stream.of("+", "++", "+abc", "+ abc", "+123")
+		Stream.of(",123", ", ", ",abc")
 			.forEach(text -> {
-				Value value = PLUS.read(text);
-				assertThat(value.token().getClass(), equalTo(PlusToken.class));
+				Value value = COMMA.read(text);
+				assertThat(value.token().getClass(), equalTo(CommaToken.class));
 				assertThat(value.length(), equalTo(1));
 			});
 	}
@@ -38,57 +38,57 @@ public class PlusTokenTest {
 	/** Text muss mit dem '+'-Symbol beginnen */
 	@Test
 	public void testeFalschesSymbol() {
-		assertThrows(IllegalArgumentException.class, () -> PLUS.read("abc") );
+		assertThrows(IllegalArgumentException.class, () -> COMMA.read("abc") );
 	}
 
 	/** Text darf nicht leer sein */
 	@Test
 	public void testeLeererTextl() {
-		assertThrows(IllegalArgumentException.class, () -> PLUS.read("") );
+		assertThrows(IllegalArgumentException.class, () -> COMMA.read("") );
 	}
 
 	/** Text darf nicht <b>null</b> sein */
 	@Test
 	public void testeNullTextl() {
-		final NullPointerException ex = assertThrows(NullPointerException.class, () -> PLUS.read(null) );
+		final NullPointerException ex = assertThrows(NullPointerException.class, () -> COMMA.read(null) );
 		assertThat(ex.getMessage(), containsString("text"));
 	}
 
 	/** Da es sich um ein Einlesetoken handelt, müssen auch Erkennungssymbole definiert sein */
 	@Test
 	public void testeSymbolListe() {
-		assertThat(PLUS.getSymbols(), not(equalTo(null)));
-		assertThat(PLUS.getSymbols().length, greaterThan(0));
+		assertThat(COMMA.getSymbols(), not(equalTo(null)));
+		assertThat(COMMA.getSymbols().length, greaterThan(0));
 	}
 
 	/** Da es sich um ein Einlese-Token handelt, muss es entsprechend annotiert sein */
 	@Test
 	public void testeAnnotation() {
-		assertThat(PLUS.getClass().getAnnotation(Token.class), notNullValue()); 
+		assertThat(COMMA.getClass().getAnnotation(Token.class), notNullValue()); 
 	}
 
 	/** {@linkplain PlusToken#toString()} soll den Klassennamen enthalten */
 	@Test
 	public void testeToString() {
-		assertThat(PLUS.toString(), containsString(PLUS.getClass().getSimpleName()));
+		assertThat(COMMA.toString(), containsString(COMMA.getClass().getSimpleName()));
 	}
 
 	/** {@linkplain PlusToken#getValue()} soll nichts liefern */
 	@Test
 	public void testeGetValue() {
-		assertThat(PLUS.getValue(), equalTo(Optional.empty()));
+		assertThat(COMMA.getValue(), equalTo(Optional.empty()));
 	}
 
 	/** Stellt sicher, dass die Token für die Operanden auseinander gehalten werden können */
 	@Test
 	public void testeEquals() {
-		assertThat(PLUS, equalTo(new PlusToken()));
-		assertThat(PLUS, not(equalTo(new MinusToken())));
-		assertThat(PLUS, not(equalTo(new PeriodToken())));
-		assertThat(PLUS, not(equalTo(new DivisionToken())));
-		assertThat(PLUS, not(equalTo(new GanzzahlToken())));
-		assertThat(PLUS, not(equalTo(new DezimalToken(0))));
-		assertThat(PLUS, not(equalTo(new CommaToken())));
+		assertThat(COMMA, equalTo(new CommaToken()));
+		assertThat(COMMA, not(equalTo(new PlusToken())));
+		assertThat(COMMA, not(equalTo(new MinusToken())));
+		assertThat(COMMA, not(equalTo(new PeriodToken())));
+		assertThat(COMMA, not(equalTo(new DivisionToken())));
+		assertThat(COMMA, not(equalTo(new GanzzahlToken())));
+		assertThat(COMMA, not(equalTo(new DezimalToken(0))));
 	}
 
 }

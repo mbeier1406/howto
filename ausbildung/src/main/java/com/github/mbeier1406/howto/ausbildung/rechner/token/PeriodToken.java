@@ -20,7 +20,7 @@ public class PeriodToken implements TokenInterface {
 	@Override
 	public Value read(String text) {
 		if ( requireNonNull(text, "text").length() < 1 || text.charAt(0) != SYMBOL )
-			throw new IllegalArgumentException("'+' erwartet: '"+text+"'");
+			throw new IllegalArgumentException("'"+SYMBOL+"' erwartet: '"+text+"'");
 		return new Value(this, 1); // '*'-Token der Länge 1
 	}
 
