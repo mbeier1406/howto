@@ -1,0 +1,34 @@
+
+lvmdiskscan | fdisk -l
+lsblk -p | df -h
+
+pvcreate <Device> | pvs
+
+vgcreate vg_data <Device> | vgs | pvs
+
+lvcreate -L xG|M -n lv_data vg_app | lvs | lvdisplay
+
+mkfs -t ext4 /dev/vg_data/lv_data
+mkdir /...
+mount /... | /etc/fstab
+
+
+###
+
+sudo apt install cryptsetup-bin
+cryptsetup
+
+sudo shred -v -n 1 /dev/sdb
+sudo cryptsetup luksFormat /dev/sdb
+sudo cryptsetup luksOpen /dev/sdb data
+ls -arlt /dev/mapper/data 
+sudo mkfs -t ext4 /dev/mapper/data
+sudo mkdir /opt/data
+sudo vi /etc/fstab
+/dev/mapper/data /opt/data ext4 defaults 0 0
+sudo mount /opt/data
+df -h
+sudo vi /etc/crypttab
+data /dev/sdb none luks
+sudo blkid | fgrep -i luks
+
