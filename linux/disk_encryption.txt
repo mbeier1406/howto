@@ -32,3 +32,10 @@ sudo vi /etc/crypttab
 data /dev/sdb none luks
 sudo blkid | fgrep -i luks
 
+# alternativ als Datei statt als block device
+sudo mkdir /.../data
+sudo fallocate -l 100M /.../data
+sudo dd if=/dev/urandom of=/.../data bs=1M count=100 # = 100M
+sudo cryptsetup luksFormat /.../data
+# ... s.o.
+
