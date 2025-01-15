@@ -48,6 +48,9 @@ public class SingeltonTest {
 				throw new RuntimeException();
 			}
 		});
+		Singelton s = this.singeltonList[0];
+		for ( int i=1; i < this.singeltonList.length; i++ )
+			assertThat(s == this.singeltonList[i], equalTo(true)); // alle initialisierten Singeltons haben die gleiche Referenz
 		assertThat(Arrays.stream(singeltonList).peek(System.out::println).distinct().count(), equalTo(1L)); // Es gibt nur eine Instanz
 		assertThat(singeltonList[0], not(equalTo(null))); // Referenzen sind auch gültig
 	}
