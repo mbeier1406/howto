@@ -9,26 +9,29 @@ import org.junit.jupiter.api.Test;
 
 /**
  * Tests für die Implementierungen des {@linkplain Prototype}-Interfaces
- * und der Factory {@linkplain PrototypeRegistry}.
+ * und der Registry {@linkplain PrototypeRegistry}.
  */
 public class PrototypeTest {
+
+	/** Der Service, mit dem getestet wird */
+	private static final String IMPL1 = "impl1";
 
 	/** Stellt sicher, dass bei einem gültigen Keyword ein Objekt erzeugt wird */
 	@Test
 	public void testePrototypenNichtNull() {
-		assertThat(PrototypeRegistry.getPrototype("impl1"), not(equalTo(null)));
+		assertThat(PrototypeRegistry.getPrototype(IMPL1), not(equalTo(null)));
 	}
 
 	/** Stellt sicher, dass es sich bei einer neuen Kopie um neues Objekt handelt */
 	@Test
 	public void testePrototypenUngleich() {
 		// Testet nicht das deep cloning!
-		var p1 = PrototypeRegistry.getPrototype("impl1");
-		var p2 = PrototypeRegistry.getPrototype("impl1");
+		var p1 = PrototypeRegistry.getPrototype(IMPL1);
+		var p2 = PrototypeRegistry.getPrototype(IMPL1);
 		assertThat(p1 == p2, not(equalTo(true)));
 	}
 
-	/** Beim Versuch, einen ungültigen  */
+	/** Eine ungültige Kennung erzeugt eine Exception */
 	@Test
 	public void testeUngueltigenPrototypen() {
 		assertThrows(IllegalArgumentException.class, () -> PrototypeRegistry.getPrototype("XYZ"));
