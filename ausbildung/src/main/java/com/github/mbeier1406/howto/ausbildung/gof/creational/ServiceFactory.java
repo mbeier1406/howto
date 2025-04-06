@@ -7,6 +7,7 @@ import java.util.function.Supplier;
 
 /**
  * Liefert eine neue Instanz einer spezifische Implementierung des {@linkplain Service}.
+ * Abstrahiert von der Objekterzeugung.
  * @see ServiceImpl1
  * @see ServiceImpl2
  */
