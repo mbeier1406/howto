@@ -9,6 +9,7 @@ package com.github.mbeier1406.howto.ausbildung.gof.creational;
  * <pre><code>
  * Singelton singelton = Singelton.getInstance();
  * </code></pre>
+ * @see /howto-ausbildung/src/main/resources/com/github/mbeier1406/howto/ausbildung/gof/creational/Singelton.png
  */
 public class Singelton {
 
