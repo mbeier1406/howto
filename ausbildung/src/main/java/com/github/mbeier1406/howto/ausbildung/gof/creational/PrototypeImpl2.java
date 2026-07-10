@@ -2,7 +2,7 @@
 
 import java.io.Serializable;
 
-import org.apache.commons.lang.SerializationUtils;
+import org.apache.commons.lang3.SerializationUtils;
 
 /**
  * Zweite Implementierung für das Interface {@linkplain Prototype}.
